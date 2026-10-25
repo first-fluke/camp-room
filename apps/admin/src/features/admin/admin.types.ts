@@ -1,0 +1,4 @@
+export interface AdminProvider {name:string;configured:boolean;status:string;mode:string;message:string;}
+export interface AdminCampsite {id:string;name:string;region:string;address:string;source:{name:string;mode:string};delivery:{acceptsParcels:boolean;location:string;instructions:string|string[];updatedAt?:string;source?:string};}
+export interface AdminOrder {id:string;status:string;mode:string;createdAt:string;recipientName?:string;address?:string;siteReference?:string;destination:string;eta:string;total:number;items:{name:string;quantity:number;lineTotal:number}[];fulfillment?:{status:string;adminNote:string;updatedAt:string;mode:string};}
+export interface AdminOverview {database:{backend:string;namespace:string};providers:AdminProvider[];campsites:AdminCampsite[];orders:AdminOrder[];counts:{campsites:number;orders:number;openOrders:number};}

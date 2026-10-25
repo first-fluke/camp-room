@@ -134,3 +134,5 @@ apps/pleos/app/libs/*.aar
 apps/pleos/app/libs/*.jar
 
 !docs/plans/work/002-native-kotlin-correction.md
+
+!docs/plans/contracts/admin-api.md

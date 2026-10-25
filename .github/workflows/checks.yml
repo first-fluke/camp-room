@@ -29,3 +29,14 @@ jobs:
       - uses: android-actions/setup-android@v3
       - run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - run: bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug :app:assemblePleosDebug
+  admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm --workspace admin run typecheck
+      - run: npm --workspace admin test
