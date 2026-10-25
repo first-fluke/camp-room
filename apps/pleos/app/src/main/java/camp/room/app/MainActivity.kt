@@ -293,7 +293,7 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
                                     tint = CampPalette.Muted,
                                 )
                                 Text(
-                                    "  camp room",
+                                    tr(R.string.camp_brand_name),
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 22.sp,
                                     color = CampPalette.Muted,

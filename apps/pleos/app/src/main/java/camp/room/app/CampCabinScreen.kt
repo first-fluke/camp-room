@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -696,7 +697,7 @@ fun controlLabel(value: String): String {
 
 @Composable
 fun CampLandscape(id: String, modifier: Modifier = Modifier) {
-    Canvas(modifier) {
+    Canvas(modifier.clipToBounds()) {
         val shore = id == "solbaram" || id == "island"
         val sky = if (shore) Color(0xFFD7E6DF) else Color(0xFFDDE2CF)
         val mountain = if (shore) Color(0xFF87AAA0) else Color(0xFF93A68C)
