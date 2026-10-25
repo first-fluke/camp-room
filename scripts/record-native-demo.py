@@ -347,7 +347,11 @@ def run():
         check("Native navigation action reaches backend demo intent", api("/trip")["navigationStarted"])
         caption("날씨와 차량 상태를 함께", "예보와 실내 온도를 구분하고, 배터리와 예상 이동 정보를 살펴봅니다.", 3)
         tap(tag="nav-cabin")
+        # Main tabs retain the content scroll offset; begin this scene at its actual heading.
+        for _ in range(5):
+            swipe(up=False)
         caption("03  차박 공간 설정", "앞쪽은 독서, 뒤쪽은 휴식. 구역마다 다른 환경을 만듭니다.", 4)
+        reveal("scene-split", attempts=8)
         tap(tag="scene-split")
         reveal("apply-scene")
         tap(tag="apply-scene")
