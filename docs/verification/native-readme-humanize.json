@@ -1,0 +1,117 @@
+{
+  "status": "passed",
+  "target": "apps/pleos/README.md",
+  "skill": "humanize-korean v2.3-codex",
+  "skillSource": "https://github.com/epoko77-ai/im-not-ai",
+  "runId": "2026-10-25-015-ddd5",
+  "genre": "report",
+  "route": "light",
+  "independentRole": "monolith",
+  "gateExit": 0,
+  "gate": {
+    "genre": "report",
+    "change_rate": {
+      "rate": 0.0005,
+      "scope": "전문",
+      "verdict": "OK"
+    },
+    "s1_targets": [],
+    "antithesis": {
+      "before": 0,
+      "after": 0,
+      "verdict": "스킵 (원문 대구 < 5)"
+    },
+    "golden": [],
+    "sentence_touch": {
+      "rate": 0.0541,
+      "touched": 4,
+      "total": 74
+    },
+    "numbers_dropped": [],
+    "modality": {
+      "lost_pairs": [],
+      "uncertain_pairs": [],
+      "counts": {
+        "deontic": {
+          "before": 2,
+          "after": 2
+        },
+        "hedge": {
+          "before": 1,
+          "after": 1
+        }
+      },
+      "verdict": "OK"
+    },
+    "gate": {
+      "verdict": "OK — 수렴",
+      "exit_code": 0
+    }
+  },
+  "checks": {
+    "gateExitZero": true,
+    "summaryExactlyOne": true,
+    "codeFencesUnchanged": true,
+    "inlineCodeUnchanged": true,
+    "linkTargetsUnchanged": true,
+    "numberTokensUnchanged": true,
+    "technicalTokensUnchanged": true,
+    "sourceStillMatchesReviewInput": true,
+    "localLinksResolve": true
+  },
+  "localLinkCount": 1,
+  "beforeSha256": "a4e67a0803f0339962b9a53742b001fb4dd6b2b16d49355c238c1c0764ce6534",
+  "reviewedBodySha256": "7d00463bd8174d06bef52324b92546536536cd3884d6d3c4886a676e86377076",
+  "changeRatePercent": 0.05,
+  "scope": "Supplemental native README only; existing review reports and OMA receipts are preserved.",
+  "reviewedAt": "2026-10-25T06:44:21.829613+00:00",
+  "reviewHead": "25b3ad4c09b63014b5d25c70ce84ff9f6585b09e",
+  "reviewerAgent": "/root/camp_docs/native_readme_monolith",
+  "reviewerSelfAssessment": {
+    "grade": "B",
+    "selfValidationPassed": 6,
+    "selfValidationTotal": 6,
+    "source": "Independent role assessment, not gate output"
+  },
+  "edits": [
+    {
+      "rule": "C-11",
+      "before": "관리하며,",
+      "after": "관리하며"
+    },
+    {
+      "rule": "C-11",
+      "before": "제공하고,",
+      "after": "제공하고"
+    },
+    {
+      "rule": "C-11",
+      "before": "구분하며,",
+      "after": "구분하며"
+    },
+    {
+      "rule": "C-11",
+      "before": "확인하며,",
+      "after": "확인하며"
+    }
+  ],
+  "manualReview": {
+    "passed": true,
+    "conclusion": "Exactly four connective-ending commas removed; all other body bytes and facts preserved."
+  },
+  "gitDiffCheck": {
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "apps/pleos/README.md"
+    ],
+    "exitCode": 0
+  },
+  "adoptedBodySha256": "7d00463bd8174d06bef52324b92546536536cd3884d6d3c4886a676e86377076",
+  "finalWithSummarySha256": "e4a58196d756a16f81abba7c1b05289a5e9e03e00d7cf5fc31b65562722aae1c",
+  "finalizer": "not required: gate exit 0",
+  "remainingWarnings": [],
+  "oma": "Supplemental review only; no new run and no existing receipt, claim or bound report modified."
+}

@@ -1,6 +1,7 @@
 package camp.room.app.di
 
 import camp.room.app.BuildConfig
+import camp.room.client.KtorApiJson
 import camp.room.generated.api.DefaultApi
 import dagger.Module
 import dagger.Provides
@@ -19,7 +20,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
-    @Provides @Singleton fun provideJson():Json=Json { ignoreUnknownKeys=true;encodeDefaults=true;explicitNulls=true }
+    @Provides @Singleton fun provideJson():Json=KtorApiJson.create()
     @Provides @Singleton fun provideApi(codec:Json):DefaultApi = DefaultApi(
         baseUrl=BuildConfig.API_BASE_URL.trimEnd('/').removeSuffix("/api/v1"),
         httpClientEngine=OkHttp.create(),

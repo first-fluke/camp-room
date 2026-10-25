@@ -11,11 +11,21 @@ bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug -PcampApiBaseUrl=h
 
 JDK17, Gradle8.11.1, AGP8.9.2, Kotlin2.1.20, compileSdk/targetSdk35를 사용한다. `demo`는 `http://10.0.2.2:8000/api/v1`에 연결하며 데모 sourceSet에서만 cleartext를 허용한다. `pleos`에는 실제 배포한 HTTPS API 주소를 전달해야 한다.
 
+### ADB로 로컬 API에 연결하기
+
+에뮬레이터의 `10.0.2.2` 경로에서 연결이 끊기거나 USB 장치로 시연할 때는 ADB 포트 연결을 사용할 수 있다. 호스트에서 API를 8000번 포트로 실행한 뒤 다음 명령을 사용한다. 이 설정은 데모 APK에만 적용하며 실제 Pleos 빌드의 HTTPS 주소는 별도로 지정한다.
+
+```bash
+adb reverse tcp:8000 tcp:8000
+bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug -PcampApiBaseUrl=http://127.0.0.1:8000/api/v1
+adb install -r apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk
+```
+
 공식 Maven 의존성은 Vehicle2.3.2, NaviHelper3.0.5, TextToSpeech3.3.1, SpeechToText3.3.1, FusedLocation1.1.3의 다섯 모듈이다. 사용자 제공 `docs/product/pleos-sdk.spec.jsonl`이 SDK 계약 기준이며 [전체 모듈 사용표](../../docs/product/SDK_CAPABILITY_MATRIX.md)에 각 사용 범위를 기록했다. 실제 Gradle 빌드/앱 실행 결과는 별도 검증 기록을 따른다. 실제 차량에서 검증했다고 주장하지 않는다.
 
 ## Hilt와 생성 API 클라이언트
 
-Hilt2.56.2가 Application→Activity→ViewModel의 생성과 저장소·flavor별 PlatformBridge 주입을 담당한다. 실제 SDK 객체와 재연결용 SDK 팩터리는 pleos 전용 Hilt 모듈에서 제공한다. 어댑터가 initialize/start/stop/release 수명주기를 관리하며, main 코드가 서비스 객체를 직접 생성하지 않는다.
+Hilt2.56.2가 Application→Activity→ViewModel의 생성과 저장소·flavor별 PlatformBridge 주입을 담당한다. 실제 SDK 객체와 재연결용 SDK 팩터리는 pleos 전용 Hilt 모듈에서 제공한다. 어댑터가 initialize/start/stop/release 수명주기를 관리하며 main 코드가 서비스 객체를 직접 생성하지 않는다.
 
 서버의 명시적 Pydantic 응답 모델을 `apps/api/openapi.json`으로 내보낸다. OpenAPI Generator7.26.0의 Kotlin `jvm-ktor`와 `kotlinx_serialization` 옵션으로 DTO·서비스 인터페이스를 생성한다. `:app:openApiGenerate`는 앱·클라이언트 컴파일의 선행 작업이며 생성물은 `app/build/generated/openapi` 아래에 둔다. `:api-client` JVM 모듈은 이 생성물을 사용한다. 앱 저장소는 생성된 서비스의 타입이 있는 메서드를 호출하며 HTTP 경로·JSON 요청을 수동 조립하지 않는다.
 
@@ -28,9 +38,9 @@ bash apps/pleos/gradlew -p apps/pleos :app:openApiGenerate :api-client:test
 
 ## 언어와 보조 기능
 
-기본 영어·한국어 리소스를 제공하고, 앱에서 시스템 언어/한국어/영어를 선택해 저장한다. 날짜와 KRW 금액은 선택 언어로 표시하며 TTS·STT에 동일한 locale을 전달한다. 공급자가 제공한 캠핑장 이름·주소·규칙 같은 원문 데이터는 임의로 번역한 사실로 바꾸지 않는다.
+기본 영어·한국어 리소스를 제공하고 앱에서 시스템 언어/한국어/영어를 선택해 저장한다. 날짜와 KRW 금액은 선택 언어로 표시하며 TTS·STT에 동일한 locale을 전달한다. 공급자가 제공한 캠핑장 이름·주소·규칙 같은 원문 데이터는 임의로 번역한 사실로 바꾸지 않는다.
 
-FusedLocation은 최신으로 알려진 좌표와 수신 시각을 구분한다. 500m 도착 알림의 등록과 실제 진입·이탈 이벤트를 구분하며, 권한을 실행 시 요청한다. 음성 브리핑은 SDK/Android 재생 시작 이벤트를 확인하며, 음성 인식은 최종 결과만 사용해 장면·길 안내를 미리보기로 제안한다. 인식만으로 차량 설정이나 결제를 실행하지 않는다.
+FusedLocation은 최신으로 알려진 좌표와 수신 시각을 구분한다. 500m 도착 알림의 등록과 실제 진입·이탈 이벤트를 구분하며 권한을 실행 시 요청한다. 음성 브리핑은 SDK/Android 재생 시작 이벤트를 확인하며 음성 인식은 최종 결과만 사용해 장면·길 안내를 미리보기로 제안한다. 인식만으로 차량 설정이나 결제를 실행하지 않는다.
 
 ## 실제 차량 연결
 

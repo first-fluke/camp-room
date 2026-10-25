@@ -99,7 +99,7 @@ constructor(
                 throw e
             } catch (e: Exception) {
                 telemetry.failure(e,Dimensions(action=action,durationMs=(System.nanoTime()-began)/1_000_000))
-                mutable.update { it.copy(error = e.message ?: camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_complete_the_request)) }
+                mutable.update { it.copy(error = if(e is java.io.IOException || e is io.ktor.serialization.ContentConvertException || e is kotlinx.serialization.SerializationException) CampText.get(R.string.camp_we_couldn_t_complete_the_request) else e.message ?: CampText.get(R.string.camp_we_couldn_t_complete_the_request)) }
             } finally {
                 mutable.update { it.copy(busy = false, loading = false) }
             }

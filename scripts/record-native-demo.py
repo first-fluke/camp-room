@@ -68,8 +68,16 @@ def pause(seconds: float):
 
 
 def hierarchy():
-    adb("shell", "uiautomator", "dump", "--compressed", "/sdcard/camp-room-ui.xml", timeout=45)
-    return ET.fromstring(adb("shell", "cat", "/sdcard/camp-room-ui.xml", timeout=20))
+    # uiautomator can return exit 0 after an idle-window error. A unique path
+    # prevents any earlier successful dump from becoming false UI evidence.
+    remote_path = f"/sdcard/camp-room-ui-{time.monotonic_ns()}.xml"
+    try:
+        result = adb("shell", "uiautomator", "dump", "--compressed", remote_path, timeout=45)
+        if "UI hierchary dumped to:" not in result and "UI hierarchy dumped to:" not in result:
+            raise RuntimeError("UIAutomator did not produce a fresh hierarchy")
+        return ET.fromstring(adb("shell", "cat", remote_path, timeout=20))
+    finally:
+        adb("shell", "rm", "-f", remote_path, timeout=20)
 
 
 def bounds(node):

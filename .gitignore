@@ -129,6 +129,7 @@ artifacts/
 # Android local SDK/build outputs
 **/local.properties
 **/.gradle/
+**/.kotlin/
 **/build/
 apps/pleos/app/libs/*.aar
 apps/pleos/app/libs/*.jar
