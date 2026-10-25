@@ -25,33 +25,70 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 data class CampScene(
     val id: String,
-    val name: String,
-    val sub: String,
+    private val nameResource: Int,
+    private val subtitleResource: Int,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
-)
+) {
+    val name: String
+        get() = CampText.get(nameResource)
+
+    val sub: String
+        get() = CampText.get(subtitleResource)
+}
 
 val campScenes =
     listOf(
-        CampScene("load", "짐 정리", "도착 후 여유롭게", Icons.Outlined.Inventory2),
-        CampScene("together", "함께 쉬기", "모두의 편안함", Icons.Outlined.WbSunny),
-        CampScene("split", "독서와 휴식", "앞좌석 독서 · 뒷좌석 휴식", Icons.Outlined.MenuBook),
-        CampScene("sleep", "취침 준비", "차분하게 하루 마무리", Icons.Outlined.Bedtime),
-        CampScene("departure", "출발 준비", "다음 여정을 향해", Icons.Outlined.DirectionsCar),
+        CampScene(
+            "load",
+            camp.room.app.R.string.camp_unpack,
+            camp.room.app.R.string.camp_ease_into_your_arrival,
+            Icons.Outlined.Inventory2,
+        ),
+        CampScene(
+            "together",
+            camp.room.app.R.string.camp_relax_together,
+            camp.room.app.R.string.camp_comfort_for_everyone,
+            Icons.Outlined.WbSunny,
+        ),
+        CampScene(
+            "split",
+            camp.room.app.R.string.camp_read_and_rest,
+            camp.room.app.R.string.camp_reading_in_front_resting_in_the_rear,
+            Icons.Outlined.MenuBook,
+        ),
+        CampScene(
+            "sleep",
+            camp.room.app.R.string.camp_prepare_for_sleep,
+            camp.room.app.R.string.camp_a_quieter_end_to_the_day,
+            Icons.Outlined.Bedtime,
+        ),
+        CampScene(
+            "departure",
+            camp.room.app.R.string.camp_prepare_to_leave,
+            camp.room.app.R.string.camp_ready_for_the_next_journey,
+            Icons.Outlined.DirectionsCar,
+        ),
     )
 
 @Composable
 fun CabinScreen(s: CampUiState, vm: CampViewModel) {
     val vehicle = s.data?.vehicle ?: return
     SectionTitle(
-        "차 안에, 우리만의 작은 방.",
-        "독서와 휴식, 서로 다른 시간이 편안하게 흐르도록.",
+        tr(camp.room.app.R.string.camp_a_little_room_of_our_own_inside),
+        tr(camp.room.app.R.string.camp_let_reading_and_resting_happen_comfortably_side),
         "MAKE ROOM FOR REST",
-        action = { CampPill(if (vehicle.mode == "demo") "시뮬레이터 연결" else "Pleos 차량 상태") },
+        action = {
+            CampPill(
+                if (vehicle.mode == "demo") tr(camp.room.app.R.string.camp_simulator_connected)
+                else tr(camp.room.app.R.string.camp_pleos_vehicle_status)
+            )
+        },
     )
     CampSurface(Modifier.fillMaxWidth()) {
         Row(
@@ -59,42 +96,60 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            VehicleStatus(Icons.Outlined.BatteryChargingFull, "현재 배터리", "${number(vehicle.soc)}%")
+            VehicleStatus(
+                Icons.Outlined.BatteryChargingFull,
+                tr(camp.room.app.R.string.camp_current_battery),
+                "${number(vehicle.soc)}%",
+            )
             VehicleStatus(
                 Icons.Outlined.Thermostat,
-                "실내 측정 온도",
+                tr(camp.room.app.R.string.camp_measured_cabin_temperature),
                 "${number(vehicle.measuredTemperature)}°C",
             )
             VehicleStatus(
                 Icons.Outlined.DoorFront,
-                "도어 상태",
+                tr(camp.room.app.R.string.camp_doors),
                 when (vehicle.doorsClosed) {
-                    true -> "모두 닫힘"
-                    false -> "열린 문 있음"
-                    null -> "확인 필요"
+                    true -> tr(camp.room.app.R.string.camp_all_closed)
+                    false -> tr(camp.room.app.R.string.camp_a_door_is_open)
+                    null -> tr(camp.room.app.R.string.camp_check_needed)
                 },
             )
             VehicleStatus(
                 Icons.Outlined.Air,
-                "창문 상태",
+                tr(camp.room.app.R.string.camp_windows),
                 when (vehicle.windowsClosed) {
-                    true -> "모두 닫힘"
-                    false -> "열린 창문 있음"
-                    null -> "확인 필요"
+                    true -> tr(camp.room.app.R.string.camp_all_closed)
+                    false -> tr(camp.room.app.R.string.camp_a_window_is_open)
+                    null -> tr(camp.room.app.R.string.camp_check_needed)
                 },
             )
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "${vehicle.updatedAt.take(16).replace('T',' ')} 확인",
-                    fontSize = 8.sp,
+                    tr(
+                        camp.room.app.R.string.camp_observed,
+                        vehicle.updatedAt.take(16).replace('T', ' '),
+                    ),
+                    fontSize = 12.sp,
                     color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "${if(vehicle.mode=="demo")"모의 " else ""}${when(vehicle.motionState){"parked"->"정차"
-"moving"->"이동"
-else->"미확인"}} 상태",
-                    fontSize = 8.sp,
+                    tr(
+                        camp.room.app.R.string.camp_state,
+                        if (vehicle.mode == "demo") tr(camp.room.app.R.string.camp_simulated)
+                        else "",
+                        when (vehicle.motionState) {
+                            "parked" -> tr(camp.room.app.R.string.camp_parked)
+                            "moving" -> tr(camp.room.app.R.string.camp_moving)
+                            else -> tr(camp.room.app.R.string.camp_unknown)
+                        },
+                    ),
+                    fontSize = 12.sp,
                     color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -114,13 +169,31 @@ else->"미확인"}} 상태",
     }
     CampSurface(Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("나에게 맞게 조금 더", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                tr(camp.room.app.R.string.camp_a_little_more_just_for_you),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
             Spacer(Modifier.weight(1f))
-            Text("사용자가 직접 적용한 설정만 실행해요", fontSize = 9.sp, color = CampPalette.Muted)
+            Text(
+                tr(camp.room.app.R.string.camp_only_settings_you_explicitly_apply_will_run),
+                fontSize = 12.sp,
+                color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp)) {
             Column(Modifier.weight(1f)) {
-                Text("목표 실내 온도", fontSize = 11.sp, color = CampPalette.Muted)
+                Text(
+                    tr(camp.room.app.R.string.camp_target_cabin_temperature),
+                    fontSize = 12.sp,
+                    color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Row(
                     Modifier.fillMaxWidth().padding(top = 17.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -131,34 +204,60 @@ else->"미확인"}} 상태",
                             vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) - 1)
                         },
                         enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) > 16,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(CampDesign.IconTarget),
                     ) {
-                        Icon(Icons.Outlined.Remove, "목표 온도 낮추기", Modifier.size(16.dp))
+                        Icon(
+                            Icons.Outlined.Remove,
+                            tr(camp.room.app.R.string.camp_lower_target_temperature),
+                            Modifier.size(16.dp),
+                        )
                     }
                     Text(
                         "${number(vehicle.targetTemperature)}°C",
                         fontSize = 31.sp,
                         fontWeight = FontWeight.Light,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     OutlinedIconButton(
                         onClick = {
                             vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) + 1)
                         },
                         enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) < 30,
-                        modifier = Modifier.size(32.dp),
+                        modifier = Modifier.size(CampDesign.IconTarget),
                     ) {
-                        Icon(Icons.Outlined.Add, "목표 온도 높이기", Modifier.size(16.dp))
+                        Icon(
+                            Icons.Outlined.Add,
+                            tr(camp.room.app.R.string.camp_raise_target_temperature),
+                            Modifier.size(16.dp),
+                        )
                     }
                 }
                 Text(
-                    "측정 온도와 설정 목표는 달라요",
-                    fontSize = 8.sp,
+                    tr(camp.room.app.R.string.camp_measured_temperature_and_target_are_different),
+                    fontSize = 12.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 9.dp),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            ZoneControls("앞좌석", "front", vehicle.front, s.busy, vm, Modifier.weight(1f))
-            ZoneControls("뒷좌석", "rear", vehicle.rear, s.busy, vm, Modifier.weight(1f))
+            ZoneControls(
+                tr(camp.room.app.R.string.camp_front_seats),
+                "front",
+                vehicle.front,
+                s.busy,
+                vm,
+                Modifier.weight(1f),
+            )
+            ZoneControls(
+                tr(camp.room.app.R.string.camp_rear_seats),
+                "rear",
+                vehicle.rear,
+                s.busy,
+                vm,
+                Modifier.weight(1f),
+            )
         }
     }
     if (s.commands.isNotEmpty())
@@ -171,49 +270,75 @@ else->"미확인"}} 상태",
                     Modifier.size(21.dp),
                     tint = CampPalette.Muted,
                 )
-                Text("  공간 설정 처리 결과", fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    tr(camp.room.app.R.string.camp_cabin_setting_results),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Spacer(Modifier.weight(1f))
-                CampPill(if (s.commandStatus == "completed") "항목 확인 완료" else "일부 확인 필요")
+                CampPill(
+                    if (s.commandStatus == "completed")
+                        tr(camp.room.app.R.string.camp_items_checked)
+                    else tr(camp.room.app.R.string.camp_some_items_need_attention)
+                )
             }
             s.commands.forEach { result ->
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         Modifier.size(5.dp)
                             .background(
-                                if (result.status == "applied") Color(0xFF8EAA6B)
+                                if (result.status == "applied") CampPalette.Forest
                                 else CampPalette.Danger,
                                 CircleShape,
                             )
                     )
                     Text(
                         controlLabel(result.control),
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.width(140.dp).padding(start = 8.dp),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         result.message,
-                        fontSize = 9.sp,
+                        fontSize = 12.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.weight(1f),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         when (result.confirmation) {
-                            "observed" -> "관측값 확인"
-                            "acknowledged" -> "명령 수락"
-                            else -> "상태 확인 필요"
+                            "observed" -> tr(camp.room.app.R.string.camp_observed_state_checked)
+                            "acknowledged" -> tr(camp.room.app.R.string.camp_command_accepted)
+                            else -> tr(camp.room.app.R.string.camp_state_needs_checking)
                         },
-                        fontSize = 9.sp,
+                        fontSize = 12.sp,
                         color = CampPalette.Muted,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 HorizontalDivider(color = CampPalette.Line)
             }
             Text(
-                if (vehicle.mode == "demo") "명령 수락과 관측 상태는 다릅니다. 위 결과는 데모 시뮬레이터입니다."
-                else "명령 수락과 관측 상태는 다릅니다. 미관측 항목은 확인 필요로 유지됩니다.",
-                fontSize = 9.sp,
+                if (vehicle.mode == "demo")
+                    tr(
+                        camp.room.app.R.string
+                            .camp_command_acceptance_and_observed_state_are_different
+                    )
+                else
+                    tr(
+                        camp.room.app.R.string
+                            .camp_command_acceptance_and_observed_state_are_different_170
+                    ),
+                fontSize = 12.sp,
                 color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     if (s.sceneId == "departure")
@@ -221,15 +346,29 @@ else->"미확인"}} 상태",
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Outlined.CheckCircle, null, tint = CampPalette.Muted)
                 Column(Modifier.weight(1f).padding(horizontal = 15.dp)) {
-                    Text("다음 여정도 가볍게.", fontSize = 16.sp)
                     Text(
-                        "문 · 창문 상태와 배터리 ${number(vehicle.soc)}%를 확인하고 다음 목적지로 이어가세요.",
-                        fontSize = 11.sp,
+                        tr(camp.room.app.R.string.camp_travel_light_into_the_next_chapter),
+                        fontSize = 18.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        tr(
+                            camp.room.app.R.string.camp_check_doors_windows_and_battery_at_then,
+                            number(vehicle.soc),
+                        ),
+                        fontSize = 12.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 7.dp),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-                CampSecondary("이동 계획 보기", Icons.Outlined.ArrowForward, onClick = { vm.tab(1) })
+                CampSecondary(
+                    tr(camp.room.app.R.string.camp_view_travel_plan),
+                    Icons.Outlined.ArrowForward,
+                    onClick = { vm.tab(1) },
+                )
             }
         }
 }
@@ -243,12 +382,20 @@ private fun VehicleStatus(
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, null, Modifier.size(24.dp), tint = CampPalette.Muted)
         Column(Modifier.padding(start = 10.dp)) {
-            Text(label, fontSize = 9.sp, color = CampPalette.Muted)
+            Text(
+                label,
+                fontSize = 12.sp,
+                color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
             Text(
                 value,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(top = 5.dp),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -265,12 +412,22 @@ private fun ZoneControls(
 ) {
     var blind by remember(value.blind) { mutableFloatStateOf((value.blind ?: 0).toFloat()) }
     Column(modifier) {
-        Text("$label 공간", fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        Text(
+            tr(camp.room.app.R.string.camp_zone, label),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         Row(Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                if (value.reading == null) "독서등 · 확인 필요" else "독서등",
-                fontSize = 10.sp,
+                if (value.reading == null)
+                    tr(camp.room.app.R.string.camp_reading_light_check_needed)
+                else tr(camp.room.app.R.string.camp_reading_light),
+                fontSize = 12.sp,
                 color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.weight(1f))
             Switch(
@@ -281,12 +438,21 @@ private fun ZoneControls(
             )
         }
         Row(Modifier.fillMaxWidth()) {
-            Text("차광", fontSize = 10.sp, color = CampPalette.Muted)
+            Text(
+                tr(camp.room.app.R.string.camp_shade),
+                fontSize = 12.sp,
+                color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
             Spacer(Modifier.weight(1f))
             Text(
-                if (value.blind == null) "확인 필요" else "${blind.toInt()}%",
-                fontSize = 10.sp,
+                if (value.blind == null) tr(camp.room.app.R.string.camp_check_needed)
+                else "${blind.toInt()}%",
+                fontSize = 12.sp,
                 color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Slider(
@@ -306,21 +472,29 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     CampSurface(modifier) {
         Text(
             "MOMENTS IN YOUR ROOM",
-            fontSize = 8.sp,
+            fontSize = 12.sp,
             letterSpacing = 1.4.sp,
             color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
-        Text("지금, 어떤 쉼이 필요한가요?", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         campScenes.forEach { scene ->
             val selected = scene.id == s.sceneId
             Surface(
                 onClick = { vm.scene(scene.id) },
-                color = if (selected) Color(0xFFF0F5E6) else CampPalette.Paper,
+                color = if (selected) CampPalette.Sage else CampPalette.Paper,
                 shape = RoundedCornerShape(8.dp),
                 border =
                     androidx.compose.foundation.BorderStroke(
                         1.dp,
-                        if (selected) Color(0xFF8EA870) else CampPalette.Line,
+                        if (selected) CampPalette.Outline else CampPalette.Line,
                     ),
                 modifier = Modifier.fillMaxWidth().testTag("scene-${scene.id}"),
             ) {
@@ -331,7 +505,7 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                     Box(
                         Modifier.size(35.dp)
                             .background(
-                                if (selected) Color(0xFFDCE8CD) else Color(0xFFF1F4EA),
+                                if (selected) CampPalette.Selected else CampPalette.Canvas,
                                 RoundedCornerShape(7.dp),
                             ),
                         contentAlignment = Alignment.Center,
@@ -339,12 +513,20 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                         Icon(scene.icon, null, Modifier.size(23.dp), tint = CampPalette.Muted)
                     }
                     Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                        Text(scene.name, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                        Text(
+                            scene.name,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                         Text(
                             scene.sub,
-                            fontSize = 9.sp,
+                            fontSize = 12.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 3.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                     RadioButton(
@@ -357,24 +539,34 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
         }
         Text(
             when (s.sceneId) {
-                "split" -> "앞좌석은 독서에 집중하도록 밝게, 뒷좌석은 휴식에 알맞게 차분하게 설정해요."
-                "sleep" -> "빛은 낮추고 차광을 더해, 편안한 밤을 준비해요."
-                "departure" -> "차광과 조명을 정리하고 출발 전 상태를 확인해요."
-                "load" -> "짐을 정리하기 편하도록 앞뒤 공간을 밝혀요."
-                else -> "함께 머무는 시간에 어울리는 은은한 조명과 온도로 맞춰요."
+                "split" -> tr(camp.room.app.R.string.camp_keep_the_front_bright_for_reading_and)
+                "sleep" -> tr(camp.room.app.R.string.camp_lower_the_light_and_add_shade_for)
+                "departure" ->
+                    tr(camp.room.app.R.string.camp_reset_shade_and_lighting_then_check_before)
+                "load" -> tr(camp.room.app.R.string.camp_light_both_zones_so_you_can_unpack)
+                else ->
+                    tr(camp.room.app.R.string.camp_soft_lighting_and_a_comfortable_temperature_for)
             },
-            fontSize = 10.sp,
+            fontSize = 12.sp,
             color = CampPalette.Muted,
             lineHeight = 17.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
         CampPrimary(
-            "이 공간 설정 적용하기",
+            tr(camp.room.app.R.string.camp_apply_these_cabin_settings),
             Icons.Outlined.Check,
             busy = s.busy,
             modifier = Modifier.fillMaxWidth().testTag("apply-scene"),
             onClick = vm::applyScene,
         )
-        Text("지원 항목 실행 후 시뮬레이터 관측값을 다시 확인합니다.", fontSize = 8.sp, color = CampPalette.Muted)
+        Text(
+            tr(camp.room.app.R.string.camp_after_supported_commands_run_the_simulator_state),
+            fontSize = 12.sp,
+            color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -390,16 +582,23 @@ private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
             Column(Modifier.padding(25.dp)) {
                 Text(
                     "MY LITTLE RETREAT",
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     letterSpacing = 1.5.sp,
                     color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    if (vehicle.sceneId == "split") "각자의 시간이, 함께 흐르는 공간"
-                    else if (vehicle.sceneId == "sleep") "하루를 접고, 편안한 밤으로" else "오늘의 쉼을 담는 작은 방",
-                    fontSize = 16.sp,
+                    if (vehicle.sceneId == "split")
+                        tr(camp.room.app.R.string.camp_different_moments_shared_comfortably)
+                    else if (vehicle.sceneId == "sleep")
+                        tr(camp.room.app.R.string.camp_a_softer_landing_at_the_end_of)
+                    else tr(camp.room.app.R.string.camp_a_little_room_for_today_s_rest),
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 8.dp),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Canvas(
@@ -475,55 +674,109 @@ private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
             ) {
                 Spacer(Modifier.height(60.dp))
                 Text(
-                    "앞좌석 ${when(vehicle.front.reading){true->"독서"
-false->"휴식"
-null->"확인 필요"}}",
-                    fontSize = 10.sp,
-                    color = CampPalette.Forest,
+                    tr(
+                        camp.room.app.R.string.camp_front,
+                        when (vehicle.front.reading) {
+                            true -> tr(camp.room.app.R.string.camp_reading)
+                            false -> tr(camp.room.app.R.string.camp_resting)
+                            null -> tr(camp.room.app.R.string.camp_check_needed)
+                        },
+                    ),
+                    fontSize = 12.sp,
+                    color = Color(0xFF193F33),
                     fontWeight = FontWeight.SemiBold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "조명 ${vehicle.front.ambient?.let{"$it%"}?:"확인 필요"} · 차광 ${vehicle.front.blind?.let{"$it%"}?:"확인 필요"}",
-                    fontSize = 7.sp,
-                    color = CampPalette.Muted,
+                    tr(
+                        camp.room.app.R.string.camp_light_shade,
+                        vehicle.front.ambient?.let { "${it}%" }
+                            ?: tr(camp.room.app.R.string.camp_check_needed),
+                        vehicle.front.blind?.let { "${it}%" }
+                            ?: tr(camp.room.app.R.string.camp_check_needed),
+                    ),
+                    fontSize = 12.sp,
+                    color = Color(0xFF43543B),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(72.dp))
                 Text(
-                    "뒷좌석 ${when(vehicle.rear.reading){true->"함께 쉬기"
-false->"휴식"
-null->"확인 필요"}}",
-                    fontSize = 10.sp,
-                    color = CampPalette.Forest,
+                    tr(
+                        camp.room.app.R.string.camp_rear,
+                        when (vehicle.rear.reading) {
+                            true -> tr(camp.room.app.R.string.camp_relax_together)
+                            false -> tr(camp.room.app.R.string.camp_resting)
+                            null -> tr(camp.room.app.R.string.camp_check_needed)
+                        },
+                    ),
+                    fontSize = 12.sp,
+                    color = Color(0xFF193F33),
                     fontWeight = FontWeight.SemiBold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "조명 ${vehicle.rear.ambient?.let{"$it%"}?:"확인 필요"} · 차광 ${vehicle.rear.blind?.let{"$it%"}?:"확인 필요"}",
-                    fontSize = 7.sp,
-                    color = CampPalette.Muted,
+                    tr(
+                        camp.room.app.R.string.camp_light_shade,
+                        vehicle.rear.ambient?.let { "${it}%" }
+                            ?: tr(camp.room.app.R.string.camp_check_needed),
+                        vehicle.rear.blind?.let { "${it}%" }
+                            ?: tr(camp.room.app.R.string.camp_check_needed),
+                    ),
+                    fontSize = 12.sp,
+                    color = Color(0xFF43543B),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Column(
-                Modifier.align(Alignment.CenterStart).padding(start = 19.dp).offset(y = (-45).dp)
+                Modifier.align(Alignment.CenterStart)
+                    .widthIn(max = 125.dp)
+                    .padding(start = 19.dp)
+                    .offset(y = (-45).dp)
             ) {
                 Icon(Icons.Outlined.Lightbulb, null, Modifier.size(19.dp), tint = CampPalette.Muted)
-                Text("집중하는 빛", fontSize = 8.sp, color = CampPalette.Muted)
+                Text(
+                    tr(camp.room.app.R.string.camp_a_light_to_focus_by),
+                    fontSize = 12.sp,
+                    color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Text(
                     when (vehicle.front.reading) {
-                        true -> "독서등 켜짐"
-                        false -> "독서등 꺼짐"
-                        null -> "상태 확인 필요"
+                        true -> tr(camp.room.app.R.string.camp_reading_light_on)
+                        false -> tr(camp.room.app.R.string.camp_reading_light_off)
+                        null -> tr(camp.room.app.R.string.camp_state_needs_checking)
                     },
-                    fontSize = 10.sp,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            Column(Modifier.align(Alignment.CenterEnd).padding(end = 19.dp).offset(y = 105.dp)) {
+            Column(
+                Modifier.align(Alignment.CenterEnd)
+                    .widthIn(max = 125.dp)
+                    .padding(end = 19.dp)
+                    .offset(y = 105.dp)
+            ) {
                 Icon(Icons.Outlined.Air, null, Modifier.size(20.dp), tint = CampPalette.Muted)
-                Text("편안한 온도", fontSize = 8.sp, color = CampPalette.Muted)
                 Text(
-                    "목표 ${number(vehicle.targetTemperature)}°C",
-                    fontSize = 10.sp,
+                    tr(camp.room.app.R.string.camp_a_comfortable_temperature),
+                    fontSize = 12.sp,
+                    color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    tr(camp.room.app.R.string.camp_target_c, number(vehicle.targetTemperature)),
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Row(
@@ -537,9 +790,13 @@ null->"확인 필요"}}",
                     tint = CampPalette.Muted,
                 )
                 Text(
-                    if (vehicle.mode == "demo") "  데모 시뮬레이터 관측 상태" else "  Pleos 차량 관측 상태",
-                    fontSize = 8.sp,
+                    if (vehicle.mode == "demo")
+                        tr(camp.room.app.R.string.camp_demo_simulator_observations)
+                    else tr(camp.room.app.R.string.camp_pleos_vehicle_observations),
+                    fontSize = 12.sp,
                     color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -548,13 +805,19 @@ null->"확인 필요"}}",
 
 fun controlLabel(value: String): String {
     val zone =
-        if (value.startsWith("front")) "앞좌석 " else if (value.startsWith("rear")) "뒷좌석 " else ""
+        if (value.startsWith("front"))
+            camp.room.app.CampText.get(camp.room.app.R.string.camp_front_201)
+        else if (value.startsWith("rear"))
+            camp.room.app.CampText.get(camp.room.app.R.string.camp_rear_202)
+        else ""
     return zone +
         when (value.substringAfterLast('.')) {
-            "readingLight" -> "독서등"
-            "ambientBrightness" -> "앰비언트 밝기"
-            "blindLevel" -> "차광"
-            "targetTemperature" -> "목표 온도"
+            "readingLight" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_reading_light)
+            "ambientBrightness" ->
+                camp.room.app.CampText.get(camp.room.app.R.string.camp_ambient_brightness)
+            "blindLevel" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_shade)
+            "targetTemperature" ->
+                camp.room.app.CampText.get(camp.room.app.R.string.camp_target_temperature)
             else -> value
         }
 }

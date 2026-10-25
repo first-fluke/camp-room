@@ -67,3 +67,9 @@ No retention deletion or backup schedule is silently installed. Refresh history 
 ```
 
 The independent report records the exact schema SHA-256, Python/SQLite versions and each passed check in `artifacts/qa/db-review.json`. A failed rerun replaces the old report with failure status. Runtime test/remote probe results are recorded separately so schema approval cannot be mistaken for end-to-end verification.
+
+## Runtime verification completed
+
+The separately authored API suite passed 33 tests. The root reviewer inspected the successful real Turso probe report dated 2026-10-25T05:50:45Z: all 20 checks passed, including competing final-stock orders, concurrent same-key requests, a deliberately lost COMMIT response followed by idempotent recovery, foreign-key rollback, persisted admin changes and durable refresh history. Probe rows were cleaned with foreign keys enabled; unrelated scopes and the legacy prototype table were preserved.
+
+The actual worker CLI was also run against the isolated Turso QA API. It persisted three weather query rows and a refresh history row. With external provider credentials absent, it correctly returned exit 1 and `provider_unavailable`, while the database refresh operation itself completed. This verifies degraded operation without claiming live campsite or weather data.

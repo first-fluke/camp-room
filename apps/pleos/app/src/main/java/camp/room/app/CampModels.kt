@@ -34,11 +34,14 @@ data class Availability(
     val label: String
         get() =
             when {
-                status == "unknown" -> "확인 필요"
-                status == "unavailable" -> "예약 마감"
-                remaining != null -> "잔여 ${remaining}자리"
-                status == "limited" -> "마감 임박"
-                else -> "예약 가능"
+                status == "unknown" ->
+                    camp.room.app.CampText.get(camp.room.app.R.string.camp_check_needed)
+                status == "unavailable" ->
+                    camp.room.app.CampText.get(camp.room.app.R.string.camp_fully_booked)
+                remaining != null -> CampText.quantity(R.plurals.camp_remaining_pitches, remaining)
+                status == "limited" ->
+                    camp.room.app.CampText.get(camp.room.app.R.string.camp_almost_full)
+                else -> camp.room.app.CampText.get(camp.room.app.R.string.camp_available_277)
             }
 
     companion object {
@@ -210,7 +213,10 @@ data class CommandResult(
                 j.text("control"),
                 j.text("status"),
                 j.text("confirmation"),
-                j.text("observed", "미관측"),
+                j.text(
+                    "observed",
+                    camp.room.app.CampText.get(camp.room.app.R.string.camp_not_observed),
+                ),
                 j.text("message"),
             )
     }

@@ -1,6 +1,8 @@
 package camp.room.app
 
-import android.content.Context
+import javax.inject.Inject
+import javax.inject.Provider
+import dagger.hilt.android.scopes.ViewModelScoped
 import ai.pleos.playground.location.fused.FusedLocation
 import ai.pleos.playground.location.fused.listener.FusedLocationListener
 import ai.pleos.playground.location.fused.listener.ProximityAlertListener
@@ -26,9 +28,13 @@ import java.util.Locale
 import kotlin.coroutines.resume
 
 /** All three remaining SDK modules are local, ON_DEVICE voice uses no embedded server secret. */
-class PleosAssistAdapter(context: Context) {
-    private val appContext = context.applicationContext
-    private val fused = FusedLocation(appContext)
+@ViewModelScoped
+class PleosAssistAdapter @Inject constructor(
+    private val fused:FusedLocation,
+    private val ttsFactory:Provider<PleosTts>,
+    private val sttFactory:Provider<PleosStt>,
+) {
+    private var speechLocale=Locale.KOREAN
     private var initialized = false
     @Volatile private var active = false
     private var locationActive = false
@@ -100,7 +106,7 @@ class PleosAssistAdapter(context: Context) {
             .put("confidence", if(sample.confidence.isFinite())sample.confidence.toDouble() else JSONObject.NULL).put("source", "Pleos FusedLocation 1.1.3").put("lastKnown",true)
         else result("unavailable", "위치 관측값을 받지 못했습니다. 권한과 위치 서비스를 확인해 주세요.")
     }
-    private fun registerWatch(site: Campsite, complete: (JSONObject) -> Unit) {
+    @Synchronized private fun registerWatch(site: Campsite, complete: (JSONObject) -> Unit) {
         val lat=site.latitude;val lon=site.longitude
         if(!active || !locationActive || closed || lat==null || lon==null || !lat.isFinite() || !lon.isFinite() || lat !in -90.0..90.0 || lon !in -180.0..180.0) {
             complete(result("unavailable","현재 위치 연결과 캠핑장 좌표를 확인해 주세요."));return
@@ -110,9 +116,10 @@ class PleosAssistAdapter(context: Context) {
         if(pendingCleanup.isNotEmpty()){complete(result("unavailable","기존 도착 알림 해제를 먼저 확인해야 합니다."));return}
         val token=++watchToken
         pendingRegistration=true
+        var waitingForId=true
         val listener=object: ProximityAlertListener {
             override fun onRegistered(id:String) { synchronized(this@PleosAssistAdapter) {
-                pendingRegistration=false
+                if(waitingForId){waitingForId=false;pendingRegistration=false}
                 if(active && !closed && watchToken==token) { alertId=id;arrivalState="registered";arrivalMessage="캠핑장 반경500m 도착/이탈 알림이 등록되었습니다. 진입 감지와는 다릅니다.";complete(result("registered",arrivalMessage).put("alertId",id)) }
                 else { cleanup(id);releaseIfIdle() }
             } }
@@ -123,13 +130,13 @@ class PleosAssistAdapter(context: Context) {
                 }
             } }
             override fun onError(exception:Exception) { synchronized(this@PleosAssistAdapter) {
-                pendingRegistration=false
+                if(waitingForId){waitingForId=false;pendingRegistration=false}
                 if(watchToken==token && !closed) { arrivalState="unavailable";arrivalMessage="도착 알림 권한/연결을 확인해 주세요.";complete(result("unavailable",arrivalMessage)) }
                 releaseIfIdle()
             } }
         }
         try { fused.addProximityAlert(ProximityAlertRequest(lat,lon,500f,setOf(ProximityTransition.ENTER,ProximityTransition.EXIT)),listener) }
-        catch(error:Exception) { pendingRegistration=false;arrivalState="unavailable";arrivalMessage="도착 알림을 등록하지 못했습니다.";complete(result("unavailable",arrivalMessage));releaseIfIdle() }
+        catch(error:Exception) { if(waitingForId){waitingForId=false;pendingRegistration=false};arrivalState="unavailable";arrivalMessage="도착 알림을 등록하지 못했습니다.";complete(result("unavailable",arrivalMessage));releaseIfIdle() }
     }
     suspend fun arrivalWatch(site:Campsite):JSONObject {
         try { start() } catch(error:Exception) { return result("unavailable","Pleos 위치 연결/권한을 확인해 주세요.") }
@@ -143,7 +150,7 @@ class PleosAssistAdapter(context: Context) {
     private suspend fun ttsEngine():PleosTts? {
         tts?.let { return it }
         if(closed)return null
-        val engine=PleosTts(appContext,TtsMode.ON_DEVICE)
+        val engine=ttsFactory.get()
         val generation=++ttsGeneration
         tts=engine
         val initialized=withTimeoutOrNull(4000) { suspendCancellableCoroutine<Boolean> { continuation ->
@@ -162,7 +169,7 @@ class PleosAssistAdapter(context: Context) {
             override fun onError(errorType:TtsError){if(current()){ttsState="unavailable";ttsPlaying=false;ttsStarted?.invoke(false)}}
             override fun onUpdatedRms(rms:Double)=Unit
         }
-        engine.addEventListener(listener);engine.setLocale(Locale.KOREAN)
+        engine.addEventListener(listener);engine.setLocale(speechLocale)
         tts=engine;ttsListener=listener;return engine
     }
     suspend fun speak(text:String):JSONObject {
@@ -184,7 +191,7 @@ class PleosAssistAdapter(context: Context) {
     suspend fun listen():JSONObject {
         if(closed)return result("unavailable","음성 서비스가 종료되었습니다.")
         stopStt()
-        val engine=PleosStt(appContext,SttMode.ON_DEVICE)
+        val engine=sttFactory.get()
         stt=engine
         val generation=++sttGeneration
         return try {
@@ -195,7 +202,7 @@ class PleosAssistAdapter(context: Context) {
                 })
             } } == true
             if(!initialized||closed||!active||sttGeneration!=generation||stt!==engine)return result("unavailable","차량 음성 인식 연결을 확인해 주세요.")
-            engine.setLocale(Locale.KOREAN)
+            engine.setLocale(speechLocale)
             val listener=object:SttResults {
                 private fun current()=!closed&&sttGeneration==generation
                 override fun onReady(){if(current())sttState="ready"}
@@ -221,6 +228,12 @@ class PleosAssistAdapter(context: Context) {
     private fun stopStt(){sttGeneration++;sttCompleted?.invoke(null);sttCompleted=null;val engine=stt;stt=null;try{engine?.stop();sttListener?.let{engine?.removeListener(it)}}finally{engine?.release();sttListener=null}}
     private fun cleanup(id:String){try{fused.removeProximityAlert(id);pendingCleanup.remove(id)}catch(error:Exception){pendingCleanup.add(id);arrivalState="cleanup_pending";arrivalMessage="이전 도착 알림 해제를 확인해야 합니다."}}
     private fun releaseIfIdle(){if(closed&&initialized&&!pendingRegistration&&pendingCleanup.isEmpty()){initialized=false;runCatching{fused.release()}}else if(closed&&(pendingRegistration||pendingCleanup.isNotEmpty())){arrivalState="cleanup_pending";arrivalMessage="대기 중인 등록 응답의 ID를 받은 뒤 알림을 해제합니다."}}
+    fun setLanguage(tag:String){
+        val next=Locale.forLanguageTag(tag)
+        if(next.language==speechLocale.language)return
+        speechLocale=next
+        runCatching{stopTts()};runCatching{stopStt()}
+    }
     fun assistStatus()=JSONObject().put("arrivalStatus",arrivalState).put("arrivalMessage",arrivalMessage).put("ttsStatus",ttsState).put("sttStatus",sttState)
     @Synchronized fun stop(){active=false;locationActive=false;epoch++;watchToken++;latest=null;locationListener?.let{runCatching{fused.unregisterFusedLocationCallback(it)}};locationListener=null;alertId?.let{cleanup(it)};alertId=null;if(watchedSite!=null){arrivalState="paused";arrivalMessage="앱이 다시 활성화되면 도착 알림을 다시 등록합니다."};runCatching{stopTts()};runCatching{stopStt()}}
     @Synchronized fun close(){if(closed)return;try{stop()}finally{closed=true;releaseIfIdle()}}

@@ -17,12 +17,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -58,56 +58,95 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                             Modifier.align(Alignment.TopEnd)
                                 .padding(12.dp)
                                 .background(CampPalette.Paper.copy(alpha = .9f), CircleShape)
-                                .size(33.dp),
+                                .size(CampDesign.IconTarget),
                     ) {
-                        Icon(Icons.Outlined.Close, "캠핑장 상세 닫기", Modifier.size(21.dp))
+                        Icon(
+                            Icons.Outlined.Close,
+                            tr(camp.room.app.R.string.camp_close_campsite_details),
+                            Modifier.size(21.dp),
+                        )
                     }
                     Box(Modifier.align(Alignment.BottomStart).padding(18.dp)) {
-                        CampPill(if (site.sourceMode == "demo") "데모 캠핑장" else "외부 데이터")
+                        CampPill(
+                            if (site.sourceMode == "demo")
+                                tr(camp.room.app.R.string.camp_demo_campsite)
+                            else tr(camp.room.app.R.string.camp_external_data)
+                        )
                     }
                 }
                 Column(
                     Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(25.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    Text(site.region, fontSize = 10.sp, color = CampPalette.Muted)
-                    Text(site.name, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
                     Text(
-                        site.description,
+                        site.region,
                         fontSize = 12.sp,
                         color = CampPalette.Muted,
-                        lineHeight = 21.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
-                    Text(site.address, fontSize = 10.sp, color = CampPalette.Muted)
+                    Text(
+                        site.name,
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        site.description,
+                        fontSize = 14.sp,
+                        color = CampPalette.Muted,
+                        lineHeight = 21.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        site.address,
+                        fontSize = 12.sp,
+                        color = CampPalette.Muted,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                         site.facilities.take(5).forEach { CampPill(facilityName(it)) }
                     }
                     HorizontalDivider(color = CampPalette.Line)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         DetailFact(
-                            "차량 내 숙박",
+                            tr(camp.room.app.R.string.camp_sleeping_in_the_car),
                             when (site.carCamping) {
-                                true -> "허용"
-                                false -> "미허용"
-                                null -> "운영자 확인 필요"
+                                true -> tr(camp.room.app.R.string.camp_allowed)
+                                false -> tr(camp.room.app.R.string.camp_not_allowed)
+                                null -> tr(camp.room.app.R.string.camp_confirm_with_the_operator)
                             },
                         )
                         DetailFact(
-                            "캠핑용 전기",
-                            if ("electricity" in site.facilities) "제공" else "확인 필요",
+                            tr(camp.room.app.R.string.camp_camping_power_212),
+                            if ("electricity" in site.facilities)
+                                tr(camp.room.app.R.string.camp_provided)
+                            else tr(camp.room.app.R.string.camp_check_needed),
                         )
                         DetailFact(
-                            "전기차 충전",
+                            tr(camp.room.app.R.string.camp_ev_charging),
                             when (site.evCharging) {
-                                true -> "가능"
-                                false -> "불가"
-                                null -> "확인 필요"
+                                true -> tr(camp.room.app.R.string.camp_available)
+                                false -> tr(camp.room.app.R.string.camp_unavailable_216)
+                                null -> tr(camp.room.app.R.string.camp_check_needed)
                             },
                         )
-                        DetailFact("입실 · 퇴실", "${site.checkInTime} · ${site.checkOutTime}")
+                        DetailFact(
+                            tr(camp.room.app.R.string.camp_check_in_check_out),
+                            "${site.checkInTime} · ${site.checkOutTime}",
+                        )
                     }
                     HorizontalDivider(color = CampPalette.Line)
-                    Text("편안한 캠핑을 위한 약속", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        tr(camp.room.app.R.string.camp_a_few_promises_for_a_comfortable_stay),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     site.rules.forEach {
                         Row {
                             Icon(
@@ -116,7 +155,13 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                 Modifier.size(15.dp),
                                 tint = CampPalette.Muted,
                             )
-                            Text("  $it", fontSize = 11.sp, color = CampPalette.Muted)
+                            Text(
+                                "  ${it}",
+                                fontSize = 12.sp,
+                                color = CampPalette.Muted,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
                     }
                     Surface(color = CampPalette.Sage, shape = RoundedCornerShape(7.dp)) {
@@ -129,15 +174,24 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                             )
                             Column(Modifier.padding(start = 12.dp)) {
                                 Text(
-                                    "캠핑장 택배 ${if(site.acceptsParcels)"수령 가능" else "수령 불가"}",
-                                    fontSize = 12.sp,
+                                    tr(
+                                        camp.room.app.R.string.camp_campsite_parcel_receiving,
+                                        if (site.acceptsParcels)
+                                            tr(camp.room.app.R.string.camp_accepted)
+                                        else tr(camp.room.app.R.string.camp_not_accepted),
+                                    ),
+                                    fontSize = 14.sp,
                                     fontWeight = FontWeight.Medium,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
                                     "${site.receivingLocation} · ${site.receivingInstructions}",
-                                    fontSize = 10.sp,
+                                    fontSize = 12.sp,
                                     color = CampPalette.Muted,
                                     modifier = Modifier.padding(top = 4.dp),
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }
@@ -147,13 +201,21 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                         Column(Modifier.padding(start = 12.dp)) {
                             Text(
                                 site.availability.provider,
-                                fontSize = 9.sp,
+                                fontSize = 12.sp,
                                 color = CampPalette.Muted,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
                             )
                             Text(
-                                "${site.availability.coverage} · ${site.availability.checkedAt.take(16).replace('T',' ')} 조회",
-                                fontSize = 8.sp,
+                                tr(
+                                    camp.room.app.R.string.camp_checked_222,
+                                    site.availability.coverage,
+                                    site.availability.checkedAt.take(16).replace('T', ' '),
+                                ),
+                                fontSize = 12.sp,
                                 color = CampPalette.Muted,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -165,16 +227,29 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(won(site.price), fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                         Text(
-                            "${displayDate(s.checkIn)} — ${displayDate(s.checkOut)} · ${s.guests}명",
-                            fontSize = 10.sp,
+                            won(site.price),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            tr(
+                                camp.room.app.R.string.camp_guests_223,
+                                displayDate(s.checkIn),
+                                displayDate(s.checkOut),
+                                guestCount(s.guests),
+                            ),
+                            fontSize = 12.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 3.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                     CampPrimary(
-                        "내 캠핑에 담기",
+                        tr(camp.room.app.R.string.camp_save_to_my_trip),
                         Icons.Outlined.Add,
                         busy = s.busy,
                         modifier = Modifier.testTag("save-trip"),
@@ -189,12 +264,20 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
 @Composable
 private fun DetailFact(label: String, value: String) {
     Column {
-        Text(label, fontSize = 9.sp, color = CampPalette.Muted)
+        Text(
+            label,
+            fontSize = 12.sp,
+            color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         Text(
             value,
-            fontSize = 12.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(top = 7.dp),
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -225,25 +308,34 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                     Column(Modifier.weight(1f)) {
                         Text(
                             "PACK A LITTLE HAPPINESS",
-                            fontSize = 8.sp,
+                            fontSize = 12.sp,
                             letterSpacing = 1.4.sp,
                             color = CampPalette.Muted,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            "가벼운 준비, 편안한 캠핑.",
+                            tr(camp.room.app.R.string.camp_pack_a_little_rest_a_lot),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(top = 7.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            "이번 여정에 필요한 것들을 챙겨보세요.",
-                            fontSize = 10.sp,
+                            tr(
+                                camp.room.app.R.string
+                                    .camp_bring_the_little_things_this_journey_needs
+                            ),
+                            fontSize = 12.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 5.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                     IconButton(onClick = { vm.cart(false) }) {
-                        Icon(Icons.Outlined.Close, "장바구니 닫기")
+                        Icon(Icons.Outlined.Close, tr(camp.room.app.R.string.camp_close_cart))
                     }
                 }
                 HorizontalDivider(color = CampPalette.Line)
@@ -277,7 +369,13 @@ private fun CartItems(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
 private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     val data = s.data ?: return
     Column(modifier.padding(25.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Text("담은 준비물  ${data.cart.count}", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            tr(camp.room.app.R.string.camp_packed_essentials, data.cart.count),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         if (data.cart.items.isEmpty())
             Column(
                 Modifier.fillMaxWidth().padding(vertical = 23.dp),
@@ -290,28 +388,40 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                     tint = CampPalette.Muted,
                 )
                 Text(
-                    "아직 비어 있는 여행 가방",
-                    fontSize = 13.sp,
+                    tr(camp.room.app.R.string.camp_a_travel_bag_waiting_to_be_filled),
+                    fontSize = 16.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 13.dp),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "아래 추천 준비물을 담아보세요.",
-                    fontSize = 11.sp,
+                    tr(camp.room.app.R.string.camp_add_a_recommended_essential_below),
+                    fontSize = 12.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 5.dp),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         data.cart.items.forEach { item ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 ProductArtwork(item.id, Modifier.size(73.dp))
                 Column(Modifier.weight(1f).padding(start = 13.dp)) {
-                    Text(item.name, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        item.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     Text(
                         won(item.unitPrice),
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 4.dp),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -320,21 +430,31 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                         OutlinedIconButton(
                             onClick = { vm.quantity(item.id, item.quantity - 1) },
                             enabled = !s.busy && item.quantity > 1,
-                            modifier = Modifier.size(26.dp),
+                            modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
-                            Icon(Icons.Outlined.Remove, "${item.name} 수량 줄이기", Modifier.size(15.dp))
+                            Icon(
+                                Icons.Outlined.Remove,
+                                tr(camp.room.app.R.string.camp_decrease_quantity, item.name),
+                                Modifier.size(15.dp),
+                            )
                         }
                         Text(
                             item.quantity.toString(),
-                            fontSize = 12.sp,
+                            fontSize = 14.sp,
                             modifier = Modifier.padding(horizontal = 13.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         OutlinedIconButton(
                             onClick = { vm.quantity(item.id, item.quantity + 1) },
                             enabled = !s.busy,
-                            modifier = Modifier.size(26.dp),
+                            modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
-                            Icon(Icons.Outlined.Add, "${item.name} 수량 늘리기", Modifier.size(15.dp))
+                            Icon(
+                                Icons.Outlined.Add,
+                                tr(camp.room.app.R.string.camp_increase_quantity, item.name),
+                                Modifier.size(15.dp),
+                            )
                         }
                     }
                 }
@@ -342,47 +462,69 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                     IconButton(
                         onClick = { vm.quantity(item.id, 0) },
                         enabled = !s.busy,
-                        modifier = Modifier.size(26.dp),
+                        modifier = Modifier.size(CampDesign.IconTarget),
                     ) {
                         Icon(
                             Icons.Outlined.DeleteOutline,
-                            "${item.name} 삭제",
+                            tr(camp.room.app.R.string.camp_remove, item.name),
                             Modifier.size(18.dp),
                             tint = CampPalette.Muted,
                         )
                     }
                     Spacer(Modifier.height(23.dp))
-                    Text(won(item.lineTotal), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        won(item.lineTotal),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
             HorizontalDivider(color = CampPalette.Line)
         }
         Spacer(Modifier.height(5.dp))
         Text(
-            "이런 준비물은 어때요?",
-            fontSize = 13.sp,
+            tr(camp.room.app.R.string.camp_a_few_more_things_to_consider),
+            fontSize = 16.sp,
             color = CampPalette.Muted,
             fontWeight = FontWeight.Medium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
         data.products.forEach { product ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 ProductArtwork(product.id, Modifier.size(51.dp))
                 Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                    Text(product.name, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        product.name,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     Text(
                         won(product.price),
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 4.dp),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 FilledTonalIconButton(
                     onClick = { vm.addProduct(product.id) },
                     enabled = !s.busy && product.stock > 0,
-                    modifier = Modifier.size(31.dp).testTag("cart-product-add-${product.id}"),
+                    modifier =
+                        Modifier.size(CampDesign.IconTarget)
+                            .testTag("cart-product-add-${product.id}"),
                     shape = RoundedCornerShape(6.dp),
                 ) {
-                    Icon(Icons.Outlined.Add, "${product.name} 추가 담기", Modifier.size(19.dp))
+                    Icon(
+                        Icons.Outlined.Add,
+                        tr(camp.room.app.R.string.camp_add_another, product.name),
+                        Modifier.size(19.dp),
+                    )
                 }
             }
         }
@@ -391,7 +533,7 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
 
 @Composable
 private fun CheckoutPanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
-    Column(modifier.background(Color(0xFFF2F5EA)).verticalScroll(rememberScrollState())) {
+    Column(modifier.background(CampPalette.Canvas).verticalScroll(rememberScrollState())) {
         CheckoutContent(s, vm, Modifier.fillMaxWidth())
     }
 }
@@ -402,31 +544,65 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
     val site = s.tripSite
     val trip = s.data.trip
     Column(
-        modifier.background(Color(0xFFF2F5EA)).padding(25.dp),
+        modifier.background(CampPalette.Canvas).padding(25.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Text("어디에서 받을까요?", fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            tr(camp.room.app.R.string.camp_where_would_you_like_to_receive_it),
+            fontSize = 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            DeliveryChoice("자택", "home", Icons.Outlined.Home, s, vm, Modifier.weight(1f))
-            DeliveryChoice("캠핑장", "campsite", Icons.Outlined.Forest, s, vm, Modifier.weight(1f))
+            DeliveryChoice(
+                tr(camp.room.app.R.string.camp_home),
+                "home",
+                Icons.Outlined.Home,
+                s,
+                vm,
+                Modifier.weight(1f),
+            )
+            DeliveryChoice(
+                tr(camp.room.app.R.string.camp_campsite),
+                "campsite",
+                Icons.Outlined.Forest,
+                s,
+                vm,
+                Modifier.weight(1f),
+            )
         }
         OutlinedTextField(
             value = s.recipient,
             onValueChange = { vm.delivery(recipient = it) },
-            label = { Text("받는 분", fontSize = 12.sp) },
+            label = {
+                Text(
+                    tr(camp.room.app.R.string.camp_recipient),
+                    fontSize = 14.sp,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().testTag("recipient-name"),
-            textStyle = LocalTextStyle.current.copy(fontSize = 13.sp),
+            textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
             shape = RoundedCornerShape(7.dp),
         )
         if (s.destination == "home")
             OutlinedTextField(
                 value = s.address,
                 onValueChange = { vm.delivery(address = it) },
-                label = { Text("자택 배송 주소", fontSize = 12.sp) },
+                label = {
+                    Text(
+                        tr(camp.room.app.R.string.camp_home_delivery_address),
+                        fontSize = 14.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
                 modifier = Modifier.fillMaxWidth().testTag("delivery-address"),
                 minLines = 2,
-                textStyle = LocalTextStyle.current.copy(fontSize = 12.sp),
+                textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
                 shape = RoundedCornerShape(7.dp),
             )
         else {
@@ -440,21 +616,30 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                     )
                     Column(Modifier.padding(start = 8.dp)) {
                         Text(
-                            site?.name ?: "캠핑장을 먼저 선택해 주세요",
-                            fontSize = 12.sp,
+                            site?.name ?: tr(camp.room.app.R.string.camp_choose_a_campsite_first),
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             site?.receivingLocation.orEmpty(),
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 4.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
-                            if (site?.acceptsParcels == true) "택배 수령 가능" else "택배 수령 불가 또는 확인 필요",
-                            fontSize = 9.sp,
+                            if (site?.acceptsParcels == true)
+                                tr(camp.room.app.R.string.camp_parcels_accepted)
+                            else
+                                tr(camp.room.app.R.string.camp_parcels_not_accepted_or_unconfirmed),
+                            fontSize = 12.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 5.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
@@ -462,21 +647,40 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             OutlinedTextField(
                 value = s.siteReference,
                 onValueChange = { vm.delivery(siteReference = it) },
-                label = { Text("사이트 · 예약 참조", fontSize = 12.sp) },
+                label = {
+                    Text(
+                        tr(camp.room.app.R.string.camp_pitch_reservation_reference),
+                        fontSize = 14.sp,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag("site-reference"),
-                textStyle = LocalTextStyle.current.copy(fontSize = 13.sp),
+                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
                 shape = RoundedCornerShape(7.dp),
             )
             Text(
-                "체류 ${displayDate(trip?.checkIn.orEmpty())} — ${displayDate(trip?.checkOut.orEmpty())}",
-                fontSize = 9.sp,
+                tr(
+                    camp.room.app.R.string.camp_stay,
+                    displayDate(trip?.checkIn.orEmpty()),
+                    displayDate(trip?.checkOut.orEmpty()),
+                ),
+                fontSize = 12.sp,
                 color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
         }
-        Text("입력된 이름과 주소는 시연을 위한 가상 정보입니다.", fontSize = 8.sp, color = CampPalette.Muted)
+        Text(
+            tr(camp.room.app.R.string.camp_the_prefilled_name_and_address_are_fictional),
+            fontSize = 12.sp,
+            color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         CampSecondary(
-            "배송 가능 여부 확인",
+            tr(camp.room.app.R.string.camp_check_delivery_availability),
             Icons.Outlined.Schedule,
             enabled = !s.busy && cart.items.isNotEmpty(),
             modifier = Modifier.fillMaxWidth().testTag("delivery-quote"),
@@ -484,7 +688,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
         )
         s.quote?.let { quote ->
             Surface(
-                color = if (quote.eligible) Color(0xFFE6EFDA) else Color(0xFFFAEEE0),
+                color = if (quote.eligible) CampPalette.Sage else CampPalette.WarningSurface,
                 shape = RoundedCornerShape(7.dp),
             ) {
                 Row(Modifier.padding(14.dp)) {
@@ -497,23 +701,34 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                     )
                     Column(Modifier.padding(start = 9.dp)) {
                         Text(
-                            if (quote.eligible) "${quote.eta} 도착 예정" else "이 배송 조건으로는 받을 수 없어요",
-                            fontSize = 12.sp,
+                            if (quote.eligible) tr(camp.room.app.R.string.camp_expected, quote.eta)
+                            else
+                                tr(
+                                    camp.room.app.R.string
+                                        .camp_this_delivery_doesn_t_fit_the_receiving
+                                ),
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         if (quote.reason.isNotBlank())
                             Text(
                                 quote.reason,
-                                fontSize = 10.sp,
+                                fontSize = 12.sp,
                                 color = CampPalette.Muted,
                                 modifier = Modifier.padding(top = 5.dp),
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         quote.conditions.forEach {
                             Text(
                                 it,
-                                fontSize = 9.sp,
+                                fontSize = 12.sp,
                                 color = CampPalette.Muted,
                                 modifier = Modifier.padding(top = 4.dp),
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         }
                     }
@@ -522,24 +737,35 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
         }
         if (s.error.isNotBlank()) CampError(s.error, vm::clearError)
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            PriceRow("상품 금액", won(cart.subtotal))
-            PriceRow("배송비", won(s.quote?.shipping ?: cart.shipping))
+            PriceRow(tr(camp.room.app.R.string.camp_items_subtotal), won(cart.subtotal))
+            PriceRow(
+                tr(camp.room.app.R.string.camp_delivery),
+                won(s.quote?.shipping ?: cart.shipping),
+            )
             HorizontalDivider(
                 color = CampPalette.Line,
                 modifier = Modifier.padding(vertical = 5.dp),
             )
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text("총 주문 금액", fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                Text(
+                    tr(camp.room.app.R.string.camp_order_total),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 Spacer(Modifier.weight(1f))
                 Text(
                     won(s.quote?.total ?: cart.total),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
         CampPrimary(
-            "${won(s.quote?.total?:cart.total)} 데모 결제",
+            tr(camp.room.app.R.string.camp_demo_payment, won(s.quote?.total ?: cart.total)),
             Icons.Outlined.ShoppingBag,
             enabled = s.quote?.eligible == true && cart.items.isNotEmpty(),
             busy = s.busy,
@@ -547,10 +773,12 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             onClick = vm::checkout,
         )
         Text(
-            "실제 결제 · 배송은 발생하지 않습니다.\n주문 전 수령 조건과 도착 예정일을 확인해 주세요.",
-            fontSize = 8.sp,
+            tr(camp.room.app.R.string.camp_no_real_payment_or_delivery_occurs_ncheck),
+            fontSize = 12.sp,
             color = CampPalette.Muted,
-            lineHeight = 14.sp,
+            lineHeight = 18.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -567,13 +795,13 @@ private fun DeliveryChoice(
     val selected = s.destination == value
     Surface(
         onClick = { vm.delivery(destination = value) },
-        modifier = modifier.testTag("delivery-$value"),
+        modifier = modifier.testTag("delivery-${value}"),
         shape = RoundedCornerShape(7.dp),
         color = if (selected) CampPalette.Sage else CampPalette.Paper,
         border =
             androidx.compose.foundation.BorderStroke(
                 1.dp,
-                if (selected) Color(0xFF8BA573) else CampPalette.Line,
+                if (selected) CampPalette.Outline else CampPalette.Line,
             ),
     ) {
         Row(
@@ -583,9 +811,11 @@ private fun DeliveryChoice(
         ) {
             Icon(icon, null, Modifier.size(20.dp), tint = CampPalette.Muted)
             Text(
-                "  $label",
-                fontSize = 12.sp,
+                "  ${label}",
+                fontSize = 14.sp,
                 color = if (selected) CampPalette.Forest else CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -594,9 +824,21 @@ private fun DeliveryChoice(
 @Composable
 private fun PriceRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
-        Text(label, fontSize = 11.sp, color = CampPalette.Muted)
+        Text(
+            label,
+            fontSize = 12.sp,
+            color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         Spacer(Modifier.weight(1f))
-        Text(value, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(
+            value,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
@@ -617,20 +859,51 @@ private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifie
         ) {
             Icon(Icons.Outlined.CheckCircle, null, Modifier.size(46.dp), tint = CampPalette.Muted)
         }
-        CampPill("실제 결제 없음")
-        Text("준비물이 여정을 기다리고 있어요.", fontSize = 25.sp, fontWeight = FontWeight.SemiBold)
-        Text("데모 주문이 저장되었습니다.", fontSize = 12.sp, color = CampPalette.Muted)
+        CampPill(tr(camp.room.app.R.string.camp_no_real_payment))
+        Text(
+            tr(camp.room.app.R.string.camp_your_essentials_are_waiting_for_the_journey),
+            fontSize = 25.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            tr(camp.room.app.R.string.camp_your_demo_order_has_been_saved),
+            fontSize = 14.sp,
+            color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         CampSurface(Modifier.widthIn(max = 570.dp).fillMaxWidth()) {
-            PriceRow("주문 번호", order.id)
-            PriceRow("주문 금액", won(order.total))
-            PriceRow("도착 예정", order.eta)
-            PriceRow("받는 곳", if (order.destination == "home") "자택" else "캠핑장")
-            Text(order.address, fontSize = 11.sp, color = CampPalette.Muted)
-            PriceRow("받는 분", "${order.recipient} ${order.siteReference}")
+            PriceRow(tr(camp.room.app.R.string.camp_order_number), order.id)
+            PriceRow(tr(camp.room.app.R.string.camp_order_amount), won(order.total))
+            PriceRow(tr(camp.room.app.R.string.camp_estimated_arrival), order.eta)
+            PriceRow(
+                tr(camp.room.app.R.string.camp_receiving_at),
+                if (order.destination == "home") tr(camp.room.app.R.string.camp_home)
+                else tr(camp.room.app.R.string.camp_campsite),
+            )
+            Text(
+                order.address,
+                fontSize = 12.sp,
+                color = CampPalette.Muted,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
+            PriceRow(
+                tr(camp.room.app.R.string.camp_recipient),
+                "${order.recipient} ${order.siteReference}",
+            )
         }
-        Text("시연용 주문입니다. 실제 결제 승인이나 배송 접수는 발생하지 않았어요.", fontSize = 10.sp, color = CampPalette.Muted)
+        Text(
+            tr(camp.room.app.R.string.camp_this_is_a_demo_order_no_real),
+            fontSize = 12.sp,
+            color = CampPalette.Muted,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+        )
         CampPrimary(
-            "내 캠핑으로 돌아가기",
+            tr(camp.room.app.R.string.camp_back_to_my_trip),
             Icons.Outlined.ArrowForward,
             modifier = Modifier.testTag("order-back-trip"),
             onClick = vm::closeOrder,

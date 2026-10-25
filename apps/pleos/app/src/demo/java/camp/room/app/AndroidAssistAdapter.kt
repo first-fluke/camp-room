@@ -1,5 +1,8 @@
 package camp.room.app
 
+import javax.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ViewModelScoped
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -25,8 +28,10 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 
 /** Android emulator assist services. No invented coordinates, audio results, or arrival events. */
-class AndroidAssistAdapter(context: Context) {
+@ViewModelScoped
+class AndroidAssistAdapter @Inject constructor(@ApplicationContext context: Context) {
     private val context = context.applicationContext
+    @Volatile private var speechLocale=Locale.KOREAN
     private val main = Handler(Looper.getMainLooper())
     private val locations = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     @Volatile private var active = false
@@ -263,9 +268,9 @@ class AndroidAssistAdapter(context: Context) {
                                 val supported =
                                     status == TextToSpeech.SUCCESS &&
                                         current != null &&
-                                        current.isLanguageAvailable(Locale.KOREAN) >=
+                                        current.isLanguageAvailable(speechLocale) >=
                                             TextToSpeech.LANG_AVAILABLE &&
-                                        current.setLanguage(Locale.KOREAN) >=
+                                        current.setLanguage(speechLocale) >=
                                             TextToSpeech.LANG_AVAILABLE
                                 engineReady = supported
                                 ttsStatus = if (supported) "ready" else "unavailable"
@@ -498,6 +503,16 @@ class AndroidAssistAdapter(context: Context) {
                 }
             }
         } ?: unavailable("음성 인식 시간이 지났어요. 텍스트를 직접 입력할 수 있습니다.").put("text", "")
+    }
+
+    fun setLanguage(tag:String) {
+        val next=Locale.forLanguageTag(tag)
+        if(next.language==speechLocale.language)return
+        speechLocale=next
+        main.post {
+            engine?.stop();engine?.shutdown();engine=null;engineReady=false
+            recognizer?.cancel();recognizer?.destroy();recognizer=null
+        }
     }
 
     fun assistStatus(): JSONObject =

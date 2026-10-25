@@ -1,0 +1,365 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="camp_location" formatted="false">"Location"</string>
+    <string name="camp_speech_recognition" formatted="false">"Speech recognition"</string>
+    <string name="camp_voice_guidance" formatted="false">"Voice guidance"</string>
+    <string name="camp_getting_your_next_escape_ready" formatted="false">"Getting your next escape ready"</string>
+    <string name="camp_loading_campsites_and_your_trip" formatted="false">"Loading campsites and your trip."</string>
+    <string name="camp_we_couldn_t_load_your_trip" formatted="false">"We couldn\'t load your trip"</string>
+    <string name="camp_connect_again" formatted="false">"Connect again"</string>
+    <string name="camp_a_little_room_between_you_and_nature" formatted="false">"  A little room between you and nature."</string>
+    <string name="camp_demo_data_no_real_reservations_or_payments" formatted="false">"Demo data · No real reservations or payments"</string>
+    <string name="camp_pleos_vehicle_integration_check_external_data_sources" formatted="false">"Pleos vehicle integration · Check external data sources"</string>
+    <string name="camp_discover" formatted="false">"Discover"</string>
+    <string name="camp_find_your_kind_of_campsite" formatted="false">"Find your kind of campsite"</string>
+    <string name="camp_my_trip" formatted="false">"My trip"</string>
+    <string name="camp_from_the_journey_to_your_essentials" formatted="false">"From the journey to your essentials"</string>
+    <string name="camp_cabin" formatted="false">"Cabin"</string>
+    <string name="camp_a_comfortable_space_of_our_own" formatted="false">"A comfortable space of our own"</string>
+    <string name="camp_a_little_room_between_you_and_nature_017" formatted="false">"A little room between you and nature"</string>
+    <string name="camp_a_little_closer_na_little_more_naturally" formatted="false">"A little closer,\na little more naturally."</string>
+    <string name="camp_demo_vehicle_connected" formatted="false">"Demo vehicle connected"</string>
+    <string name="camp_pleos_vehicle_status" formatted="false">"Pleos vehicle status"</string>
+    <string name="camp_pleos_simulator" formatted="false">"PLEOS · Simulator"</string>
+    <string name="camp_pleos_local_sdk" formatted="false">"PLEOS · Local SDK"</string>
+    <string name="camp_my_little_outdoors" formatted="false">"My little outdoors  /  %1$s"</string>
+    <string name="camp_demo_mode" formatted="false">"Demo mode"</string>
+    <string name="camp_pleos_mode" formatted="false">"Pleos mode"</string>
+    <string name="camp_voice_command" formatted="false">"Voice command"</string>
+    <string name="camp_essentials" formatted="false">"Essentials"</string>
+    <string name="camp_dismiss_error" formatted="false">"Dismiss error"</string>
+    <string name="camp_check_price" formatted="false">"Check price"</string>
+    <string name="camp_krw_d" formatted="false">"KRW %,d"</string>
+    <string name="camp_mon" formatted="false">"Mon"</string>
+    <string name="camp_tue" formatted="false">"Tue"</string>
+    <string name="camp_wed" formatted="false">"Wed"</string>
+    <string name="camp_thu" formatted="false">"Thu"</string>
+    <string name="camp_fri" formatted="false">"Fri"</string>
+    <string name="camp_sat" formatted="false">"Sat"</string>
+    <string name="camp_sun" formatted="false">"Sun"</string>
+    <string name="camp_showers" formatted="false">"Showers"</string>
+    <string name="camp_camping_power" formatted="false">"Camping power"</string>
+    <string name="camp_pets_welcome" formatted="false">"Pets welcome"</string>
+    <string name="camp_restrooms" formatted="false">"Restrooms"</string>
+    <string name="camp_water_point" formatted="false">"Water point"</string>
+    <string name="camp_ready" formatted="false">"Ready"</string>
+    <string name="camp_alert_registered" formatted="false">"Alert registered"</string>
+    <string name="camp_arrival_observed" formatted="false">"Arrival observed"</string>
+    <string name="camp_speaking" formatted="false">"Speaking"</string>
+    <string name="camp_recognized" formatted="false">"Recognized"</string>
+    <string name="camp_listening" formatted="false">"Listening"</string>
+    <string name="camp_unavailable" formatted="false">"Unavailable"</string>
+    <string name="camp_waiting" formatted="false">"Waiting"</string>
+    <string name="camp_complete" formatted="false">"Complete"</string>
+    <string name="camp_stopped" formatted="false">"Stopped"</string>
+    <string name="camp_checking_status" formatted="false">"Checking status"</string>
+    <string name="camp_where_will_you_unwind_this_weekend" formatted="false">"Where will you unwind this weekend?"</string>
+    <string name="camp_find_a_place_that_calls_to_you" formatted="false">"Find a place that calls to you and make it your next escape."</string>
+    <string name="camp_near_me" formatted="false">"Near me"</string>
+    <string name="camp_check_in" formatted="false">"Check-in"</string>
+    <string name="camp_check_out" formatted="false">"Check-out"</string>
+    <string name="camp_find_campsites" formatted="false">"Find campsites"</string>
+    <string name="camp_make_it_yours" formatted="false">"Make it yours"</string>
+    <string name="camp_car_camping" formatted="false">"Car camping"</string>
+    <string name="camp_places_to_slow_down" formatted="false">"Places to slow down  %1$s"</string>
+    <string name="camp_discover_a_place_that_makes_car_camping" formatted="false">"Discover a place that makes car camping feel special."</string>
+    <string name="camp_external_data_connected" formatted="false">"External data connected"</string>
+    <string name="camp_demo_campsite_collection" formatted="false">"Demo campsite collection"</string>
+    <string name="camp_no_campsites_match_these_filters" formatted="false">"No campsites match these filters"</string>
+    <string name="camp_try_a_wider_region_or_fewer_facilities" formatted="false">"Try a wider region or fewer facilities."</string>
+    <string name="camp_reset_filters" formatted="false">"Reset filters"</string>
+    <string name="camp_found_your_place_let_the_rest_of" formatted="false">"Found your place? Let the rest of the journey follow."</string>
+    <string name="camp_weather_your_route_cabin_settings_and_essentials" formatted="false">"Weather, your route, cabin settings and essentials come together in My trip."</string>
+    <string name="camp_explore_my_trip" formatted="false">"Explore my trip"</string>
+    <string name="camp_where_to" formatted="false">"Where to?"</string>
+    <string name="camp_all" formatted="false">"All"</string>
+    <string name="camp_all_regions" formatted="false">"All regions"</string>
+    <string name="camp_gangwon" formatted="false">"Gangwon"</string>
+    <string name="camp_gyeonggi" formatted="false">"Gyeonggi"</string>
+    <string name="camp_chungbuk" formatted="false">"Chungbuk"</string>
+    <string name="camp_gyeongbuk" formatted="false">"Gyeongbuk"</string>
+    <string name="camp_jeju" formatted="false">"Jeju"</string>
+    <string name="camp_who_s_coming" formatted="false">"Who\'s coming?"</string>
+    <string name="camp_guests" formatted="false">"%1$s guests"</string>
+    <string name="camp_km_from_the_last_observed_location" formatted="false">" · %1$s km from the last observed location"</string>
+    <string name="camp_demo" formatted="false">"Demo"</string>
+    <string name="camp_connected_data" formatted="false">"Connected data"</string>
+    <string name="camp_night" formatted="false">" / night"</string>
+    <string name="camp_view_details" formatted="false">"View details"</string>
+    <string name="camp_checked" formatted="false">"%1$s · Checked %2$s"</string>
+    <string name="camp_getting_ready_one_little_step_at_a" formatted="false">"Getting ready, one little step at a time."</string>
+    <string name="camp_your_place_your_journey_and_your_last" formatted="false">"Your place, your journey and your last few essentials, all connected."</string>
+    <string name="camp_change_place_or_dates" formatted="false">"Change place or dates"</string>
+    <string name="camp_shall_we_plan_our_next_escape" formatted="false">"Shall we plan our next escape?"</string>
+    <string name="camp_find_a_campsite" formatted="false">"Find a campsite"</string>
+    <string name="camp_my_upcoming_trip" formatted="false">"My upcoming trip"</string>
+    <string name="camp_check_in_check_out_trip_saved" formatted="false">"Check-in %1$s    ·    Check-out %2$s    ·    Trip saved ✓"</string>
+    <string name="camp_a_little_closer_to_your_journey" formatted="false">"A little closer to your journey"</string>
+    <string name="camp_use_location_arrival_alerts_and_spoken_guidance" formatted="false">"Use location, arrival alerts and spoken guidance together."</string>
+    <string name="camp_arrival_alert" formatted="false">"Arrival alert"</string>
+    <string name="camp_hear_trip_briefing" formatted="false">"Hear trip briefing"</string>
+    <string name="camp_voice_guidance_099" formatted="false">"Voice guidance: %1$s"</string>
+    <string name="camp_a_few_promises_for_a_peaceful_stay" formatted="false">"A few promises for a peaceful stay"</string>
+    <string name="camp_set_up_our_cabin" formatted="false">"Set up our cabin"</string>
+    <string name="camp_a_few_things_worth_bringing_along" formatted="false">"A few things worth bringing along"</string>
+    <string name="camp_thoughtful_essentials_for_the_facilities_and_weather" formatted="false">"Thoughtful essentials for the facilities and weather ahead."</string>
+    <string name="camp_view_cart" formatted="false">"View cart"</string>
+    <string name="camp_essentials_orders" formatted="false">"Essentials orders"</string>
+    <string name="camp_demo_order_confirmed" formatted="false">"Demo order confirmed"</string>
+    <string name="camp_expected" formatted="false">"Expected %1$s"</string>
+    <string name="camp_weather_during_your_stay" formatted="false">"  Weather during your stay"</string>
+    <string name="camp_demo_forecast" formatted="false">"Demo forecast"</string>
+    <string name="camp_weather_forecast" formatted="false">"Weather forecast"</string>
+    <string name="camp_a_forecast_isn_t_available_for_these" formatted="false">"A forecast isn\'t available for these dates."</string>
+    <string name="camp_overnight_low" formatted="false">"Overnight low"</string>
+    <string name="camp_rain_chance_bring_a_warm_sleeping_bag" formatted="false">"Rain chance %1$s%% · Bring a warm sleeping bag"</string>
+    <string name="camp_the_journey_in_your_car" formatted="false">"  The journey in your car"</string>
+    <string name="camp_demo_route" formatted="false">"Demo route"</string>
+    <string name="camp_pleos_route" formatted="false">"Pleos route"</string>
+    <string name="camp_includes_a_charging_stop" formatted="false">"Includes a charging stop"</string>
+    <string name="camp_an_easy_ride_to_your_retreat" formatted="false">"An easy ride to your retreat"</string>
+    <string name="camp_distance" formatted="false">"Distance"</string>
+    <string name="camp_estimated_time" formatted="false">"Estimated time"</string>
+    <string name="camp_hr_min" formatted="false">"%1$s hr %2$s min"</string>
+    <string name="camp_estimated_arrival_charge" formatted="false">"Estimated arrival charge"</string>
+    <string name="camp_demo_guidance_running" formatted="false">"Demo guidance running"</string>
+    <string name="camp_guidance_request_sent" formatted="false">"Guidance request sent"</string>
+    <string name="camp_start_guidance" formatted="false">"Start guidance"</string>
+    <string name="camp_current_soc_estimated_use_kwh_nyour_actual" formatted="false">"Current SOC %1$s%% · Estimated use %2$s kWh\nYour actual route may differ"</string>
+    <string name="camp_add" formatted="false">"Add %1$s"</string>
+    <string name="camp_unpack" formatted="false">"Unpack"</string>
+    <string name="camp_ease_into_your_arrival" formatted="false">"Ease into your arrival"</string>
+    <string name="camp_relax_together" formatted="false">"Relax together"</string>
+    <string name="camp_comfort_for_everyone" formatted="false">"Comfort for everyone"</string>
+    <string name="camp_read_and_rest" formatted="false">"Read and rest"</string>
+    <string name="camp_reading_in_front_resting_in_the_rear" formatted="false">"Reading in front · Resting in the rear"</string>
+    <string name="camp_prepare_for_sleep" formatted="false">"Prepare for sleep"</string>
+    <string name="camp_a_quieter_end_to_the_day" formatted="false">"A quieter end to the day"</string>
+    <string name="camp_prepare_to_leave" formatted="false">"Prepare to leave"</string>
+    <string name="camp_ready_for_the_next_journey" formatted="false">"Ready for the next journey"</string>
+    <string name="camp_a_little_room_of_our_own_inside" formatted="false">"A little room of our own, inside the car."</string>
+    <string name="camp_let_reading_and_resting_happen_comfortably_side" formatted="false">"Let reading and resting happen comfortably, side by side."</string>
+    <string name="camp_simulator_connected" formatted="false">"Simulator connected"</string>
+    <string name="camp_current_battery" formatted="false">"Current battery"</string>
+    <string name="camp_measured_cabin_temperature" formatted="false">"Measured cabin temperature"</string>
+    <string name="camp_doors" formatted="false">"Doors"</string>
+    <string name="camp_all_closed" formatted="false">"All closed"</string>
+    <string name="camp_a_door_is_open" formatted="false">"A door is open"</string>
+    <string name="camp_check_needed" formatted="false">"Check needed"</string>
+    <string name="camp_windows" formatted="false">"Windows"</string>
+    <string name="camp_a_window_is_open" formatted="false">"A window is open"</string>
+    <string name="camp_observed" formatted="false">"%1$s observed"</string>
+    <string name="camp_simulated" formatted="false">"Simulated "</string>
+    <string name="camp_parked" formatted="false">"Parked"</string>
+    <string name="camp_moving" formatted="false">"Moving"</string>
+    <string name="camp_unknown" formatted="false">"Unknown"</string>
+    <string name="camp_state" formatted="false">"%1$s%2$s state"</string>
+    <string name="camp_a_little_more_just_for_you" formatted="false">"A little more, just for you"</string>
+    <string name="camp_only_settings_you_explicitly_apply_will_run" formatted="false">"Only settings you explicitly apply will run"</string>
+    <string name="camp_target_cabin_temperature" formatted="false">"Target cabin temperature"</string>
+    <string name="camp_lower_target_temperature" formatted="false">"Lower target temperature"</string>
+    <string name="camp_raise_target_temperature" formatted="false">"Raise target temperature"</string>
+    <string name="camp_measured_temperature_and_target_are_different" formatted="false">"Measured temperature and target are different"</string>
+    <string name="camp_front_seats" formatted="false">"Front seats"</string>
+    <string name="camp_rear_seats" formatted="false">"Rear seats"</string>
+    <string name="camp_cabin_setting_results" formatted="false">"  Cabin setting results"</string>
+    <string name="camp_items_checked" formatted="false">"Items checked"</string>
+    <string name="camp_some_items_need_attention" formatted="false">"Some items need attention"</string>
+    <string name="camp_observed_state_checked" formatted="false">"Observed state checked"</string>
+    <string name="camp_command_accepted" formatted="false">"Command accepted"</string>
+    <string name="camp_state_needs_checking" formatted="false">"State needs checking"</string>
+    <string name="camp_command_acceptance_and_observed_state_are_different" formatted="false">"Command acceptance and observed state are different. These results come from the demo simulator."</string>
+    <string name="camp_command_acceptance_and_observed_state_are_different_170" formatted="false">"Command acceptance and observed state are different. Unobserved items still need checking."</string>
+    <string name="camp_travel_light_into_the_next_chapter" formatted="false">"Travel light into the next chapter."</string>
+    <string name="camp_check_doors_windows_and_battery_at_then" formatted="false">"Check doors, windows and battery at %1$s%%, then continue to your next destination."</string>
+    <string name="camp_view_travel_plan" formatted="false">"View travel plan"</string>
+    <string name="camp_zone" formatted="false">"%1$s zone"</string>
+    <string name="camp_reading_light_check_needed" formatted="false">"Reading light · Check needed"</string>
+    <string name="camp_reading_light" formatted="false">"Reading light"</string>
+    <string name="camp_shade" formatted="false">"Shade"</string>
+    <string name="camp_what_kind_of_rest_do_you_need" formatted="false">"What kind of rest do you need now?"</string>
+    <string name="camp_keep_the_front_bright_for_reading_and" formatted="false">"Keep the front bright for reading and the rear calm for resting."</string>
+    <string name="camp_lower_the_light_and_add_shade_for" formatted="false">"Lower the light and add shade for a comfortable night."</string>
+    <string name="camp_reset_shade_and_lighting_then_check_before" formatted="false">"Reset shade and lighting, then check before leaving."</string>
+    <string name="camp_light_both_zones_so_you_can_unpack" formatted="false">"Light both zones so you can unpack with ease."</string>
+    <string name="camp_soft_lighting_and_a_comfortable_temperature_for" formatted="false">"Soft lighting and a comfortable temperature for time together."</string>
+    <string name="camp_apply_these_cabin_settings" formatted="false">"Apply these cabin settings"</string>
+    <string name="camp_after_supported_commands_run_the_simulator_state" formatted="false">"After supported commands run, the simulator state is checked again."</string>
+    <string name="camp_different_moments_shared_comfortably" formatted="false">"Different moments, shared comfortably"</string>
+    <string name="camp_a_softer_landing_at_the_end_of" formatted="false">"A softer landing at the end of the day"</string>
+    <string name="camp_a_little_room_for_today_s_rest" formatted="false">"A little room for today\'s rest"</string>
+    <string name="camp_reading" formatted="false">"Reading"</string>
+    <string name="camp_resting" formatted="false">"Resting"</string>
+    <string name="camp_front" formatted="false">"Front · %1$s"</string>
+    <string name="camp_light_shade" formatted="false">"Light %1$s · Shade %2$s"</string>
+    <string name="camp_rear" formatted="false">"Rear · %1$s"</string>
+    <string name="camp_a_light_to_focus_by" formatted="false">"A light to focus by"</string>
+    <string name="camp_reading_light_on" formatted="false">"Reading light on"</string>
+    <string name="camp_reading_light_off" formatted="false">"Reading light off"</string>
+    <string name="camp_a_comfortable_temperature" formatted="false">"A comfortable temperature"</string>
+    <string name="camp_target_c" formatted="false">"Target %1$s°C"</string>
+    <string name="camp_demo_simulator_observations" formatted="false">"  Demo simulator observations"</string>
+    <string name="camp_pleos_vehicle_observations" formatted="false">"  Pleos vehicle observations"</string>
+    <string name="camp_front_201" formatted="false">"Front "</string>
+    <string name="camp_rear_202" formatted="false">"Rear "</string>
+    <string name="camp_ambient_brightness" formatted="false">"Ambient brightness"</string>
+    <string name="camp_target_temperature" formatted="false">"Target temperature"</string>
+    <string name="camp_close_campsite_details" formatted="false">"Close campsite details"</string>
+    <string name="camp_demo_campsite" formatted="false">"Demo campsite"</string>
+    <string name="camp_external_data" formatted="false">"External data"</string>
+    <string name="camp_sleeping_in_the_car" formatted="false">"Sleeping in the car"</string>
+    <string name="camp_allowed" formatted="false">"Allowed"</string>
+    <string name="camp_not_allowed" formatted="false">"Not allowed"</string>
+    <string name="camp_confirm_with_the_operator" formatted="false">"Confirm with the operator"</string>
+    <string name="camp_camping_power_212" formatted="false">"Camping power"</string>
+    <string name="camp_provided" formatted="false">"Provided"</string>
+    <string name="camp_ev_charging" formatted="false">"EV charging"</string>
+    <string name="camp_available" formatted="false">"Available"</string>
+    <string name="camp_unavailable_216" formatted="false">"Unavailable"</string>
+    <string name="camp_check_in_check_out" formatted="false">"Check-in · Check-out"</string>
+    <string name="camp_a_few_promises_for_a_comfortable_stay" formatted="false">"A few promises for a comfortable stay"</string>
+    <string name="camp_accepted" formatted="false">"Accepted"</string>
+    <string name="camp_not_accepted" formatted="false">"Not accepted"</string>
+    <string name="camp_campsite_parcel_receiving" formatted="false">"Campsite parcel receiving · %1$s"</string>
+    <string name="camp_checked_222" formatted="false">"%1$s · Checked %2$s"</string>
+    <string name="camp_guests_223" formatted="false">"%1$s — %2$s · %3$s"</string>
+    <string name="camp_save_to_my_trip" formatted="false">"Save to my trip"</string>
+    <string name="camp_pack_a_little_rest_a_lot" formatted="false">"Pack a little. Rest a lot."</string>
+    <string name="camp_bring_the_little_things_this_journey_needs" formatted="false">"Bring the little things this journey needs."</string>
+    <string name="camp_close_cart" formatted="false">"Close cart"</string>
+    <string name="camp_packed_essentials" formatted="false">"Packed essentials  %1$s"</string>
+    <string name="camp_a_travel_bag_waiting_to_be_filled" formatted="false">"A travel bag waiting to be filled"</string>
+    <string name="camp_add_a_recommended_essential_below" formatted="false">"Add a recommended essential below."</string>
+    <string name="camp_decrease_quantity" formatted="false">"Decrease %1$s quantity"</string>
+    <string name="camp_increase_quantity" formatted="false">"Increase %1$s quantity"</string>
+    <string name="camp_remove" formatted="false">"Remove %1$s"</string>
+    <string name="camp_a_few_more_things_to_consider" formatted="false">"A few more things to consider"</string>
+    <string name="camp_add_another" formatted="false">"Add another %1$s"</string>
+    <string name="camp_where_would_you_like_to_receive_it" formatted="false">"Where would you like to receive it?"</string>
+    <string name="camp_home" formatted="false">"Home"</string>
+    <string name="camp_campsite" formatted="false">"Campsite"</string>
+    <string name="camp_recipient" formatted="false">"Recipient"</string>
+    <string name="camp_home_delivery_address" formatted="false">"Home delivery address"</string>
+    <string name="camp_choose_a_campsite_first" formatted="false">"Choose a campsite first"</string>
+    <string name="camp_parcels_accepted" formatted="false">"Parcels accepted"</string>
+    <string name="camp_parcels_not_accepted_or_unconfirmed" formatted="false">"Parcels not accepted or unconfirmed"</string>
+    <string name="camp_pitch_reservation_reference" formatted="false">"Pitch · Reservation reference"</string>
+    <string name="camp_stay" formatted="false">"Stay %1$s — %2$s"</string>
+    <string name="camp_the_prefilled_name_and_address_are_fictional" formatted="false">"The prefilled name and address are fictional demo details."</string>
+    <string name="camp_check_delivery_availability" formatted="false">"Check delivery availability"</string>
+    <string name="camp_this_delivery_doesn_t_fit_the_receiving" formatted="false">"This delivery doesn\'t fit the receiving conditions"</string>
+    <string name="camp_items_subtotal" formatted="false">"Items subtotal"</string>
+    <string name="camp_delivery" formatted="false">"Delivery"</string>
+    <string name="camp_order_total" formatted="false">"Order total"</string>
+    <string name="camp_demo_payment" formatted="false">"%1$s demo payment"</string>
+    <string name="camp_no_real_payment_or_delivery_occurs_ncheck" formatted="false">"No real payment or delivery occurs.\nCheck the receiving conditions and estimated arrival before ordering."</string>
+    <string name="camp_no_real_payment" formatted="false">"No real payment"</string>
+    <string name="camp_your_essentials_are_waiting_for_the_journey" formatted="false">"Your essentials are waiting for the journey."</string>
+    <string name="camp_your_demo_order_has_been_saved" formatted="false">"Your demo order has been saved."</string>
+    <string name="camp_order_number" formatted="false">"Order number"</string>
+    <string name="camp_order_amount" formatted="false">"Order amount"</string>
+    <string name="camp_estimated_arrival" formatted="false">"Estimated arrival"</string>
+    <string name="camp_receiving_at" formatted="false">"Receiving at"</string>
+    <string name="camp_this_is_a_demo_order_no_real" formatted="false">"This is a demo order. No real payment authorization or shipment has been created."</string>
+    <string name="camp_back_to_my_trip" formatted="false">"Back to my trip"</string>
+    <string name="camp_a_little_rest_with_a_few_words" formatted="false">"  A little rest, with a few words"</string>
+    <string name="camp_close_voice_command" formatted="false">"Close voice command"</string>
+    <string name="camp_speak_or_type_a_phrase_we_ll" formatted="false">"Speak or type a phrase. We\'ll show a preview before anything happens."</string>
+    <string name="camp_checking_your_voice" formatted="false">"Checking your voice"</string>
+    <string name="camp_speak_a_command" formatted="false">"Speak a command"</string>
+    <string name="camp_recognized_text_type_instead" formatted="false">"Recognized text · Type instead"</string>
+    <string name="camp_you_can_type_if_voice_is_unavailable" formatted="false">"You can type if voice is unavailable. Typed text isn\'t a recording result."</string>
+    <string name="camp_navigation" formatted="false">"Navigation"</string>
+    <string name="camp_preview_command" formatted="false">"Preview command"</string>
+    <string name="camp_review_on_the_screen" formatted="false">"Review on the screen"</string>
+    <string name="camp_run_vehicle_settings_and_navigation_with_their" formatted="false">"Run vehicle settings and navigation with their screen buttons. Voice never places orders or makes payments."</string>
+    <string name="camp_fully_booked" formatted="false">"Fully booked"</string>
+    <string name="camp_pitches_left" formatted="false">"%1$s pitches left"</string>
+    <string name="camp_almost_full" formatted="false">"Almost full"</string>
+    <string name="camp_available_277" formatted="false">"Available"</string>
+    <string name="camp_not_observed" formatted="false">"Not observed"</string>
+    <string name="camp_demo_camper" formatted="false">"Demo camper"</string>
+    <string name="camp_12_camping_road_unit_101_seoul_fictional" formatted="false">"12 Camping Road, Unit 101, Seoul (fictional address)"</string>
+    <string name="camp_a_12_demo" formatted="false">"A-12 (Demo)"</string>
+    <string name="camp_we_couldn_t_complete_the_request" formatted="false">"We couldn\'t complete the request."</string>
+    <string name="camp_we_couldn_t_start_the_vehicle_connection" formatted="false">"We couldn\'t start the vehicle connection. %1$s"</string>
+    <string name="camp_we_couldn_t_read_the_vehicle_state" formatted="false">"We couldn\'t read the vehicle state. Please check the connection."</string>
+    <string name="camp_we_couldn_t_confirm_that_the_vehicle" formatted="false">"We couldn\'t confirm that the vehicle subscription stopped."</string>
+    <string name="camp_choose_a_check_out_date_after_check" formatted="false">"Choose a check-out date after check-in."</string>
+    <string name="camp_your_trip_is_saved_shall_we_get" formatted="false">"Your trip is saved. Shall we get ready?"</string>
+    <string name="camp_demo_navigation_has_started" formatted="false">"Demo navigation has started."</string>
+    <string name="camp_the_request_was_sent_to_pleos_navigation" formatted="false">"The request was sent to Pleos navigation."</string>
+    <string name="camp_cabin_settings_were_applied_and_the_simulator" formatted="false">"Cabin settings were applied and the simulator observations were checked."</string>
+    <string name="camp_cabin_commands_and_supported_observations_were_checked" formatted="false">"Cabin commands and supported observations were checked."</string>
+    <string name="camp_please_check_the_remaining_items" formatted="false">"Please check the remaining items."</string>
+    <string name="camp_the_essential_was_added_to_your_cart" formatted="false">"The essential was added to your cart."</string>
+    <string name="camp_enter_the_recipient_s_name" formatted="false">"Enter the recipient\'s name."</string>
+    <string name="camp_enter_your_home_delivery_address" formatted="false">"Enter your home delivery address."</string>
+    <string name="camp_enter_a_pitch_or_reservation_reference" formatted="false">"Enter a pitch or reservation reference."</string>
+    <string name="camp_check_delivery_availability_first" formatted="false">"Check delivery availability first."</string>
+    <string name="camp_the_demo_order_is_saved_no_real" formatted="false">"The demo order is saved. No real payment occurred."</string>
+    <string name="camp_permission_is_missing_allow_it_in_settings" formatted="false">"%1$s permission is missing. Allow it in settings, then try again."</string>
+    <string name="camp_we_couldn_t_read_the_last_known" formatted="false">"We couldn\'t read the last known location."</string>
+    <string name="camp_device_location" formatted="false">"Device location"</string>
+    <string name="camp_sorted_from_the_last_observed_location" formatted="false">"%1$s · Sorted from the last observed location"</string>
+    <string name="camp_campsites_were_sorted_from_the_last_observed" formatted="false">"Campsites were sorted from the last observed location."</string>
+    <string name="camp_save_a_campsite_to_my_trip_first" formatted="false">"Save a campsite to My trip first."</string>
+    <string name="camp_this_is_a_demo_forecast" formatted="false">"This is a demo forecast. "</string>
+    <string name="camp_the_forecast_is_the_overnight_low_is" formatted="false">"%1$sThe forecast is %2$s. The overnight low is %3$s degrees."</string>
+    <string name="camp_the_forecast_for_these_dates_needs_checking" formatted="false">"The forecast for these dates needs checking."</string>
+    <string name="camp_the_current_battery_state_needs_checking" formatted="false">"The current battery state needs checking."</string>
+    <string name="camp_the_current_battery_is_percent" formatted="false">"The current battery is %1$s percent."</string>
+    <string name="camp_demo_310" formatted="false">"Demo "</string>
+    <string name="camp_trip_briefing_check_in_is_and_check" formatted="false">"%1$s%2$s trip briefing. Check-in is %3$s and check-out is %4$s. %5$s %6$s %7$s"</string>
+    <string name="camp_the_spoken_briefing_request_was_sent" formatted="false">"The spoken briefing request was sent."</string>
+    <string name="camp_manually_typed_text" formatted="false">"Manually typed text"</string>
+    <string name="camp_speech_recognition_result" formatted="false">"Speech recognition result"</string>
+    <string name="camp_voice_unavailable_you_can_type_instead" formatted="false">"Voice unavailable · You can type instead"</string>
+    <string name="camp_voice_doesn_t_place_orders_or_make" formatted="false">"Voice doesn\'t place orders or make payments. Please review the cart yourself."</string>
+    <string name="camp_preview_on_the_cabin_screen_apply_it" formatted="false">"Preview \'%1$s\' on the Cabin screen. Apply it yourself with the \'Apply these cabin settings\' button."</string>
+    <string name="camp_open_the_travel_plan_in_my_trip" formatted="false">"Open the travel plan in My trip. Start it yourself with the \'Start guidance\' button."</string>
+    <string name="camp_try_a_supported_phrase_prepare_for_sleep" formatted="false">"Try a supported phrase: prepare for sleep, read and rest, or navigation."</string>
+    <string name="language_settings">"Language &amp; region"</string>
+    <string name="language_system">"Use system language"</string>
+    <string name="language_english">"English"</string>
+    <string name="language_korean">"한국어"</string>
+    <string name="language_settings_description">"Choose the app language. Voice recognition and spoken guidance follow this choice."</string>
+    <string name="language_close">"Close language settings"</string>
+    <plurals name="camp_guest_count">
+        <item quantity="one">"%1$d guest"</item>
+        <item quantity="other">"%1$d guests"</item>
+    </plurals>
+    <plurals name="camp_remaining_pitches">
+        <item quantity="one">"%1$d pitch left"</item>
+        <item quantity="other">"%1$d pitches left"</item>
+    </plurals>
+    <string name="assist_location_observed">"The last observed device location was received."</string>
+    <string name="assist_location_unavailable">"Location is unavailable. Check location permission and device services."</string>
+    <string name="assist_arrival_registered">"Arrival monitoring is registered. Entry and exit are reported only when observed."</string>
+    <string name="assist_arrival_inside">"The latest observed position is already inside the arrival area."</string>
+    <string name="assist_arrival_entered">"An entry into the arrival area was observed."</string>
+    <string name="assist_arrival_exited">"An exit from the arrival area was observed."</string>
+    <string name="assist_arrival_idle">"Arrival monitoring has not been registered."</string>
+    <string name="assist_arrival_unavailable">"Arrival monitoring is unavailable. Check coordinates, permissions and device services."</string>
+    <string name="assist_tts_started">"Speech playback has started."</string>
+    <string name="assist_tts_completed">"Spoken guidance has completed."</string>
+    <string name="assist_tts_ready">"Spoken guidance is ready."</string>
+    <string name="assist_tts_stopped">"Spoken guidance has stopped."</string>
+    <string name="assist_tts_unavailable">"Spoken guidance is unavailable. Check the engine, selected language and permissions."</string>
+    <string name="assist_stt_recognized">"Speech recognition returned a result. Review the transcript before continuing."</string>
+    <string name="assist_stt_listening">"Listening for a command."</string>
+    <string name="assist_stt_ended">"Listening ended; a final recognition result has not yet been confirmed."</string>
+    <string name="assist_stt_ready">"Waiting for speech recognition."</string>
+    <string name="assist_stt_unavailable">"Speech recognition is unavailable. You can type a command instead."</string>
+    <string name="assist_navigation_demo_started">"Demo guidance is running. No vehicle navigation was started."</string>
+    <string name="assist_navigation_started">"Navigation driving status has been confirmed."</string>
+    <string name="assist_navigation_unavailable">"Navigation has not started. Check the route, permissions and the Pleos runtime."</string>
+    <string name="assist_status_unknown">"The service state needs checking."</string>
+    <string name="assist_control_unsupported">"This vehicle does not support this control."</string>
+    <string name="assist_control_blocked">"This control is blocked until the required host safety conditions are confirmed."</string>
+    <string name="assist_control_failed">"This control could not be applied. Check support, permissions and connection."</string>
+    <string name="assist_control_observed_different">"A state was observed, but it differs from the requested value."</string>
+    <string name="assist_control_observed">"An observed state is available. Compare it with the requested value."</string>
+    <string name="assist_control_acknowledged">"The command was accepted; its resulting physical state has not been observed."</string>
+    <string name="assist_control_unverified">"The resulting state has not been confirmed."</string>
+</resources>

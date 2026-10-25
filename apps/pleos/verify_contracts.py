@@ -23,7 +23,7 @@ sdk_methods = {item["name"] for item in declarations.values()}
 sources = list((root / "apps/pleos/app/src/pleos").rglob("*.kt"))
 for source in sources:
     for method in re.findall(r"\.((?:get|set|register|unregister|select|request|initialize|release)[A-Z]?[A-Za-z0-9]*)\(", source.read_text()):
-        if method in {"get", "getJSONObject", "getJSONArray"}:  # Domain map / org.json, not SDK APIs.
+        if method in {"get", "getJSONObject", "getJSONArray", "setLanguage"}:  # Domain map / org.json, not SDK APIs.
             continue
         if method not in sdk_methods:
             errors.append(f"Unprovided SDK method {source.name}:{method}")

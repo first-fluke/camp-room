@@ -1,37 +1,69 @@
 # Camp Room · 캠프룸
 
-**Kotlin·Jetpack Compose로 구현한 Pleos 차량용 캠핑 앱입니다.** 찾기 / 내 캠핑 / 차박의 세 메뉴가 같은 캠핑장과 일정을 공유하고, 준비물 추천부터 장바구니·수령지·데모 주문까지 연결합니다. 메인 프런트엔드는 실제 Android 앱이며 브라우저 화면으로 대체하지 않습니다.
+캠프룸은 캠핑장을 찾고 이동한 뒤 차 안에서 쉬는 시간을 돕는 **Pleos 차량용 Kotlin·Jetpack Compose 앱**입니다. 찾기, 내 캠핑, 차박의 세 메뉴가 같은 장소와 일정을 공유합니다. 필요한 캠핑용품을 담고 자택 또는 캠핑장으로 받을 준비도 한 앱에서 이어갑니다.
 
-## 실행 구조
+## 문서 안내
 
-| 경로 | 책임 |
-|---|---|
-| apps/pleos/app/src/main | Kotlin Compose 화면, 모델, OkHttp 저장소, ViewModel/StateFlow |
-| apps/pleos/app/src/demo | Android 에뮬레이터용 명시적 차량/내비 시뮬레이터 연결 |
-| apps/pleos/app/src/pleos | 실제 Vehicle2.3.2/NaviHelper3.0.5 SDK 직접 연결 |
-| apps/api | FastAPI·SQLite, 캠핑장/날씨 공급자, 여행·커머스 상태 |
-| docs/PRD.md / FUNCTIONAL_SPEC.md | 제품 및 기능 요구사항 |
-| docs/plans/contracts/camp-room-api.md | 앱·서버 공통 HTTP 계약 |
-| docs/product | 사용자 제공 SDK 원본·선언 검토 |
-| docs/verification | 실제 수행한 설치·빌드·검증 결과 |
+| 문서 | 내용 |
+| --- | --- |
+| [제품 요구사항](docs/PRD.md) | 사용자, 해결할 문제, 제공 범위와 후속 확장 |
+| [기능명세서](docs/FUNCTIONAL_SPEC.md) | 화면 동작, 상태, 오류와 인수 기준 |
+| [서버 구조도](docs/architecture/SERVER_ARCHITECTURE.md) | 차량 앱·관리자·워커·API·Turso의 Mermaid 구조도 |
+| [DB ERD](docs/database/ERD.md) | 32개 테이블의 키와 관계, 영역별 Mermaid ERD |
+| [독립 DB 검토](docs/database/SCHEMA_REVIEW.md) | 3NF 검토, 제약조건과 트랜잭션 검증 |
+| [실행 안내](docs/USAGE.ko.md) | 앱, API, 관리자, 워커 실행 및 검증 명령 |
+| [Pleos 디자인 적용](docs/DESIGN_SYSTEM.md) | 테마·글꼴·공통 컴포넌트와 검증 범위 |
+| [앱 진단과 분석](docs/OBSERVABILITY.md) | 로컬 로그, Sentry·PostHog 설정과 수집 범위 |
+| [인증과 비밀값](docs/AUTH.ko.md) | 관리자 세션, 서버 인증, 현재 프로필 범위 |
+| [외부 데이터](docs/INTEGRATIONS.md) | 공급자 어댑터, 환경변수, 연결 상태 |
+| [SDK 적용표](docs/product/SDK_CAPABILITY_MATRIX.md) | 사용자 제공 명세에 따른 5개 SDK의 역할 |
 
-기반은 [first-fluke/fullstack-starter](https://github.com/first-fluke/fullstack-starter)입니다. 불필요한 worker, Terraform infra, Flutter 앱을 제거했습니다. 초기 브라우저 구현 가정은 사용자의 Kotlin 플랫폼 정정으로 폐기했으며 이전 작업은 완료로 꾸미지 않고 partial 기록으로 보존합니다.
+## 사용 흐름
 
-## 1. API 실행
+1. **찾기**에서 지역·날짜·인원·시설을 고르고 캠핑장의 규칙과 예약 가능 정보의 출처를 확인합니다.
+2. **내 캠핑**에 장소를 저장하면 일정·날씨·이동 예상이 모입니다. 주변 장소 찾기, 도착 알림, 여행 안내 듣기도 이 흐름에서 사용합니다.
+3. **차박**에서 짐 정리, 함께 쉬기, 앞좌석 독서·뒷좌석 휴식, 취침, 출발 준비를 선택합니다. 설정을 적용한 결과와 실제 관측값을 구분해 확인합니다.
+4. 준비물을 장바구니에 담고 **자택 또는 캠핑장 수령**을 선택합니다. 수령 조건과 도착 예정일을 확인한 뒤 데모 주문을 저장합니다.
 
-Python3.12 이상과 uv가 필요합니다.
+한국어·영어 UI와 시스템 언어 따르기를 지원합니다. 날짜·금액 표시와 음성 언어도 선택한 언어를 반영합니다. 공급자가 보낸 장소명·주소·원문 설명은 원래 언어로 보존합니다.
+
+## 코드 구성
+
+| 경로 | 역할 |
+| --- | --- |
+| `apps/pleos/app` | Compose 화면, Hilt 의존성 주입, ViewModel/StateFlow, 실행 환경별 SDK 연결 |
+| `apps/pleos/api-client` | OpenAPI로 생성한 Kotlin `jvm-ktor` 클라이언트와 DTO, 직렬화 검증 |
+| `apps/api` | Python 3.14·FastAPI, 공급자 어댑터, 여행·상품·주문 API, 관계형 저장소 |
+| `apps/admin` | Next.js 운영 화면과 서버 BFF, 공급자·수령 조건·데모 주문 관리 |
+| `apps/worker` | 캠핑장·날씨 캐시를 갱신하는 Python 3.14 배치 실행기 |
+| `docs/product` | 제공받은 SDK JSONL, 선언 검토, 공모전 신청서 |
+
+[first-fluke/fullstack-starter](https://github.com/first-fluke/fullstack-starter)를 바탕으로 만들었습니다. Flutter·Terraform 앱은 제외했고 캐시 갱신에 필요한 워커는 복구했습니다.
+
+앱은 FastAPI의 `apps/api/openapi.json`에서 생성한 클라이언트를 사용합니다. OpenAPI Generator 7.26.0의 `kotlin`/`jvm-ktor`, Ktor 3.1.3, kotlinx.serialization 1.8.1을 사용하며 생성 파일을 직접 수정하지 않습니다. Hilt 2.56.2가 API, 저장소, ViewModel과 실행 환경별 SDK 어댑터를 연결합니다.
+
+| Pleos SDK | 버전 | 앱에서 맡는 일 |
+| --- | --- | --- |
+| Vehicle | 2.3.2 | 차량 상태, 지원 범위 조회, 차박 장면과 제어 |
+| NaviHelper | 3.0.5 | 예상 이동 정보, 목적지, 길안내 상태 |
+| FusedLocation | 1.1.3 | 최근 위치, 주변 장소 정렬, 캠핑장 진입·이탈 알림 |
+| TextToSpeech | 3.3.1 | 여행 안내 읽기 |
+| SpeechToText | 3.3.1 | 인식한 문장을 명령 미리보기로 전달 |
+
+`pleos` 실행 환경은 이 SDK들을 차량 안에서 직접 호출합니다. `demo`는 같은 Android 화면에서 차량·내비 시뮬레이터와 기기의 위치·음성 서비스를 사용합니다.
+
+## 빠른 실행
+
+Python 3.14, uv, JDK 17, Android SDK 35가 필요합니다. 관리자 화면에는 Node.js 24를 사용합니다. 처음 환경을 준비할 때만 `.env.example`을 `.env`로 복사하고 서버 설정을 채웁니다. 기존 `.env`는 덮어쓰지 않습니다.
 
 ```bash
-uv sync --all-packages
-cp .env.example .env
+uv sync --all-packages --frozen
 .venv/bin/python -m uvicorn app.main:app --app-dir apps/api --host 127.0.0.1 --port 8000
 ```
 
-API 문서: http://127.0.0.1:8000/docs. SQLite 상태는 기본 `apps/api/data/camp-room.sqlite3`에 저장됩니다. 실제 `.env`와 DB는 Git에 포함하지 않습니다. 서버는 단일 가상 시연 계정이며 공개 multi-user 서비스로 배포하지 않습니다.
+기본 데이터 모드는 `demo`입니다. Turso URL·토큰이 있으면 Turso를 사용하고 `CAMP_DB_PATH`를 지정하면 독립된 로컬 SQLite 파일을 사용합니다. 두 저장소는 같은 32개 STRICT 테이블과 제약조건을 적용합니다. 설정 항목은 [외부 데이터 문서](docs/INTEGRATIONS.md)를 참고합니다.
 
-## 2. Android 앱 빌드·설치
-
-JDK17, Android SDK35/build-tools35가 필요합니다. `ANDROID_HOME` 또는 gitignored `apps/pleos/local.properties`의 sdk.dir을 설정합니다. Gradle8.11.1 wrapper, AGP8.9.2, Kotlin2.1.20, Compose BOM2025.04.01을 사용합니다.
+별도 터미널에서 앱을 빌드하고 에뮬레이터에 설치합니다.
 
 ```bash
 bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug
@@ -39,49 +71,21 @@ adb install -r apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk
 adb shell am start -n camp.room.app.demo/camp.room.app.MainActivity
 ```
 
-기본 demo API 주소는 `http://10.0.2.2:8000/api/v1`입니다. Android emulator에서 호스트 API로 연결하는 주소입니다. 다른 장치에서는 `-PcampApiBaseUrl=https://YOUR_BACKEND/api/v1`를 빌드 명령에 전달합니다. demo flavor에서만 개발 HTTP cleartext를 허용합니다.
+에뮬레이터 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입니다. 실제 기기용 빌드에서는 `-PcampApiBaseUrl=https://YOUR_BACKEND/api/v1`로 서버 주소를 지정합니다. `pleos` 빌드는 `:app:assemblePleosDebug`를 사용합니다.
 
-실제 SDK flavor 컴파일/빌드:
-
-```bash
-bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug -PcampApiBaseUrl=https://YOUR_BACKEND/api/v1
-```
-
-Pleos SDK는 공식 Maven `https://nexus-playground.pleos.ai/repository/maven-releases/`의 `ai.pleos.playground:Vehicle:2.3.2`, `ai.pleos.playground:NaviHelper:3.0.5`를 사용합니다. 차량·내비 호출은 로컬 SDK로 실행하며 백엔드 차량 시뮬레이터를 사용하지 않습니다. 실제 차량 권한·서비스 연결·정차 상태 호스트 계약은 해당 환경에서 검증해야 합니다. APK 빌드 성공은 실차 검증과 다릅니다.
-
-## 직접 사용할 수 있는 여정
-
-1. **찾기**에서 지역·날짜·인원·시설을 정하고 장소 상세의 규칙·가용성 출처를 확인합니다.
-2. 장소를 저장하면 **내 캠핑**에 일정·날씨·이동 예상이 모입니다. demo에서는 길안내 상태가 저장되고, pleos에서는 실제 NaviHelper 이벤트를 기다립니다.
-3. **차박**에서 앞좌석 독서·뒷좌석 휴식 등 장면과 구역별 설정을 조절합니다. 명령 수락·관측·미지원·실패를 구분합니다.
-4. 준비물을 담고 수량을 바꾼 뒤 자택 주소 또는 캠핑장 수령 위치·사이트 참조를 입력합니다.
-5. 배송 조건·예정일·전체 금액을 확인하고 **데모 결제**로 주문을 저장합니다. 실제 카드 승인·예약·택배 접수는 발생하지 않습니다.
-
-## 외부 데이터와 토큰
-
-루트 `.env`에서 CAMP_DATA_MODE=demo/auto/live를 선택합니다. GOCAMPING_SERVICE_KEY, KMA_API_HUB_KEY 또는 KMA_SERVICE_KEY는 서버에서만 읽습니다. Android 앱이나 공개 환경변수에 토큰을 넣지 않습니다. 실제 키 발급·공급자 호출 성공 여부는 [INTEGRATIONS.md](docs/INTEGRATIONS.md)와 검증 결과를 따릅니다.
-
-고캠핑 장소 정보로 예약 재고를 만들어내지 않습니다. 실제 응답이 없는 가격·차박 숙박 허용·잔여 자리·예약 수는 확인 필요입니다. 예보 제공 기간 밖은 미제공입니다. 공급자별 실제/데모·출처·갱신 시각을 유지합니다.
-
-## 검증과 영상
+## 검증과 시연
 
 ```bash
-.venv/bin/python -m pytest apps/api/tests/test_camp_room.py -q
-python apps/pleos/verify_contracts.py
-bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug :app:compilePleosDebugKotlin
-python scripts/record-native-demo.py
+.venv/bin/python -m pytest apps/api/tests apps/worker/tests -q
+.venv/bin/python scripts/review-database.py
+.venv/bin/python apps/api/scripts/export_openapi.py --check
+bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:assembleDemoDebug :app:assemblePleosDebug
 ```
 
-기록 스크립트는 실제 설치한 Android APK를 emulator에서 조작하고 API 결과를 확인하며 native MP4를 녹화합니다. 소스 계약 검사와 Gradle 컴파일, Android emulator 실행, 실제 차량 검증의 범위를 구분합니다. 실제 진행 결과는 docs/verification에 기록합니다.
+실제 앱 녹화는 API와 에뮬레이터를 실행하고 APK를 설치한 상태에서 `python scripts/record-native-demo.py`로 진행합니다. 앱 입력과 서버 상태를 확인하면서 Android 화면을 녹화합니다. 소스 계약 검사, APK 빌드, 에뮬레이터 동작, 실차 검증은 각각 수행한 범위를 기록합니다.
 
-## OMA
+현재 외부 캠핑장·날씨 키는 미설정이며 실시간 예약·결제·배송 사업자도 연결하지 않았습니다. 주문은 실제 결제가 없는 데모 주문입니다. Turso 저장과 원격 트랜잭션은 실제 DB에서 검증했습니다. 자세한 검토와 한계는 [독립 DB 검토](docs/database/SCHEMA_REVIEW.md)와 [SDK 적용표](docs/product/SDK_CAPABILITY_MATRIX.md)에 있습니다.
 
-공식 oh-my-agent20.13.0 전체 설치(All33 skills) 후 PRD → 기능명세/API 계약 → native 역할 구현 → Android 통합 QA/녹화로 진행했습니다. 사용자가 지정한 Codex Sol Ultra 리드를 사용하며 실제 역할은 native dispatch 모델 설정을 상속합니다. 외부 CLI 모델을 대신 실행했다고 주장하지 않습니다. 초기 web lineage와 명시적 native scope correction lineage는 각각 보존됩니다.
+## 개발 방식
 
-```bash
-npm install --global oh-my-agent@20.13.0
-oma install --semantic-memory none
-oma doctor --json
-```
-
-설치에서 Korean / Codex / Auto / All / Python을 선택합니다. Aside 외부 사이트 계정 작업은 공식 CLI와 인증된 브라우저 프로필이 필요합니다. 실제 계정 선택·사용자 인증이 필요한 상태와 토큰 발급 완료 상태를 구분합니다.
+oh-my-agent 20.13.0의 33개 스킬을 설치하고 PRD·기능명세·API 계약을 기준으로 병렬 구현했습니다. 한국어 문서는 사용자가 지정한 [im-not-ai](https://github.com/epoko77-ai/im-not-ai)의 `humanize-korean`으로 검수합니다. 실제 `.env`, DB 파일, 빌드 결과와 실행 중간 기록은 Git에 넣지 않습니다.

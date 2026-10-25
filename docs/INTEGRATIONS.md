@@ -2,9 +2,9 @@
 
 ## 현재 연결 상태
 
-Android demo flavor 시연은 자격증명 없이 재현 가능한 데모 모드다. 실제 캠핑장/기상 HTTP 어댑터는 서버에 별도로 구현되며 발급한 키를 루트 `.env`에 넣어 활성화한다. 실제 토큰을 발급받거나 실시간 공급자 호출이 성공했다고 주장하지 않는다. 키 발급 및 실제 호출 결과는 `docs/verification/`에 검증이 끝난 범위만 기록한다.
+Android demo flavor 시연은 자격증명 없이 재현 가능한 데모 모드다. 실제 캠핑장/기상 HTTP 어댑터는 서버에 구현되어 있으며 발급한 키를 루트 `.env`에 넣어 활성화한다. 현재 GoCamping·KMA 키는 미설정이다. 키 발급과 실제 호출 성공은 별도로 검증한다. 키 발급 및 실제 호출 결과는 `docs/verification/`에 검증이 끝난 범위만 기록한다.
 
-Aside CLI와 MCP 설치·호출 경로는 준비되었다. 사용자 계정으로 가입하거나 토큰을 받으려면 인증된 Aside 브라우저 프로필이 필요하다. 이번 세션에서 확인한 상태는 실행 중 로컬 프로필/인증된 원격 프로필이 없고, 계정 선택 및 사용자 인증이 필요한 상태다. 이 상태를 앱 개발의 선행 조건으로 만들지 않는다.
+외부 연동 상태: `LOCAL_MCP_NOT_EXPOSED`. 기존 로컬 Aside MCP가 현재 세션에 노출되지 않아 외부 키를 발급하지 못했으며 새 기기 인증은 진행하지 않는다.
 
 ## 서버 환경변수
 
@@ -14,7 +14,14 @@ Aside CLI와 MCP 설치·호출 경로는 준비되었다. 사용자 계정으�
 | GOCAMPING_SERVICE_KEY | data.go.kr 고캠핑 인증키 | 서버 비밀 |
 | KMA_API_HUB_KEY | 기상청 API허브 authKey | 서버 비밀 |
 | KMA_SERVICE_KEY | data.go.kr 기상 단기예보 서비스키 대안 | 서버 비밀 |
-| CAMP_DB_PATH | 로컬 상태 저장 파일 경로 | 로컬 설정 |
+| CAMP_DB_PATH | 명시하면 독립된 로컬 SQLite 파일 사용 | 로컬 설정 |
+| TURSO_DATABASE_URL / TURSO_AUTH_TOKEN | API 서버의 원격 libSQL 연결 | 토큰은 서버 비밀 |
+| CAMP_DB_NAMESPACE / CAMP_PROFILE_ID | 서버가 선택한 저장 범위·데모 프로필 | 서버 설정 |
+| CAMP_ADMIN_PASSWORD / CAMP_ADMIN_SESSION_SECRET | 관리자 로그인·세션 서명 | 서버 비밀 |
+| CAMP_ADMIN_TOKEN | BFF·워커의 관리 API 인증 | 서버 비밀 |
+| CAMP_API_BASE_URL | 관리자 BFF가 접속할 API 주소 | 서버 설정 |
+| CAMP_WORKER_API_URL | 워커가 접속할 API 주소 | 서버 설정 |
+| CAMP_WORKER_INTERVAL_SECONDS / CAMP_WORKER_TIMEOUT_SECONDS | 워커 간격·요청 제한 | 서버 설정 |
 | campApiBaseUrl (Gradle property) | Android backend origin including /api/v1 | 빌드 공개 설정 |
 
 실제 `.env`는 Git에서 제외한다. `.env.example`에는 값이 없는 예시만 제공한다. 비밀을 NEXT_PUBLIC 변수나 UI, 오류 URL, 요청 로그, 문서, 영상에 넣지 않는다. 키가 잘못되면 인증 실패/연결 미완료로 표현하며 데모가 실시간 결과로 보이게 바꾸지 않는다.
@@ -43,9 +50,15 @@ Aside CLI와 MCP 설치·호출 경로는 준비되었다. 사용자 계정으�
 
 ## 자격증명 발급 후 검증 절차
 
-1. 인증된 Aside 프로필에서 사용자 지정 계정으로 각 공급자의 이용 신청/승인 상태를 확인한다.
+1. 기존 로컬 Aside MCP 세션에서 사용자 지정 계정으로 각 공급자의 이용 신청/승인 상태를 확인한다.
 2. 발급키를 서버 환경변수로 저장하고 실제 값은 채팅·영상에 노출하지 않는다.
 3. CAMP_DATA_MODE=live로 서버를 재시작한다.
 4. `/api/v1/bootstrap`의 providers와 장소/날씨 source를 확인한다. 비밀 값은 응답에 없어야 한다.
 5. 인증 실패, 타임아웃, 예보 기간 밖, 누락 시설/예약 재고를 확인한다.
 6. 성공한 공급자·시각·검증 범위만 기록하고 시연 녹화는 비밀이 없는 UI로 진행한다.
+
+## 저장소와 배치
+
+Turso 설정이 있으면 API는 원격 libSQL을 사용한다. `CAMP_DB_PATH`를 지정하면 로컬 SQLite를 선택한다. 두 저장소는 같은 정규화 스키마를 사용한다. 실시간 공급자 키의 유무와 DB 연결 성공 여부는 별개다.
+
+워커는 인증된 관리 API를 호출하고 캐시·임대·실행 이력은 서버가 관리한다. 자세한 실행 방법은 [워커 README](../apps/worker/README.md), 구조는 [서버 구조도](architecture/SERVER_ARCHITECTURE.md)를 참고한다.

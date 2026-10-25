@@ -1,6 +1,8 @@
 package camp.room.app
 
-import android.content.Context
+import javax.inject.Inject
+import javax.inject.Provider
+import dagger.hilt.android.scopes.ViewModelScoped
 import ai.pleos.playground.vehicle.Vehicle as SdkVehicle
 import ai.pleos.playground.vehicle.api.model.area.SeatArea
 import ai.pleos.playground.vehicle.api.model.area.WindowArea
@@ -37,11 +39,13 @@ import kotlin.math.roundToInt
  * Backend remains responsible for campsite/weather/cart/order APIs.
  * Host stationary signal defaults UNKNOWN until a certified host supplies it.
  */
-class PlatformBridge(context: Context, @Suppress("UNUSED_PARAMETER") repository: CampRepository,
-    private val hostMotion: MotionProvider = MotionProvider { MotionState.UNKNOWN }) {
-    private val sdk = SdkVehicle(context.applicationContext)
-    private val appContext = context.applicationContext
-    private val assistant = PleosAssistAdapter(appContext)
+@ViewModelScoped
+class PlatformBridge @Inject constructor(
+    private val sdk:SdkVehicle,
+    private val navigationFactory:Provider<NaviHelper>,
+    private val assistant:PleosAssistAdapter,
+    private val hostMotion:MotionProvider,
+) {
     private val guard = Mutex()
     private val caps = mutableMapOf<Pair<Control, Zone>, Capability>()
     private val seats = mutableMapOf<Pair<Control, Zone>, SeatArea>()
@@ -217,7 +221,7 @@ class PlatformBridge(context: Context, @Suppress("UNUSED_PARAMETER") repository:
     }
     private suspend fun connectNavigation(): Boolean {
         if (navigation != null) return true
-        val newHelper=NaviHelper(appContext)
+        val newHelper=navigationFactory.get()
         val newAdapter=PleosNavigationAdapter(newHelper)
         val connected=try { withTimeoutOrNull(4000) { suspendCancellableCoroutine<Boolean> { continuation ->
             newAdapter.connect({ if(continuation.isActive)continuation.resume(true) }, { if(continuation.isActive)continuation.resume(false) })
@@ -260,6 +264,7 @@ class PlatformBridge(context: Context, @Suppress("UNUSED_PARAMETER") repository:
     suspend fun arrivalWatch(site:Campsite)=assistant.arrivalWatch(site)
     suspend fun speak(text:String)=assistant.speak(text)
     suspend fun listen()=assistant.listen()
+    fun setLanguage(tag:String)=assistant.setLanguage(tag)
     fun assistStatus()=assistant.assistStatus()
     fun start(){if(!closed){active=false;runCatching{assistant.start()}}}
     fun stop(){try{adapter.stop()}finally{active=false;soc=null;socObservedAt=null;disconnectNavigation();assistant.stop()}}

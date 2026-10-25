@@ -1,11 +1,11 @@
 # Camp Room 구현 계약·인수 기준 검토
 
-작성 기준: 2026-10-25. 이 검토는 제공받은 `upload/pleos-sdk.spec.jsonl`의 실제 선언과 `work/camp_application_content.json`의 기획 내용을 읽어 작성했다. Vehicle 2.3.2 / NaviHelper 3.0.5를 사용하며 SDK 실행 검증 결과가 아닌 정적 계약 검토다.
+작성 기준: 2026-10-25. 사용자 제공 [SDK JSONL](pleos-sdk.spec.jsonl)의 Vehicle 2.3.2와 NaviHelper 3.0.5 선언을 검토한 문서다. 위치·음성을 포함한 5개 SDK의 적용 범위는 [전체 SDK 적용표](SDK_CAPABILITY_MATRIX.md)를 따른다. 선언 검토와 실행 검증 결과는 구분한다.
 
 ## 1. 구현 경계
 
-- 브라우저 데모는 `DemoVehicleAdapter`, `DemoNavigationAdapter`, 디렉터리·예약·날씨·상거래 fixture 공급자를 사용한다. 화면에 짧은 ‘시연 데이터’ 표시를 유지한다. SDK를 HTTP 엔드포인트로 표현하지 않는다.
-- 실제 차량 연동은 Android Kotlin/JVM 호스트의 `PleosVehicleAdapter`와 `PleosNavigationAdapter`가 맡는다. 웹 화면과 네이티브 호스트 사이 메시지 규약은 앱의 자체 규약이며 SDK가 제공하는 규약이 아니다.
+- Android `demo`는 차량·내비 시뮬레이터와 캠핑장·예약·날씨·상거래 데모 데이터를 사용한다. 화면에 시연 데이터와 연결 출처를 표시한다.
+- 실제 차량 연동은 Android Kotlin 앱의 `PleosVehicleAdapter`, `PleosNavigationAdapter`, `PleosAssistAdapter`가 맡는다. `PlatformBridge`는 앱의 경계이며 SDK 자체가 제공하는 규약은 아니다.
 - SDK 자체 콜백에 앱의 `commandId`, `receivedAt`, `generation` 등이 있다고 주장하지 않는다. 이 값은 브리지 또는 앱이 추가하는 상태 관리용 메타데이터다.
 - 초기화 후 기능·영역·접근 범위를 조회한다. `CapabilityConfig`의 필드는 `accessType`; 수치 범위는 별도의 영역별 `AreaBounds` 또는 선택값 목록이다.
 - 지원하지 않는 기능, 조회 중, 조회 실패, 값 없음(null)은 서로 구분한다. null을 0, false, 매진, 문 닫힘으로 바꾸지 않는다.
@@ -120,7 +120,7 @@ data class TripInfo(
 
 공조 온도 단계는 `HvacTemperatureConfigArray.incrementCelsius` 등으로 구성한다. 캡처한 구역을 리스너 클로저에 보관한다. 예컨대 `onHvacTemperatureUpdated(temperature: Float?)` 자체에는 area 인자가 없다.
 
-독서등 쓰기 권한은 `CONTROL_CAR_LIGHTS`; 앰비언트 밝기·색상 setter는 실제 선언상 `CAR_LIGHTS`다. 공조 쓰기는 `CONTROL_CAR_CLIMATE`, 창문 쓰기는 `CONTROL_CAR_WINDOWS`다. 이것은 구현 manifest 매핑이며 별도 SDK 제공 현황 논의가 아니다.
+독서등 쓰기 권한은 `CONTROL_CAR_LIGHTS`; 앰비언트 밝기·색상 setter는 실제 선언상 `CAR_LIGHTS`다. 공조 쓰기는 `CONTROL_CAR_CLIMATE`, 창문 쓰기는 `CONTROL_CAR_WINDOWS`다. 이 권한은 구현 manifest의 매핑 기준이다.
 
 ## 4. 상태·확인 정책
 
@@ -142,7 +142,7 @@ data class TripInfo(
 
 - 좌표 순서: latitude, longitude. 생성 시 named arguments 권장.
 - TripInfo.distance는 m, energyConsumption은 Wh, estimatedSocAtDest는 %. eta는 초이나 epoch/소요시간 기준은 manifest가 확정하지 않는다. 제공자 기준 확인 전 임의 `now + eta` 금지.
-- 브라우저 fixture가 여행 소요시간을 보여줄 때 자체 `durationMinutes`로 이름을 정하고 SDK eta를 변환한 실제 데이터처럼 표현하지 않는다.
+- 내비 시뮬레이터가 여행 소요시간을 보여줄 때 자체 `durationMinutes`로 이름을 정하고 SDK eta를 변환한 실제 데이터처럼 표현하지 않는다.
 - 예상 도착 SOC에는 충전 경유가 포함될 수 있다. 현재 SOC와의 차이만으로 주행 에너지나 캠핑 숙박 가능 시간을 계산하지 않는다.
 - 주행 계획 조회는 목적지 설정이나 길안내 시작이 아니다. 내비 이벤트 순서와 요청당 정확히 한 번 응답을 전제하지 않는다.
 - 배터리 총 kWh, 실시간 차박 전력, V2L 출력, CO2/습도, 차량 자동 수평 맞춤은 제공된 핵심 기능으로 추정해 만들지 않는다.
@@ -150,7 +150,7 @@ data class TripInfo(
 ## 7. 예약·날씨·상거래 계약
 
 - 디렉터리·예약·날씨·판매처 어댑터를 분리한다. 지역/공급자가 달라도 `provider`, `sourceMode`, `observedAt`, 유효 범위, missing 상태를 유지한다.
-- 예약 가능 여부는 날짜 범위 전체와 인원/사이트 조건에 대한 값이다. `available`, `sold_out`, `unknown`을 구분한다.
+- 예약 가능 여부는 날짜 범위 전체와 인원/사이트 조건에 대한 값이다. 앱 계약의 `available`, `limited`, `unavailable`, `unknown`을 구분한다.
 - 특정 판매처의 잔여 수로 캠핑장 전체 예약률을 계산하지 않는다. 실제 예약 수/예약률은 공급자가 해당 모집단 수치를 함께 제공할 때만 표시한다.
 - 캠핑장 차박 허용, 택배 수령 가능, 캠핑 전기, EV 충전은 각각 별도 근거/조건이다. 주차가 가능하다고 숙박을 허용한다고 추정하지 않는다.
 - 날씨는 캠핑장 위치·체류 시간대와 연결한다. 날짜 변경 때 예전 날씨가 남지 않도록 한다. 계절 전망을 확정 예보로 만들지 않는다.
@@ -160,16 +160,16 @@ data class TripInfo(
 
 ## 8. 최소 인수 테스트
 
-1. 날짜/인원/차박 조건 검색이 목록을 바꾸고, 빈 결과와 unknown 예약 상태를 구분한다.
+1. 날짜/인원/차박 조건 검색이 목록을 바꾸고 빈 결과와 unknown 예약 상태를 구분한다.
 2. 캠핑장 선택·저장 → 내 캠핑에서 같은 날짜·인원·장소가 보이고 새로고침 후 유지된다.
 3. 일정 변경이 예약/날씨 데이터 갱신을 유발한다. 오래된 결과가 최신 선택을 덮어쓰지 않는다.
 4. 내비 요청 → 요청 상태 → demo event 결과가 순서대로 표시되며 예상 주행 조회와 구분된다.
-5. ‘앞 독서/뒤 휴식’ 장면이 구역별 온도·독서등·앰비언트 값을 다르게 적용하고 관측 결과를 보여준다.
+5. ‘앞 독서/뒤 휴식’ 장면이 구역별 독서등·앰비언트 값을 다르게 적용하고 관측 결과를 보여준다.
 6. 한 기능 실패 주입 시 나머지 성공을 유지하고 전체 성공으로 표시하지 않는다. 재시도는 실패 기능만 수행한다.
 7. 연결 끊김·null·미지원 기능이 0/false로 바뀌지 않는다. capability 밖 입력을 거부한다.
 8. 장면 적용 후 수동 온도 변경이 UI에 반영되고 장면이 덮어쓰지 않는다.
 9. 상품 추가·수량 변경·삭제·총액 계산·장바구니 저장이 작동한다.
-10. 집 배송 주문이 데모로 생성되고, 캠핑장 배송은 수령조건·배송일 검사 후 생성된다. 조건 불충족 경로도 검증한다.
+10. 집 배송 주문이 데모로 생성되고 캠핑장 배송은 수령조건·배송일 검사 후 생성된다. 조건 불충족 경로도 검증한다.
 11. 결제 이중 클릭/재전송이 주문 한 개만 만들며 실패 때 장바구니를 잃지 않는다.
 12. 화면 녹화는 실제 앱 클릭·상태 전이를 기록한다. 영상의 데이터/차량 동작이 데모임을 짧게 표시한다.
 

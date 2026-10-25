@@ -58,4 +58,4 @@ Cart `{items:[{productId,name,quantity,unitPrice,lineTotal,imageUrl}],subtotal,s
 
 ## Android native PlatformBridge
 
-HTTP 차량/내비 endpoint는 demo flavor에서만 사용한다. pleos flavor는 common ViewModel의 같은 PlatformBridge 계약을 로컬 Vehicle/NaviHelper SDK로 구현한다. 서버 bootstrap의 vehicle은 native snapshot으로 덮어쓴다. 공급자·캠핑장·날씨·커머스는 동일한 HTTP 계약을 유지한다. native RoutePreview는 onTripInfo에서 distance m→km, eta s→min, energyConsumption Wh→kWh를 변환하며 chargingStop은 실제 routePoints EV_CHARGING waypoint를 기반으로 한다.
+HTTP 차량/내비 endpoint는 demo flavor에서만 사용한다. pleos flavor는 common ViewModel의 같은 PlatformBridge 계약을 로컬 Vehicle/NaviHelper SDK로 구현한다. 서버 bootstrap의 vehicle은 native snapshot으로 덮어쓴다. 공급자·캠핑장·날씨·커머스는 동일한 HTTP 계약을 유지한다. native RoutePreview는 onTripInfo에서 distance m→km, eta는 원본 seconds/basis 미확인으로 보존, energyConsumption Wh→kWh를 변환하며 chargingStop은 실제 routePoints EV_CHARGING waypoint를 기반으로 한다.

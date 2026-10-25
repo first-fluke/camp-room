@@ -6,6 +6,7 @@
 package camp.room.app
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,52 +27,49 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-object CampPalette {
-    val Canvas = Color(0xFFF7F8F2)
-    val Paper = Color(0xFFFFFEF9)
-    val Forest = Color(0xFF254F40)
-    val Deep = Color(0xFF193F33)
-    val Ink = Color(0xFF293F32)
-    val Muted = Color(0xFF839176)
-    val Sage = Color(0xFFE7EDDC)
-    val Line = Color(0xFFDFE5D4)
-    val Warm = Color(0xFFC1A36C)
-    val Danger = Color(0xFFAD614B)
-}
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(CampLocale.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme(
-                colorScheme =
-                    lightColorScheme(
-                        primary = CampPalette.Forest,
-                        onPrimary = CampPalette.Paper,
-                        background = CampPalette.Canvas,
-                        surface = CampPalette.Paper,
-                        onSurface = CampPalette.Ink,
-                        onBackground = CampPalette.Ink,
-                        secondary = CampPalette.Muted,
-                        outline = CampPalette.Line,
-                        surfaceVariant = CampPalette.Sage,
-                    )
-            ) {
-                CampRoomRoot()
-            }
+        hideDemoSystemBars()
+        setContent { CampTheme { CampRoomRoot() } }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideDemoSystemBars()
+    }
+
+    private fun hideDemoSystemBars() {
+        if (!BuildConfig.IS_DEMO) return
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            hide(WindowInsetsCompat.Type.systemBars())
         }
     }
 }
@@ -83,6 +81,9 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { vm.onHostStop() }
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
+    var languageSettingsOpen by remember { mutableStateOf(false) }
+    val languageTag = CampLocale.language(context)
+    LaunchedEffect(languageTag) { vm.setLanguage(languageTag) }
     var pendingPermissionOperation by remember { mutableStateOf<String?>(null) }
     val performAssist: (String) -> Unit = { operation ->
         when (operation) {
@@ -103,9 +104,9 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                     vm.permissionDenied(
                         when (operation) {
                             "location",
-                            "arrival" -> "위치"
-                            "stt" -> "음성 인식"
-                            else -> "음성 안내"
+                            "arrival" -> CampText.get(camp.room.app.R.string.camp_location)
+                            "stt" -> CampText.get(camp.room.app.R.string.camp_speech_recognition)
+                            else -> CampText.get(camp.room.app.R.string.camp_voice_guidance)
                         }
                     )
             }
@@ -169,7 +170,9 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                 selected = state.tab == nav.index,
                                 onClick = { vm.tab(nav.index) },
                                 icon = { Icon(nav.icon, nav.label) },
-                                label = { Text(nav.label) },
+                                label = {
+                                    Text(nav.label, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                                },
                                 modifier = Modifier.testTag(nav.tag),
                             )
                         }
@@ -179,7 +182,13 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
             Row(Modifier.fillMaxSize().padding(padding)) {
                 if (wide) CampSidebar(state, vm)
                 Column(Modifier.weight(1f).fillMaxHeight()) {
-                    CampTopbar(state, vm, wide)
+                    CampTopbar(state, vm, wide) { languageSettingsOpen = true }
+                    if (state.busy)
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().height(3.dp),
+                            color = CampPalette.Forest,
+                            trackColor = CampPalette.Sage,
+                        )
                     if (state.loading)
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(
@@ -187,8 +196,18 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                             ) {
                                 CircularProgressIndicator(color = CampPalette.Forest)
-                                Text("다음 쉼을 준비하고 있어요", fontSize = 22.sp)
-                                Text("캠핑장과 여행 정보를 불러옵니다.", color = CampPalette.Muted)
+                                Text(
+                                    tr(camp.room.app.R.string.camp_getting_your_next_escape_ready),
+                                    fontSize = 22.sp,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    tr(camp.room.app.R.string.camp_loading_campsites_and_your_trip),
+                                    color = CampPalette.Muted,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                             }
                         }
                     else if (state.data == null)
@@ -201,13 +220,24 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                     tint = CampPalette.Muted,
                                 )
                                 Spacer(Modifier.height(16.dp))
-                                Text("여행 정보를 불러오지 못했어요", fontSize = 22.sp)
+                                Text(
+                                    tr(camp.room.app.R.string.camp_we_couldn_t_load_your_trip),
+                                    fontSize = 22.sp,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                                 Text(
                                     state.error,
                                     color = CampPalette.Muted,
                                     modifier = Modifier.padding(18.dp),
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
-                                CampPrimary("다시 연결하기", Icons.Outlined.Refresh, onClick = vm::reload)
+                                CampPrimary(
+                                    tr(camp.room.app.R.string.camp_connect_again),
+                                    Icons.Outlined.Refresh,
+                                    onClick = vm::reload,
+                                )
                             }
                         }
                     else
@@ -236,20 +266,37 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                 Text(
                                     "  camp room",
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 12.sp,
+                                    fontSize = 14.sp,
                                     color = CampPalette.Muted,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
-                                    "  자연과 나 사이, 작은 방.",
-                                    fontSize = 10.sp,
+                                    tr(
+                                        camp.room.app.R.string
+                                            .camp_a_little_room_between_you_and_nature
+                                    ),
+                                    fontSize = 12.sp,
                                     color = CampPalette.Muted,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 Spacer(Modifier.weight(1f))
                                 Text(
-                                    if (BuildConfig.IS_DEMO) "데모 데이터 · 실제 예약/결제 없음"
-                                    else "Pleos 차량 연동 · 외부 데이터 출처 확인",
-                                    fontSize = 9.sp,
+                                    if (BuildConfig.IS_DEMO)
+                                        tr(
+                                            camp.room.app.R.string
+                                                .camp_demo_data_no_real_reservations_or_payments
+                                        )
+                                    else
+                                        tr(
+                                            camp.room.app.R.string
+                                                .camp_pleos_vehicle_integration_check_external_data_sources
+                                        ),
+                                    fontSize = 12.sp,
                                     color = CampPalette.Muted,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }
@@ -259,25 +306,50 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
         if (state.selectedSite != null) CampsiteDetailDialog(state, vm)
         if (state.cartOpen && state.data != null) CartDialog(state, vm)
         if (state.voiceOpen) VoiceCommandDialog(state, vm, listen)
+        if (languageSettingsOpen) LanguageSettingsDialog { languageSettingsOpen = false }
     }
 }
 
 enum class CampNav(
     val index: Int,
-    val label: String,
-    val subtitle: String,
+    private val labelResource: Int,
+    private val subtitleResource: Int,
     val icon: ImageVector,
     val tag: String,
 ) {
-    DISCOVER(0, "찾기", "나에게 맞는 캠핑장", Icons.Outlined.Explore, "nav-discover"),
-    TRIP(1, "내 캠핑", "여정부터 준비물까지", Icons.Outlined.Forest, "nav-trip"),
-    CABIN(2, "차박", "우리만의 편안한 공간", Icons.Outlined.DirectionsCar, "nav-cabin"),
+    DISCOVER(
+        0,
+        camp.room.app.R.string.camp_discover,
+        camp.room.app.R.string.camp_find_your_kind_of_campsite,
+        Icons.Outlined.Explore,
+        "nav-discover",
+    ),
+    TRIP(
+        1,
+        camp.room.app.R.string.camp_my_trip,
+        camp.room.app.R.string.camp_from_the_journey_to_your_essentials,
+        Icons.Outlined.Forest,
+        "nav-trip",
+    ),
+    CABIN(
+        2,
+        camp.room.app.R.string.camp_cabin,
+        camp.room.app.R.string.camp_a_comfortable_space_of_our_own,
+        Icons.Outlined.DirectionsCar,
+        "nav-cabin",
+    );
+
+    val label: String
+        get() = CampText.get(labelResource)
+
+    val subtitle: String
+        get() = CampText.get(subtitleResource)
 }
 
 @Composable
 private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
     Column(
-        Modifier.width(202.dp).fillMaxHeight().background(CampPalette.Deep).padding(21.dp),
+        Modifier.width(232.dp).fillMaxHeight().background(CampPalette.Deep).padding(21.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -286,19 +358,29 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 Text(
                     "camp room",
                     fontSize = 24.sp,
-                    color = CampPalette.Paper,
+                    color = CampPalette.OnSidebar,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = (-1).sp,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Text("자연과 나 사이, 작은 방", fontSize = 8.sp, color = Color(0xFFA6B8A2))
+                Text(
+                    tr(camp.room.app.R.string.camp_a_little_room_between_you_and_nature_017),
+                    fontSize = 12.sp,
+                    color = Color(0xFFA6B8A2),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
         Spacer(Modifier.height(27.dp))
         Text(
             "YOUR CAMPING COMPANION",
-            fontSize = 7.sp,
+            fontSize = 12.sp,
             color = Color(0xFF9CB09A),
             letterSpacing = 1.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
         CampNav.entries.forEach { nav ->
             val active = state.tab == nav.index
@@ -321,15 +403,19 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                     Column(Modifier.padding(start = 12.dp).weight(1f)) {
                         Text(
                             nav.label,
-                            fontSize = 15.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (active) CampPalette.Deep else Color(0xFFC4D0BF),
+                            color = if (active) CampPalette.Ink else CampPalette.OnSidebar,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             nav.subtitle,
-                            fontSize = 8.sp,
+                            fontSize = 12.sp,
                             color = if (active) CampPalette.Muted else Color(0xFF9CB298),
                             modifier = Modifier.padding(top = 3.dp),
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
@@ -338,10 +424,12 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
         Spacer(Modifier.weight(1f))
         Icon(Icons.Outlined.Landscape, null, Modifier.size(43.dp), tint = Color(0xFF9EB494))
         Text(
-            "조금 더 가까이,\n자연스럽게 쉬어가기.",
-            fontSize = 12.sp,
+            tr(camp.room.app.R.string.camp_a_little_closer_na_little_more_naturally),
+            fontSize = 14.sp,
             lineHeight = 21.sp,
             color = Color(0xFFB3C4A8),
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
         Spacer(Modifier.height(17.dp))
         HorizontalDivider(color = Color(0xFF426049))
@@ -349,33 +437,48 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
             Box(Modifier.size(6.dp).background(Color(0xFFB0C68C), CircleShape))
             Column(Modifier.padding(start = 7.dp).weight(1f)) {
                 Text(
-                    if (BuildConfig.IS_DEMO) "데모 차량 연결됨" else "Pleos 차량 상태",
-                    fontSize = 9.sp,
+                    if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_vehicle_connected)
+                    else tr(camp.room.app.R.string.camp_pleos_vehicle_status),
+                    fontSize = 12.sp,
                     color = Color(0xFFD2DDC8),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    if (BuildConfig.IS_DEMO) "PLEOS · 시뮬레이터" else "PLEOS · 로컬 SDK",
-                    fontSize = 7.sp,
+                    if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_pleos_simulator)
+                    else tr(camp.room.app.R.string.camp_pleos_local_sdk),
+                    fontSize = 12.sp,
                     color = Color(0xFF92AC8E),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             Text(
                 "${number(state.data?.vehicle?.soc)}%",
-                fontSize = 13.sp,
+                fontSize = 16.sp,
                 color = Color(0xFFD2DDC8),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         Text(
             if (BuildConfig.IS_DEMO) "NATIVE ANDROID · DEMO" else "NATIVE ANDROID · PLEOS",
-            fontSize = 7.sp,
+            fontSize = 12.sp,
             color = Color(0xFF8FA88A),
             letterSpacing = 1.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
 
 @Composable
-private fun CampTopbar(state: CampUiState, vm: CampViewModel, wide: Boolean) {
+private fun CampTopbar(
+    state: CampUiState,
+    vm: CampViewModel,
+    wide: Boolean,
+    onLanguage: () -> Unit,
+) {
     Row(
         Modifier.fillMaxWidth()
             .height(65.dp)
@@ -384,30 +487,58 @@ private fun CampTopbar(state: CampUiState, vm: CampViewModel, wide: Boolean) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            if (wide) "나의 작은 아웃도어  /  ${CampNav.entries[state.tab].label}" else "camp room",
-            fontSize = if (wide) 11.sp else 22.sp,
+            if (wide)
+                tr(camp.room.app.R.string.camp_my_little_outdoors, CampNav.entries[state.tab].label)
+            else "camp room",
+            fontSize = if (wide) 14.sp else 22.sp,
             color = if (wide) CampPalette.Muted else CampPalette.Forest,
             fontWeight = if (wide) FontWeight.Normal else FontWeight.SemiBold,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
         Spacer(Modifier.weight(1f))
-        CampPill(if (BuildConfig.IS_DEMO) "체험 모드" else "Pleos 모드")
+        CampPill(
+            if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_mode)
+            else tr(camp.room.app.R.string.camp_pleos_mode)
+        )
         Spacer(Modifier.width(22.dp))
         IconButton(onClick = { vm.voice(true) }, modifier = Modifier.testTag("voice-open")) {
-            Icon(Icons.Outlined.Mic, "음성 명령", Modifier.size(20.dp))
+            Icon(
+                Icons.Outlined.Mic,
+                tr(camp.room.app.R.string.camp_voice_command),
+                Modifier.size(20.dp),
+            )
         }
         TextButton(onClick = { vm.cart(true) }, modifier = Modifier.testTag("cart-open")) {
-            Icon(Icons.Outlined.ShoppingBag, "준비물", Modifier.size(20.dp))
+            Icon(
+                Icons.Outlined.ShoppingBag,
+                tr(camp.room.app.R.string.camp_essentials),
+                Modifier.size(20.dp),
+            )
             Spacer(Modifier.width(7.dp))
-            Text("준비물", fontSize = 12.sp)
+            Text(
+                tr(camp.room.app.R.string.camp_essentials),
+                fontSize = 14.sp,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
             if ((state.data?.cart?.count ?: 0) > 0)
-                Text("  ${state.data?.cart?.count}", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "  ${state.data?.cart?.count}",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
         }
         Spacer(Modifier.width(12.dp))
-        Box(
-            Modifier.size(30.dp).background(CampPalette.Sage, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text("C", fontSize = 13.sp, color = CampPalette.Forest)
+        IconButton(onClick = onLanguage, modifier = Modifier.testTag("language-settings")) {
+            Icon(
+                Icons.Outlined.Language,
+                tr(R.string.language_settings),
+                Modifier.size(22.dp),
+                tint = CampPalette.Forest,
+            )
         }
     }
     HorizontalDivider(color = CampPalette.Line)
@@ -422,23 +553,31 @@ fun CampPrimary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val haptic = LocalHapticFeedback.current
     Button(
-        onClick = onClick,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
         enabled = enabled && !busy,
         shape = RoundedCornerShape(8.dp),
         contentPadding = PaddingValues(horizontal = 19.dp, vertical = 12.dp),
-        modifier = modifier.heightIn(min = 44.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = CampPalette.Forest),
+        modifier = modifier.heightIn(min = CampDesign.PrimaryHeight),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = CampPalette.Forest,
+                contentColor = CampPalette.OnForest,
+            ),
     ) {
         if (busy)
             CircularProgressIndicator(
                 Modifier.size(17.dp),
                 strokeWidth = 2.dp,
-                color = CampPalette.Paper,
+                color = CampPalette.OnForest,
             )
-        else if (icon != null) Icon(icon, null, Modifier.size(18.dp))
+        else if (icon != null) Icon(icon, null, Modifier.size(24.dp))
         if (busy || icon != null) Spacer(Modifier.width(8.dp))
-        Text(text, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(text, fontSize = 18.sp, fontWeight = FontWeight.Medium, maxLines = 2)
     }
 }
 
@@ -450,18 +589,22 @@ fun CampSecondary(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
+    val haptic = LocalHapticFeedback.current
     OutlinedButton(
-        onClick = onClick,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
         enabled = enabled,
         shape = RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, CampPalette.Line),
-        modifier = modifier.heightIn(min = 40.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, CampPalette.Outline),
+        modifier = modifier.heightIn(min = CampDesign.SecondaryHeight),
     ) {
         if (icon != null) {
-            Icon(icon, null, Modifier.size(16.dp))
+            Icon(icon, null, Modifier.size(22.dp))
             Spacer(Modifier.width(7.dp))
         }
-        Text(text, fontSize = 11.sp)
+        Text(text, fontSize = 18.sp, maxLines = 2)
     }
 }
 
@@ -470,9 +613,11 @@ fun CampPill(text: String, color: Color = CampPalette.Muted) {
     Surface(color = CampPalette.Sage, shape = RoundedCornerShape(5.dp)) {
         Text(
             text,
-            fontSize = 9.sp,
+            fontSize = 12.sp,
             color = color,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -480,7 +625,7 @@ fun CampPill(text: String, color: Color = CampPalette.Muted) {
 @Composable
 fun CampError(text: String, onClose: () -> Unit) {
     Surface(
-        color = Color(0xFFFAEDE4),
+        color = CampPalette.ErrorSurface,
         shape = RoundedCornerShape(9.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -494,11 +639,18 @@ fun CampError(text: String, onClose: () -> Unit) {
             Text(
                 text,
                 color = CampPalette.Danger,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 modifier = Modifier.weight(1f).padding(horizontal = 9.dp),
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
-            IconButton(onClick = onClose, modifier = Modifier.size(25.dp)) {
-                Icon(Icons.Outlined.Close, "오류 닫기", Modifier.size(17.dp), tint = CampPalette.Danger)
+            IconButton(onClick = onClose, modifier = Modifier.size(CampDesign.IconTarget)) {
+                Icon(
+                    Icons.Outlined.Close,
+                    tr(camp.room.app.R.string.camp_dismiss_error),
+                    Modifier.size(17.dp),
+                    tint = CampPalette.Danger,
+                )
             }
         }
     }
@@ -516,23 +668,29 @@ fun SectionTitle(
             if (eyebrow.isNotBlank())
                 Text(
                     eyebrow,
-                    fontSize = 8.sp,
+                    fontSize = 12.sp,
                     letterSpacing = 1.5.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(bottom = 7.dp),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
             Text(
                 title,
                 fontSize = if (eyebrow.isNotBlank()) 28.sp else 19.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-.7).sp,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
             )
             if (subtitle.isNotBlank())
                 Text(
                     subtitle,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 7.dp),
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
                 )
         }
         action?.invoke()
@@ -562,40 +720,34 @@ fun number(value: Double?): String =
         else -> String.format(java.util.Locale.US, "%.1f", value)
     }
 
-fun won(value: Int?): String =
-    if (value == null) "요금 확인 필요" else String.format(java.util.Locale.KOREA, "%,d원", value)
+fun won(value: Int?): String = CampText.currency(value)
 
-fun displayDate(value: String): String =
-    runCatching {
-            val date = java.time.LocalDate.parse(value)
-            "${date.monthValue}.${date.dayOfMonth} (${listOf("월","화","수","목","금","토","일")[date.dayOfWeek.value-1]})"
-        }
-        .getOrDefault(value)
+fun displayDate(value: String): String = CampText.date(value)
 
 fun facilityName(code: String): String =
     mapOf(
-        "shower" to "샤워실",
-        "electricity" to "캠핑 전기",
-        "pets" to "반려견 동반",
-        "toilet" to "화장실",
-        "water" to "급수대",
+        "shower" to camp.room.app.CampText.get(camp.room.app.R.string.camp_showers),
+        "electricity" to camp.room.app.CampText.get(camp.room.app.R.string.camp_camping_power),
+        "pets" to camp.room.app.CampText.get(camp.room.app.R.string.camp_pets_welcome),
+        "toilet" to camp.room.app.CampText.get(camp.room.app.R.string.camp_restrooms),
+        "water" to camp.room.app.CampText.get(camp.room.app.R.string.camp_water_point),
     )[code] ?: code
 
 fun assistStatusLabel(value: String): String =
     when (value) {
         "available",
-        "ready" -> "준비됨"
-        "registered" -> "알림 등록됨"
+        "ready" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_ready)
+        "registered" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_alert_registered)
         "triggered",
-        "arrived" -> "도착 확인"
+        "arrived" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_arrival_observed)
         "started",
-        "speaking" -> "안내 중"
-        "recognized" -> "인식 완료"
-        "listening" -> "듣는 중"
-        "unavailable" -> "사용 불가"
-        "idle" -> "대기 중"
+        "speaking" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_speaking)
+        "recognized" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_recognized)
+        "listening" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_listening)
+        "unavailable" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_unavailable)
+        "idle" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_waiting)
         "done",
-        "completed" -> "완료"
-        "stopped" -> "중지됨"
-        else -> "상태 확인 중"
+        "completed" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_complete)
+        "stopped" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_stopped)
+        else -> camp.room.app.CampText.get(camp.room.app.R.string.camp_checking_status)
     }

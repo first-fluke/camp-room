@@ -1,0 +1,775 @@
+{
+  "status": "passed",
+  "reviewDate": "2026-10-25",
+  "skill": "humanize-korean v2.3-codex",
+  "source": "https://github.com/epoko77-ai/im-not-ai",
+  "scope": "14 corrected Korean product documents; factual sync tracked separately",
+  "factualSyncAfterStyleReview": {
+    "reason": "Latest explicit user instruction requires existing local Aside MCP and rejects new device authentication",
+    "files": [
+      "docs/INTEGRATIONS.md",
+      "docs/PRD.md"
+    ],
+    "status": "LOCAL_MCP_NOT_EXPOSED",
+    "externalKeysIssued": false,
+    "newDeviceAuthentication": "not attempted further",
+    "telemetry": {
+      "files": [
+        "docs/OBSERVABILITY.md"
+      ],
+      "source": "apps/pleos/app/src/main/java/camp/room/app/observability/CampTelemetry.kt",
+      "runtime": [
+        "demo",
+        "pleos"
+      ],
+      "orderMode": "demo",
+      "reason": "Final source provenance fields added after independent Korean style review; flavor does not indicate physical vehicle verification"
+    }
+  },
+  "documents": [
+    {
+      "file": "README.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "09ce37f6a80b36d34bdeb519ec94d7ae62395899fb22c65426b0159f8d2fe692",
+      "afterSha256": "ab8bed1c584b0f4cdd081ba8d7057e011172b8ae46a03af911e08e4c08a43125",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0003,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0312,
+          "touched": 3,
+          "total": 96
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 1,
+              "after": 1
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/PRD.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "23fbf82a88e66d23ada3f90db837ddb7b0d1c8b44afa6d946a24f52c2bfd3427",
+      "afterSha256": "2463ec9242220e7987c34c8190898a8bfaf7d66a27dbabf8b5d3c5f72d4b565a",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0031,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0701,
+          "touched": 11,
+          "total": 157
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 3,
+              "after": 3
+            },
+            "hedge": {
+              "before": 2,
+              "after": 2
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/FUNCTIONAL_SPEC.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "0d32321f896a8350e00f70f4b53770096a2ff296ec99c9b3693633186b7c56e8",
+      "afterSha256": "15aba6cfaaaf445f2a0794720283033e86284ec08d8cec822b0b78ffdca5fcd1",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0016,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0209,
+          "touched": 4,
+          "total": 191
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 2,
+              "after": 2
+            },
+            "hedge": {
+              "before": 5,
+              "after": 5
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/INTEGRATIONS.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "4bec496ed4e561cc215812696aa2fafa39fb1e523bf5e3eebf5c3fa02c477175",
+      "afterSha256": "4bec496ed4e561cc215812696aa2fafa39fb1e523bf5e3eebf5c3fa02c477175",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0,
+          "touched": 0,
+          "total": 77
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 2,
+              "after": 2
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/product/PLEOS_SDK_REVIEW.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "7e9d45f9ad47279cb24e44b903584fbbc4e673840d6a888bb57abaa0aa164e5d",
+      "afterSha256": "364716341311809d9ca17b494e9e766c273f646e126b653af0cd2d10c74c45d9",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0001,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0086,
+          "touched": 2,
+          "total": 232
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 1,
+              "after": 1
+            },
+            "hedge": {
+              "before": 1,
+              "after": 1
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/product/SDK_CAPABILITY_MATRIX.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "95e586c515bec891cc41272c1f96ff881e8436525944f44bc4c0b18df69495d3",
+      "afterSha256": "fab808e5693c192fc113c7696f139dacb405052662edafb14b3c18572dd48fed",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0008,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0794,
+          "touched": 5,
+          "total": 63
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/README.ko.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "c2ae3550669dafca32eaa93527d42f5332e09d57d0ce7b0f8f95b1259155ffb6",
+      "afterSha256": "f10059f78f6793c09777193c2d8a21351042a06de59bb49c4587a891c2c07826",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0009,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0714,
+          "touched": 1,
+          "total": 14
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/USAGE.ko.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "d4a39dc838e4dcffa13acaf7062c366f7d8a25c8305f5c2d8da031a12de2592d",
+      "afterSha256": "37ebacc68dd3fce7167a2d38eed032dc551bc0671831636a134f435003c310ee",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0002,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0137,
+          "touched": 1,
+          "total": 73
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 3,
+              "after": 3
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/AUTH.ko.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "c5ffe88f4771b1f1d2a055275725f323128b1ab012ff4d767fdd092ed231a25b",
+      "afterSha256": "c5ffe88f4771b1f1d2a055275725f323128b1ab012ff4d767fdd092ed231a25b",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0,
+          "touched": 0,
+          "total": 35
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 2,
+              "after": 2
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/WHY.ko.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "037592d363ac0078694ab50e0b4908d3a485eadb3603c64947a73970c16de66f",
+      "afterSha256": "7d38eed21eab3c0f6cfdf5aee24dfff82544e99d52047adb88c0f9f92e7777c5",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0004,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0303,
+          "touched": 1,
+          "total": 33
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 1,
+              "after": 1
+            },
+            "hedge": {
+              "before": 1,
+              "after": 1
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/architecture/SERVER_ARCHITECTURE.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "24b923fef2ac564d86b5783cc7ed743736e3ed661a2971a405a0b5e527c56f15",
+      "afterSha256": "a92f5d7f2b530e5c1da4900aafd2b3da92c60b96a5626723d137510b05b63b97",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0004,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0248,
+          "touched": 3,
+          "total": 121
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/database/ERD.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "417130ab927d86385288feec390ff36caf89553ca87f02d4acee4ed89f06925f",
+      "afterSha256": "84dab9c8bde7b1cdfa5f2d0fc68a93ff0804942bfa7cf859b113b985ab6407ef",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0025,
+          "touched": 1,
+          "total": 400
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 1,
+              "after": 1
+            },
+            "hedge": {
+              "before": 2,
+              "after": 2
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/OBSERVABILITY.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "1c3639d5cfb32d2ca5e743fea68da72a2d0a98329cc4b78a06cee85c0bb57d94",
+      "afterSha256": "02198cbecdd493d37876361cf50bd3621c0191c74e8e1018578ca46362170828",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0008,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0714,
+          "touched": 3,
+          "total": 42
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    },
+    {
+      "file": "docs/DESIGN_SYSTEM.md",
+      "route": "light",
+      "gateExit": 0,
+      "protectedCodeAndLinksUnchanged": true,
+      "summaryBlocks": 1,
+      "beforeSha256": "4afdcad924636ce4fd5208cbb910c4d33ddf1a233e885ee0e727dd1b5fa5239f",
+      "afterSha256": "491e4c7a440f7100cff2d7ee577f6993835af10b662e4c45851fabae22f6df92",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0011,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0769,
+          "touched": 2,
+          "total": 26
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      }
+    }
+  ],
+  "appliedFiles": [
+    {
+      "path": "README.md",
+      "sha256": "ab8bed1c584b0f4cdd081ba8d7057e011172b8ae46a03af911e08e4c08a43125"
+    },
+    {
+      "path": "docs/PRD.md",
+      "sha256": "e4cae4ff62ef934bc59d297919525844cdd0cd38dd962cb066ad07ffced5edb4"
+    },
+    {
+      "path": "docs/FUNCTIONAL_SPEC.md",
+      "sha256": "15aba6cfaaaf445f2a0794720283033e86284ec08d8cec822b0b78ffdca5fcd1"
+    },
+    {
+      "path": "docs/INTEGRATIONS.md",
+      "sha256": "d47ff9ddc57198c8d7fbda98aa669226e83e52a5356ba7925f11c5c2989f5492"
+    },
+    {
+      "path": "docs/product/PLEOS_SDK_REVIEW.md",
+      "sha256": "364716341311809d9ca17b494e9e766c273f646e126b653af0cd2d10c74c45d9"
+    },
+    {
+      "path": "docs/product/SDK_CAPABILITY_MATRIX.md",
+      "sha256": "fab808e5693c192fc113c7696f139dacb405052662edafb14b3c18572dd48fed"
+    },
+    {
+      "path": "docs/README.ko.md",
+      "sha256": "f10059f78f6793c09777193c2d8a21351042a06de59bb49c4587a891c2c07826"
+    },
+    {
+      "path": "docs/USAGE.ko.md",
+      "sha256": "37ebacc68dd3fce7167a2d38eed032dc551bc0671831636a134f435003c310ee"
+    },
+    {
+      "path": "docs/AUTH.ko.md",
+      "sha256": "c5ffe88f4771b1f1d2a055275725f323128b1ab012ff4d767fdd092ed231a25b"
+    },
+    {
+      "path": "docs/WHY.ko.md",
+      "sha256": "7d38eed21eab3c0f6cfdf5aee24dfff82544e99d52047adb88c0f9f92e7777c5"
+    },
+    {
+      "path": "docs/architecture/SERVER_ARCHITECTURE.md",
+      "sha256": "a92f5d7f2b530e5c1da4900aafd2b3da92c60b96a5626723d137510b05b63b97"
+    },
+    {
+      "path": "docs/database/ERD.md",
+      "sha256": "84dab9c8bde7b1cdfa5f2d0fc68a93ff0804942bfa7cf859b113b985ab6407ef"
+    },
+    {
+      "path": "docs/OBSERVABILITY.md",
+      "sha256": "328db8f0dc5ddea4ebe034694a694cfa8ab6a9cbd7514e398b663c2fca5acf60"
+    },
+    {
+      "path": "docs/DESIGN_SYSTEM.md",
+      "sha256": "491e4c7a440f7100cff2d7ee577f6993835af10b662e4c45851fabae22f6df92"
+    }
+  ]
+}

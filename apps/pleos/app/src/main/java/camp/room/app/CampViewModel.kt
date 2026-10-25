@@ -1,12 +1,15 @@
 package camp.room.app
 
 import android.app.Application
+import camp.room.app.observability.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.UUID
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,9 +45,9 @@ data class CampUiState(
     val commands: List<CommandResult> = emptyList(),
     val commandStatus: String = "",
     val destination: String = "campsite",
-    val recipient: String = "데모 캠퍼",
-    val address: String = "서울시 캠핑로 12, 101호 (가상 주소)",
-    val siteReference: String = "A-12 (데모)",
+    val recipient: String = camp.room.app.CampText.get(camp.room.app.R.string.camp_demo_camper),
+    val address: String = camp.room.app.CampText.get(camp.room.app.R.string.camp_12_camping_road_unit_101_seoul_fictional),
+    val siteReference: String = camp.room.app.CampText.get(camp.room.app.R.string.camp_a_12_demo),
     val quote: Quote? = null,
     val order: Order? = null,
     val locationSummary: String = "",
@@ -64,28 +67,39 @@ data class CampUiState(
         get() = (data?.campsites.orEmpty() + sites).firstOrNull { it.id == data?.trip?.campsiteId }
 }
 
-class CampViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = CampRepository()
-    private val bridge = PlatformBridge(application, repository)
+@HiltViewModel
+class CampViewModel
+@Inject
+constructor(
+    application: Application,
+    private val repository: CampRepository,
+    private val bridge: PlatformBridge,
+    private val telemetry: Telemetry,
+) : AndroidViewModel(application) {
     private val mutable = MutableStateFlow(CampUiState())
     val state = mutable.asStateFlow()
     private var orderKey: String? = null
     private var foregroundVehicleJob: Job? = null
 
     init {
+        telemetry.record(Event.SCREEN_VIEWED,Dimensions(screen=Screen.FIND))
         reload()
     }
 
-    private fun launchAction(block: suspend () -> Unit) {
+    private fun launchAction(action:Action=Action.LOAD, block: suspend () -> Unit) {
         if (mutable.value.busy) return
         viewModelScope.launch {
             mutable.update { it.copy(busy = true, error = "") }
+            val began=System.nanoTime()
             try {
                 block()
+                telemetry.record(Event.ACTION_COMPLETED,Dimensions(action=action,outcome=Outcome.SUCCESS,durationMs=(System.nanoTime()-began)/1_000_000))
             } catch (e: CancellationException) {
+                telemetry.record(Event.ACTION_COMPLETED,Dimensions(action=action,outcome=Outcome.CANCELLED))
                 throw e
             } catch (e: Exception) {
-                mutable.update { it.copy(error = e.message ?: "요청을 처리하지 못했어요.") }
+                telemetry.failure(e,Dimensions(action=action,durationMs=(System.nanoTime()-began)/1_000_000))
+                mutable.update { it.copy(error = e.message ?: camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_complete_the_request)) }
             } finally {
                 mutable.update { it.copy(busy = false, loading = false) }
             }
@@ -97,7 +111,7 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         try {
             bridge.start()
         } catch (error: Exception) {
-            mutable.update { it.copy(error = "차량 연결을 시작하지 못했어요. ${error.message.orEmpty()}") }
+            mutable.update { it.copy(error = camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_start_the_vehicle_connection, error.message.orEmpty())) }
         }
         if (foregroundVehicleJob?.isActive == true) return
         foregroundVehicleJob =
@@ -105,8 +119,8 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
                 while (isActive) {
                     if (!mutable.value.busy && mutable.value.data != null) {
                         try {
-                            val current = Vehicle.parse(bridge.vehicle())
-                            val assist = bridge.assistStatus()
+                            val current = Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })
+                            val assist = AssistMessages.status(bridge.assistStatus())
                             mutable.update {
                                 it.copy(
                                     data = it.data?.copy(vehicle = current),
@@ -137,7 +151,7 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
                                 state.copy(
                                     data = unknown?.let { state.data?.copy(vehicle = it) },
                                     error =
-                                        state.error.ifBlank { "차량 상태를 확인하지 못했어요. 다시 연결을 확인해 주세요." },
+                                        state.error.ifBlank { camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_read_the_vehicle_state) },
                                 )
                             }
                         }
@@ -153,12 +167,12 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         try {
             bridge.stop()
         } catch (error: Exception) {
-            mutable.update { it.copy(error = "차량 상태 구독 해제를 확인하지 못했어요.") }
+            mutable.update { it.copy(error = camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_confirm_that_the_vehicle)) }
         }
     }
 
     fun reload() = launchAction {
-        val boot = repository.bootstrap().let { it.copy(vehicle = Vehicle.parse(bridge.vehicle())) }
+        val boot = repository.bootstrap().let { it.copy(vehicle = Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })) }
         mutable.update {
             it.copy(
                 data = boot,
@@ -173,24 +187,20 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private suspend fun refresh() {
-        val boot = repository.bootstrap().let { it.copy(vehicle = Vehicle.parse(bridge.vehicle())) }
+        val boot = repository.bootstrap().let { it.copy(vehicle = Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })) }
         mutable.update { it.copy(data = boot) }
     }
 
     private suspend fun loadTrip() {
         val trip = mutable.value.data?.trip ?: return
         val site = mutable.value.tripSite ?: return
-        val route = RoutePreview.parse(bridge.navigationPreview(site))
-        val weather =
-            Weather.parse(
-                repository.request(
-                    "/weather?campsiteId=${trip.campsiteId}&checkIn=${trip.checkIn}&checkOut=${trip.checkOut}"
-                )
-            )
+        val route = RoutePreview.parse(sdk(SdkOperation.NAVIGATION_PREVIEW) { bridge.navigationPreview(site) })
+        val weather = repository.weather(trip.campsiteId,trip.checkIn,trip.checkOut)
         mutable.update { it.copy(route = route, weather = weather) }
     }
 
     fun tab(value: Int) {
+        Screen.entries.getOrNull(value)?.let { telemetry.record(Event.SCREEN_VIEWED,Dimensions(screen=it)) }
         mutable.update { it.copy(tab = value, error = "") }
         if (value == 1) launchAction { loadTrip() }
     }
@@ -228,11 +238,11 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         mutable.update { it.copy(notice = "") }
     }
 
-    fun search() = launchAction {
+    fun search() = launchAction(Action.SEARCH) {
         val s = mutable.value
         val start = runCatching { LocalDate.parse(s.checkIn) }.getOrNull()
         val end = runCatching { LocalDate.parse(s.checkOut) }.getOrNull()
-        require(start != null && end != null && end > start) { "체크아웃은 체크인 다음 날 이후로 선택해 주세요." }
+        require(start != null && end != null && end > start) { camp.room.app.CampText.get(camp.room.app.R.string.camp_choose_a_check_out_date_after_check) }
         val params =
             mutableMapOf(
                 "checkIn" to s.checkIn,
@@ -255,33 +265,25 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         mutable.update { it.copy(selectedSite = site, error = "") }
     }
 
-    fun saveTrip() = launchAction {
+    fun saveTrip() = launchAction(Action.SAVE_TRIP) {
         val s = mutable.value
         val site = s.selectedSite ?: return@launchAction
-        repository.request(
-            "/trip",
-            "PUT",
-            JSONObject()
-                .put("campsiteId", site.id)
-                .put("checkIn", s.checkIn)
-                .put("checkOut", s.checkOut)
-                .put("guests", s.guests),
-        )
+        repository.saveTrip(site.id,s.checkIn,s.checkOut,s.guests)
         refresh()
         mutable.update {
             it.copy(
                 selectedSite = null,
                 tab = 1,
                 quote = null,
-                notice = "이번 캠핑이 저장됐어요. 여정을 준비해 볼까요?",
+                notice = camp.room.app.CampText.get(camp.room.app.R.string.camp_your_trip_is_saved_shall_we_get),
             )
         }
         loadTrip()
     }
 
-    fun navigation() = launchAction {
+    fun navigation() = launchAction(Action.NAVIGATION) {
         val site = mutable.value.tripSite ?: return@launchAction
-        val result = bridge.navigationStart(site)
+        val result = AssistMessages.result("navigation", sdk(SdkOperation.NAVIGATION_START) { bridge.navigationStart(site) })
         refresh()
         mutable.update {
             it.copy(
@@ -289,7 +291,7 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
                 notice =
                     result.text(
                         "message",
-                        if (BuildConfig.IS_DEMO) "데모 길안내가 시작됐어요." else "Pleos 내비게이션 요청을 전달했어요.",
+                        if (BuildConfig.IS_DEMO) camp.room.app.CampText.get(camp.room.app.R.string.camp_demo_navigation_has_started) else camp.room.app.CampText.get(camp.room.app.R.string.camp_the_request_was_sent_to_pleos_navigation),
                     ),
             )
         }
@@ -299,21 +301,22 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         mutable.update { it.copy(sceneId = value) }
     }
 
-    fun applyScene() = launchAction {
-        val result = bridge.scene(mutable.value.sceneId)
+    fun applyScene() = launchAction(Action.APPLY_SCENE) {
+        val result = sdk(SdkOperation.VEHICLE_SCENE) { bridge.scene(mutable.value.sceneId) }
         vehicleResult(result)
         mutable.update {
             it.copy(
                 notice =
                     if (result.text("status") == "completed")
-                        if (BuildConfig.IS_DEMO) "공간 설정을 적용하고 시뮬레이터 관측값을 확인했어요."
-                        else "공간 설정 명령과 지원되는 관측 상태를 확인했어요."
-                    else "일부 항목을 확인해 주세요."
+                        if (BuildConfig.IS_DEMO) camp.room.app.CampText.get(camp.room.app.R.string.camp_cabin_settings_were_applied_and_the_simulator)
+                        else camp.room.app.CampText.get(camp.room.app.R.string.camp_cabin_commands_and_supported_observations_were_checked)
+                    else camp.room.app.CampText.get(camp.room.app.R.string.camp_please_check_the_remaining_items)
             )
         }
     }
 
-    private suspend fun vehicleResult(result: JSONObject) {
+    private suspend fun vehicleResult(raw: JSONObject) {
+        val result = AssistMessages.vehicle(raw)
         refresh()
         mutable.update {
             it.copy(
@@ -323,29 +326,25 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun control(name: String, value: Any, zone: String? = null) = launchAction {
+    fun control(name: String, value: Any, zone: String? = null) = launchAction(Action.CONTROL) {
         val body = JSONObject().put("control", name).put("value", value)
         if (zone != null) body.put("zone", zone)
-        vehicleResult(bridge.control(body))
+        vehicleResult(sdk(SdkOperation.VEHICLE_CONTROL) { bridge.control(body) })
     }
 
     fun cart(open: Boolean) {
+        if(open)telemetry.record(Event.SCREEN_VIEWED,Dimensions(screen=Screen.CART))
         mutable.update { it.copy(cartOpen = open, error = "") }
     }
 
-    fun addProduct(id: String) = launchAction {
-        repository.request(
-            "/cart/items",
-            "POST",
-            JSONObject().put("productId", id).put("quantity", 1),
-        )
+    fun addProduct(id: String) = launchAction(Action.ADD_PRODUCT) {
+        repository.addProduct(id)
         refresh()
-        mutable.update { it.copy(order = null, quote = null, notice = "준비물을 장바구니에 담았어요.") }
+        mutable.update { it.copy(order = null, quote = null, notice = camp.room.app.CampText.get(camp.room.app.R.string.camp_the_essential_was_added_to_your_cart)) }
     }
 
-    fun quantity(id: String, value: Int) = launchAction {
-        if (value <= 0) repository.request("/cart/items/$id", "DELETE")
-        else repository.request("/cart/items/$id", "PATCH", JSONObject().put("quantity", value))
+    fun quantity(id: String, value: Int) = launchAction(Action.CART_QUANTITY) {
+        repository.quantity(id,value)
         refresh()
         mutable.update { it.copy(quote = null) }
     }
@@ -368,52 +367,64 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun deliveryBody(): JSONObject {
-        val s = mutable.value
-        val trip = s.data?.trip
-        return JSONObject()
-            .put("destination", s.destination)
-            .put("recipientName", s.recipient)
-            .put("address", s.address)
-            .put("siteReference", s.siteReference)
-            .apply {
-                trip?.let {
-                    put("campsiteId", it.campsiteId)
-                    put("checkIn", it.checkIn)
-                    put("checkOut", it.checkOut)
-                }
-            }
+    private fun deliveryDetails():DeliveryDetails {
+        val s=mutable.value;val trip=s.data?.trip
+        return DeliveryDetails(s.destination,s.recipient,s.address,s.siteReference,trip?.campsiteId,trip?.checkIn,trip?.checkOut)
     }
 
-    fun quote() = launchAction {
+    fun quote() = launchAction(Action.QUOTE) {
         val s = mutable.value
-        require(s.recipient.isNotBlank()) { "받는 분의 이름을 입력해 주세요." }
-        if (s.destination == "home") require(s.address.isNotBlank()) { "자택 배송 주소를 입력해 주세요." }
-        else require(s.siteReference.isNotBlank()) { "사이트 또는 예약 참조를 입력해 주세요." }
-        val quote = Quote.parse(repository.request("/checkout/quote", "POST", deliveryBody()))
+        require(s.recipient.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_the_recipient_s_name) }
+        if (s.destination == "home") require(s.address.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_your_home_delivery_address) }
+        else require(s.siteReference.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_a_pitch_or_reservation_reference) }
+        val quote = repository.quote(deliveryDetails())
         mutable.update { it.copy(quote = quote) }
     }
 
-    fun checkout() = launchAction {
-        require(mutable.value.quote?.eligible == true) { "배송 가능 여부를 먼저 확인해 주세요." }
+    fun checkout() = launchAction(Action.CHECKOUT) {
+        require(mutable.value.quote?.eligible == true) { camp.room.app.CampText.get(camp.room.app.R.string.camp_check_delivery_availability_first) }
         val key = orderKey ?: UUID.randomUUID().toString().also { orderKey = it }
-        val order =
-            Order.parse(
-                repository.request("/orders", "POST", deliveryBody().put("idempotencyKey", key))
-            )
+        val order = repository.order(deliveryDetails(),key)
         refresh()
         mutable.update {
-            it.copy(order = order, quote = null, notice = "데모 주문이 저장됐어요. 실제 결제는 발생하지 않았습니다.")
+            it.copy(order = order, quote = null, notice = camp.room.app.CampText.get(camp.room.app.R.string.camp_the_demo_order_is_saved_no_real))
         }
         orderKey = null
     }
 
-    fun permissionDenied(kind: String) {
-        mutable.update { it.copy(error = "$kind 권한이 없어 기능을 시작하지 못했어요. 설정에서 권한을 허용한 뒤 다시 시도해 주세요.") }
+    private suspend fun sdk(operation:SdkOperation, request:suspend ()->JSONObject):JSONObject {
+        val began=System.nanoTime()
+        try {
+            val result=request()
+            val outcome=when(result.text("status")) {
+                "available","completed","recognized","registered"->Outcome.SUCCESS
+                "started","inside","entered","exited"->Outcome.STARTED
+                "blocked"->Outcome.BLOCKED
+                "partial"->Outcome.PARTIAL
+                "failed"->Outcome.FAILED
+                "unavailable","unsupported"->Outcome.UNAVAILABLE
+                else->Outcome.UNVERIFIED
+            }
+            telemetry.record(Event.SDK_COMPLETED,Dimensions(sdk=operation,outcome=outcome,durationMs=(System.nanoTime()-began)/1_000_000))
+            return result
+        } catch(cancelled:CancellationException) { throw cancelled }
+        catch(error:Exception) {
+            telemetry.failure(error,Dimensions(sdk=operation,durationMs=(System.nanoTime()-began)/1_000_000))
+            throw error
+        }
     }
 
-    fun nearby() = launchAction {
-        val result = bridge.location()
+    fun setLanguage(tag:String) {
+        bridge.setLanguage(tag)
+        mutable.update { it.copy(error="",notice="",commands=emptyList(),commandStatus="",voicePreview="",transcriptSource="",arrivalMessage="") }
+    }
+
+    fun permissionDenied(kind: String) {
+        mutable.update { it.copy(error = camp.room.app.CampText.get(camp.room.app.R.string.camp_permission_is_missing_allow_it_in_settings, kind)) }
+    }
+
+    fun nearby() = launchAction(Action.LOCATION) {
+        val result = AssistMessages.result("location", sdk(SdkOperation.LOCATION) { bridge.location() })
         val latitude = result.nullNumber("latitude")
         val longitude = result.nullNumber("longitude")
         require(
@@ -423,7 +434,7 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
                 latitude in -90.0..90.0 &&
                 longitude in -180.0..180.0
         ) {
-            result.text("message", "마지막으로 확인된 위치를 조회할 수 없어요.")
+            result.text("message", camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_read_the_last_known))
         }
         val distances =
             mutable.value.sites
@@ -439,15 +450,15 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
                 sites =
                     it.sites.sortedBy { site -> distances[site.id] ?: Double.POSITIVE_INFINITY },
                 distances = distances,
-                locationSummary = "${result.text("source", "기기 위치")} · 마지막으로 확인된 위치 기준 가까운 순서",
-                notice = "마지막으로 확인된 위치를 기준으로 캠핑장을 정렬했어요.",
+                locationSummary = camp.room.app.CampText.get(camp.room.app.R.string.camp_sorted_from_the_last_observed_location, result.text("source", camp.room.app.CampText.get(camp.room.app.R.string.camp_device_location))),
+                notice = camp.room.app.CampText.get(camp.room.app.R.string.camp_campsites_were_sorted_from_the_last_observed),
             )
         }
     }
 
-    fun arrivalWatch() = launchAction {
-        val site = mutable.value.tripSite ?: error("캠핑장을 먼저 내 캠핑에 담아주세요.")
-        val result = bridge.arrivalWatch(site)
+    fun arrivalWatch() = launchAction(Action.ARRIVAL_WATCH) {
+        val site = mutable.value.tripSite ?: error(camp.room.app.CampText.get(camp.room.app.R.string.camp_save_a_campsite_to_my_trip_first))
+        val result = AssistMessages.result("arrival", sdk(SdkOperation.ARRIVAL_WATCH) { bridge.arrivalWatch(site) })
         mutable.update {
             it.copy(
                 arrivalStatus = result.text("status"),
@@ -457,29 +468,30 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun speakBriefing() = launchAction {
+    fun speakBriefing() = launchAction(Action.BRIEFING) {
         val s = mutable.value
-        val site = s.tripSite ?: error("캠핑장을 먼저 내 캠핑에 담아주세요.")
+        val site = s.tripSite ?: error(camp.room.app.CampText.get(camp.room.app.R.string.camp_save_a_campsite_to_my_trip_first))
         val weather = s.weather ?: s.data?.weather
         val weatherText =
             if (weather?.status == "available")
-                "${if(weather.demo)"시연용 데모 예보입니다. "else""}날씨는 ${weather.summary}. 밤 최저 기온은 ${number(weather.low)}도입니다."
-            else "이 기간의 날씨 예보는 확인이 필요합니다."
+                camp.room.app.CampText.get(camp.room.app.R.string.camp_the_forecast_is_the_overnight_low_is, if(weather.demo)camp.room.app.CampText.get(camp.room.app.R.string.camp_this_is_a_demo_forecast)else"", weather.summary, number(weather.low))
+            else camp.room.app.CampText.get(camp.room.app.R.string.camp_the_forecast_for_these_dates_needs_checking)
         val soc = s.data?.vehicle?.soc
         val batteryText =
-            if (soc == null) "현재 배터리 상태는 확인이 필요합니다." else "현재 배터리는 ${number(soc)}퍼센트입니다."
+            if (soc == null) camp.room.app.CampText.get(camp.room.app.R.string.camp_the_current_battery_state_needs_checking) else camp.room.app.CampText.get(camp.room.app.R.string.camp_the_current_battery_is_percent, number(soc))
         val text =
-            "${if(BuildConfig.IS_DEMO)"데모 "else""}${site.name} 여행 안내입니다. 체크인은 ${site.checkInTime}, 체크아웃은 ${site.checkOutTime}입니다. $weatherText $batteryText ${site.rules.joinToString(". ")}"
-        val result = bridge.speak(text)
+            camp.room.app.CampText.get(camp.room.app.R.string.camp_trip_briefing_check_in_is_and_check, if(BuildConfig.IS_DEMO)camp.room.app.CampText.get(camp.room.app.R.string.camp_demo_310)else"", site.name, site.checkInTime, site.checkOutTime, weatherText, batteryText, site.rules.joinToString(". "))
+        val result = AssistMessages.result("tts", sdk(SdkOperation.TTS) { bridge.speak(text) })
         mutable.update {
             it.copy(
                 ttsStatus = result.text("status"),
-                notice = result.text("message", "음성 안내 요청을 전달했어요."),
+                notice = result.text("message", camp.room.app.CampText.get(camp.room.app.R.string.camp_the_spoken_briefing_request_was_sent)),
             )
         }
     }
 
     fun voice(open: Boolean) {
+        if(open)telemetry.record(Event.SCREEN_VIEWED,Dimensions(screen=Screen.VOICE))
         mutable.update { it.copy(voiceOpen = open, error = "") }
     }
 
@@ -487,7 +499,7 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         mutable.update {
             it.copy(
                 transcript = value,
-                transcriptSource = "직접 입력한 텍스트",
+                transcriptSource = camp.room.app.CampText.get(camp.room.app.R.string.camp_manually_typed_text),
                 voicePreview = "",
                 previewTab = null,
                 previewScene = null,
@@ -495,8 +507,8 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun listen() = launchAction {
-        val result = bridge.listen()
+    fun listen() = launchAction(Action.LISTEN) {
+        val result = AssistMessages.result("stt", sdk(SdkOperation.STT) { bridge.listen() })
         mutable.update {
             it.copy(
                 sttStatus = result.text("status"),
@@ -504,8 +516,8 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
                     if (result.text("status") == "recognized") result.text("text")
                     else it.transcript,
                 transcriptSource =
-                    if (result.text("status") == "recognized") "음성 인식 결과"
-                    else "음성 인식 불가 · 직접 입력 가능",
+                    if (result.text("status") == "recognized") camp.room.app.CampText.get(camp.room.app.R.string.camp_speech_recognition_result)
+                    else camp.room.app.CampText.get(camp.room.app.R.string.camp_voice_unavailable_you_can_type_instead),
                 voicePreview = "",
                 previewTab = null,
                 previewScene = null,
@@ -515,27 +527,28 @@ class CampViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun previewVoice() {
-        val text = mutable.value.transcript.replace(" ", "")
-        val blocked = listOf("결제", "구매", "주문").any { text.contains(it) }
-        val scene =
-            when {
-                text.contains("취침") || text.contains("잠자") -> "sleep"
-                text.contains("독서") || text.contains("책읽") || text.contains("따로쉬") -> "split"
-                text.contains("함께쉬") || text.contains("같이쉬") -> "together"
-                text.contains("짐정리") -> "load"
-                text.contains("출발준비") -> "departure"
-                else -> null
-            }
-        val navigation = text.contains("길안내") || text.contains("내비")
+        // Intent vocabulary is bilingual input data, not translated presentation strings.
+        val text = mutable.value.transcript.lowercase(java.util.Locale.ROOT).filterNot { it.isWhitespace() }
+        fun contains(vararg words:String)=words.any { text.contains(it) }
+        val blocked=contains("결제","구매","주문","payment","pay","purchase","checkout","order","buy","reserve")
+        val scene=when {
+            contains("취침","잠자","sleep","bedtime")->"sleep"
+            contains("독서","책읽","따로쉬","reading","read","split")->"split"
+            contains("함께쉬","같이쉬","together","relax")->"together"
+            contains("짐정리","unpack","unload","organize")->"load"
+            contains("출발준비","departure","depart","packup")->"departure"
+            else->null
+        }
+        val navigation=contains("길안내","내비","navigate","navigation","directions","route")
         mutable.update {
             it.copy(
                 voicePreview =
                     when {
-                        blocked -> "음성으로 주문이나 결제를 실행하지 않습니다. 장바구니에서 직접 확인해 주세요."
+                        blocked -> camp.room.app.CampText.get(camp.room.app.R.string.camp_voice_doesn_t_place_orders_or_make)
                         scene != null ->
-                            "차박 화면에서 '${campScenes.first { it.id == scene }.name}'을 미리 선택합니다. 실제 적용은 '이 공간 설정 적용하기' 버튼으로 직접 실행해 주세요."
-                        navigation -> "내 캠핑의 이동 계획으로 이동합니다. 실제 안내는 '길안내 시작' 버튼으로 직접 실행해 주세요."
-                        else -> "지원하는 표현을 확인해 주세요. 예: 취침 준비, 독서와 휴식, 길안내"
+                            camp.room.app.CampText.get(camp.room.app.R.string.camp_preview_on_the_cabin_screen_apply_it, campScenes.first { it.id == scene }.name)
+                        navigation -> camp.room.app.CampText.get(camp.room.app.R.string.camp_open_the_travel_plan_in_my_trip)
+                        else -> camp.room.app.CampText.get(camp.room.app.R.string.camp_try_a_supported_phrase_prepare_for_sleep)
                     },
                 previewTab =
                     if (blocked) null else if (scene != null) 2 else if (navigation) 1 else null,

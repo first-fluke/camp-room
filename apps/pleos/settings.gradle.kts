@@ -11,4 +11,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "CampRoom"
-include(":app")
+include(":app", ":api-client")
