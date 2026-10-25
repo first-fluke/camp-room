@@ -1,0 +1,152 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-25T07:40:48.615469+00:00",
+  "platform": "Android 35 native Kotlin/Jetpack Compose",
+  "applicationId": "camp.room.app.demo",
+  "captureBackend": "emulator",
+  "nativeSourceCommit": "29430437acbf5a6cc1cb8a500718fa8be6daeb1d",
+  "execution": "Full native flow captured; post-capture checks resumed after the original 60-second cold-start UI wait timed out. No video was rerecorded.",
+  "captureEvidence": "native-attempt-5.json",
+  "postCaptureEvidence": "native-post-capture.json",
+  "preflightEvidence": "native-preflight-evidence.json",
+  "captureAssistance": "native-capture-assistance.json",
+  "checks": [
+    {
+      "name": "Recording operates only on explicit demo data",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Actual Android device booted",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native demo APK installed",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "English app language renders native UI",
+      "status": "passed",
+      "detail": "Reused successful direct checks on the identical installed APK; screenshot hashes verified"
+    },
+    {
+      "name": "Korean app language renders native UI",
+      "status": "passed",
+      "detail": "Reused successful direct checks on the identical installed APK; screenshot hashes verified"
+    },
+    {
+      "name": "Native app remains usable in system night mode",
+      "status": "passed",
+      "detail": "Reused successful direct checks on the identical installed APK; screenshot hashes verified"
+    },
+    {
+      "name": "Native filters return matching campsite cards",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native save persists selected trip",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native navigation action reaches backend demo intent",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native cabin scene applies distinct front and rear states",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Command preview does not apply vehicle changes",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native cart additions persist with server prices",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native demo checkout creates exactly one persisted order",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Order delivery campsite matches the trip",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Order uses campsite delivery and no real payment",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Successful checkout clears the cart",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Real native screen recording exists",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "State persists across Android process recreation",
+      "status": "passed",
+      "detail": "Fresh native trip screen and server readback after the recorded run; the original 60-second launch wait timed out on the TCG guest."
+    },
+    {
+      "name": "Actual native analytics, API and SDK events are persisted",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Saved trip, navigation, scene and checkout analytics are recorded",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Native event attributes obey the privacy allowlist",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Demo checkout analytics preserve runtime and order provenance",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Actual Android fatal exception is persisted locally",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Crash records omit message, cause and thread data",
+      "status": "passed",
+      "detail": ""
+    },
+    {
+      "name": "Final MP4 is 1920×1080",
+      "status": "passed",
+      "detail": "H.264; 30 fps; 5,058 frames; six sampled frames visually reviewed."
+    }
+  ],
+  "video": "artifacts/demo/Camp_Room_Demo.mp4",
+  "videoDurationSeconds": 168.6,
+  "sourceDurationSeconds": 496.878,
+  "playbackRate": 3,
+  "visualReview": "native-video-visual.json",
+  "limitations": [
+    "Emulated vehicle and demo booking/payment/delivery; no real charge or dispatch.",
+    "Actual Pleos SDK artifact compilation is recorded separately; no physical vehicle validation is claimed.",
+    "External campground/weather provider keys are not configured; source data in this recording is explicitly demo.",
+    "Command preview uses a selected sample phrase; microphone recognition was not claimed.",
+    "Cloud Sentry/PostHog delivery requires provider configuration and dashboard verification."
+  ]
+}

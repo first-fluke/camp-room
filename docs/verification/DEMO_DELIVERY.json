@@ -1,0 +1,90 @@
+{
+  "project": "Camp Room",
+  "repository": "https://github.com/first-fluke/camp-room",
+  "visibility": "private",
+  "nativeSourceCommit": "29430437acbf5a6cc1cb8a500718fa8be6daeb1d",
+  "status": "demo_verified_external_provisioning_blocked",
+  "implementation": {
+    "native": "Kotlin/Compose + Hilt + generated OpenAPI jvm-ktor",
+    "sdkModules": [
+      "Vehicle",
+      "NaviHelper",
+      "FusedLocation",
+      "TextToSpeech",
+      "SpeechToText"
+    ],
+    "python": "3.14.8",
+    "database": "Turso, 32 STRICT relational tables, independently reviewed 3NF",
+    "admin": "Bilingual Next.js authenticated BFF",
+    "worker": "Authenticated provider cache refresh"
+  },
+  "verification": {
+    "apiUnitTests": 33,
+    "workerUnitTests": 16,
+    "generatedKtorContractTests": 3,
+    "telemetryPrivacyTests": 4,
+    "adminUnitTests": 5,
+    "independentSchemaChecks": 37,
+    "realTursoChecks": 20,
+    "latestAdminIntegrationChecks": 27,
+    "koreanDocumentsReviewed": 15,
+    "mermaidBlocksParsed": 14,
+    "sdkDeclarationsAudited": 172,
+    "nativeChecks": 25,
+    "workerIntegrationChecks": 4,
+    "nativeVideoVisualSamples": 6
+  },
+  "cloudProvisioning": {
+    "status": "LOCAL_MCP_NOT_EXPOSED",
+    "providers": [
+      "GoCamping",
+      "KMA",
+      "Sentry",
+      "PostHog"
+    ],
+    "issuedKeys": false,
+    "newDeviceLogin": "cancelled at user direction"
+  },
+  "limitations": [
+    "Campground/weather in the native recording use explicit demo fixtures.",
+    "Booking, payment and delivery are simulations; persisted orders remain demo_confirmed.",
+    "Real Pleos SDK artifacts compile; no physical vehicle validation is claimed.",
+    "Sentry/PostHog adapters are disabled until configured and cloud delivery is unverified.",
+    "GitHub Actions could not start because the account billing/spending limit gate rejected runs."
+  ],
+  "workflow": {
+    "oma": "partially finalized",
+    "detail": "The coordinator mistakenly added a 1800-second deadline to an already older v4 session. The terminal execution ledger and all prior receipts were preserved. v4 finish is blocked; later direct native verification is not represented as OMA completion."
+  },
+  "artifacts": {
+    "demoApk": {
+      "path": "apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk",
+      "sha256": "131e1b64e3e6752b26b42ee4db2e75ec72dbcd9e26d6e7f14ca6e8fe6f2c571a",
+      "bytes": 24568353,
+      "apiBaseUrl": "http://127.0.0.1:8000/api/v1",
+      "runtimeRequirement": "Local demo API on port 8000, adb reverse tcp:8000 tcp:8000"
+    },
+    "pleosApk": {
+      "path": "apps/pleos/app/build/outputs/apk/pleos/debug/app-pleos-debug.apk",
+      "sha256": "a56ee6b63d159069a38a5bbf0266dff9371771767a705f713bbdaa25e477bb22",
+      "bytes": 43202410,
+      "apiBaseUrl": "https://api.example.invalid/api/v1",
+      "runtimeRequirement": "Rebuild with a configured HTTPS API URL; actual Pleos services, permissions and host motion signal required."
+    },
+    "video": {
+      "path": "artifacts/demo/Camp_Room_Demo.mp4",
+      "sha256": "edda9a233b6e89fc18608def5903f7894d38ffa6fd35fa58b0068d8a1dad0976",
+      "bytes": 2760034,
+      "durationSeconds": 168.6,
+      "sourceDurationSeconds": 496.878,
+      "playbackRate": 3,
+      "width": 1920,
+      "height": 1080,
+      "fps": 30
+    },
+    "allApksAreDebug": true
+  },
+  "verifiedAt": "2026-10-25T07:40:48.615469+00:00",
+  "nativeExecution": "Full native flow captured; post-capture checks resumed after the original 60-second cold-start UI wait timed out. No video was rerecorded.",
+  "nativeCaptureAssistance": "One observed order-confirmation scroll exposed the return button; the recorder now includes reveal(order-back-trip)."
+}

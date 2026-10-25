@@ -2,17 +2,19 @@
 """Exercise the native Compose app through adb and record its real display.
 
 Start the demo API and an Android emulator, install app-demo-debug.apk, then run
-this script. Only the isolated demo fixture database should be used for QA.
+this script. Set CAMP_DEMO_CAPTURE=emulator for host encoding on slow guests. Only the isolated demo fixture database should be used for QA.
 """
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import re
 import shutil
 import subprocess
 import sys
 import time
+import tempfile
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -31,6 +33,8 @@ CAPTIONS: list[dict] = []
 START = 0.0
 SPEED = float(os.environ.get("CAMP_DEMO_SPEED", "1"))
 HTTP = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+CAPTURE_BACKEND = os.environ.get("CAMP_DEMO_CAPTURE", "android")
+LAUNCH_TIMEOUT = int(os.environ.get("CAMP_DEMO_LAUNCH_TIMEOUT", "180"))
 
 
 def adb(*arguments: str, timeout: int = 35, binary: bool = False):
@@ -142,12 +146,44 @@ def caption(title: str, text: str, hold=2.5):
     if CAPTIONS:
         CAPTIONS[-1]["end"] = elapsed - 80
     CAPTIONS.append({"start": elapsed, "end": elapsed + int(hold * 1000), "title": title, "text": text})
+    (OUT / "demo-timeline.partial.json").write_text(json.dumps({"duration": elapsed, "captions": CAPTIONS}, ensure_ascii=False, indent=2))
     print(f"SCENE {title}", flush=True)
     pause(hold)
 
 
 def screenshot(name: str):
-    (QA / f"native-{name}.png").write_bytes(adb("exec-out", "screencap", "-p", timeout=30, binary=True))
+    destination = QA / f"native-{name}.png"
+    if CAPTURE_BACKEND == "emulator":
+        # Host capture avoids PNG/AVC encoding inside an unaccelerated guest.
+        directory = Path(tempfile.mkdtemp(prefix="host-capture-", dir=QA))
+        result = adb("emu", "screenrecord", "screenshot", str(directory))
+        captures = list(directory.glob("*.png"))
+        if "OK" not in result or len(captures) != 1:
+            raise RuntimeError("Emulator host screenshot was not produced")
+        shutil.copy2(captures[0], destination)
+    else:
+        destination.write_bytes(adb("exec-out", "screencap", "-p", timeout=30, binary=True))
+
+
+def installed_apk_sha256():
+    path = next(line.removeprefix("package:") for line in adb("shell", "pm", "path", APP).splitlines() if line.endswith("/base.apk"))
+    return adb("shell", "sha256sum", path).split()[0]
+
+
+def reuse_preflight(evidence_path: str):
+    evidence = json.loads(Path(evidence_path).read_text())
+    if evidence["apkSha256"] != installed_apk_sha256():
+        raise AssertionError("Preflight evidence belongs to a different installed APK")
+    for entry in evidence["screenshots"]:
+        screenshot_path = ROOT / entry["path"]
+        if hashlib.sha256(screenshot_path.read_bytes()).hexdigest() != entry["sha256"]:
+            raise AssertionError("Preserved preflight screenshot changed")
+    expected = {"English app language renders native UI", "Korean app language renders native UI", "Native app remains usable in system night mode"}
+    previous = {item["name"]: item for item in evidence["checks"]}
+    if not expected <= previous.keys() or any(previous[name]["status"] != "passed" for name in expected):
+        raise AssertionError("Required language/night checks are absent from preflight evidence")
+    for name in sorted(expected):
+        check(name, True, "Reused successful direct checks on the identical installed APK; screenshot hashes verified")
 
 
 
@@ -181,7 +217,7 @@ def verify_telemetry():
     check("Crash records omit message, cause and thread data", all(set(crash) == {"type", "frames"} and len(crash["frames"]) <= 32 for crash in crashes))
     adb("shell", "am", "force-stop", APP)
     adb("shell", "am", "start", "-n", APP + "/camp.room.app.MainActivity", timeout=30)
-    find_node(tag="nav-trip", timeout=90)
+    find_node(tag="nav-trip", timeout=LAUNCH_TIMEOUT)
     (QA / "native-telemetry.json").write_text(json.dumps({"status": "passed", "events": sorted(events), "actions": sorted(value for value in actions if value), "controlledCrashObserved": True, "cloudDelivery": "Not inferred from local records; requires provider configuration and dashboard evidence"}, indent=2))
 
 
@@ -235,31 +271,47 @@ def run():
     adb("shell", "wm", "dismiss-keyguard")
     adb("shell", "am", "force-stop", APP)
     adb("shell", "am", "start", "-n", APP + "/camp.room.app.MainActivity", timeout=30)
-    find_node(tag="campsite-card-byeolbit", timeout=180)
-    # Exercise both supported locales through the real settings UI before capture.
-    tap(tag="language-settings")
-    tap(tag="language-en")
-    find_node(tag="campsite-card-byeolbit", timeout=90)
-    screenshot("english")
-    english_ui = ET.tostring(hierarchy(), encoding="unicode")
-    check("English app language renders native UI", "Discover" in english_ui or "Find your" in english_ui or "Find Your" in english_ui)
-    tap(tag="language-settings")
-    tap(tag="language-ko")
-    find_node(tag="campsite-card-byeolbit", timeout=90)
-    find_node(text="전국 모든 지역")
-    check("Korean app language renders native UI", True)
-    adb("shell", "cmd", "uimode", "night", "yes")
-    pause(3)
-    find_node(tag="campsite-card-byeolbit", timeout=90)
-    screenshot("dark")
-    check("Native app remains usable in system night mode", True)
-    adb("shell", "cmd", "uimode", "night", "no")
-    pause(3)
-    find_node(tag="campsite-card-byeolbit", timeout=90)
-    screenshot("discover")
+    find_node(tag="campsite-card-byeolbit", timeout=LAUNCH_TIMEOUT)
+    preflight_evidence = os.environ.get("CAMP_DEMO_PREFLIGHT_EVIDENCE")
+    if preflight_evidence:
+        reuse_preflight(preflight_evidence)
+        find_node(text="전국 모든 지역")
+        adb("shell", "cmd", "uimode", "night", "no")
+        screenshot("discover")
+    else:
+        # Exercise both supported locales through the real settings UI before capture.
+        tap(tag="language-settings")
+        tap(tag="language-en")
+        find_node(tag="campsite-card-byeolbit", timeout=90)
+        screenshot("english")
+        english_ui = ET.tostring(hierarchy(), encoding="unicode")
+        check("English app language renders native UI", "Discover" in english_ui or "Find your" in english_ui or "Find Your" in english_ui)
+        tap(tag="language-settings")
+        tap(tag="language-ko")
+        find_node(tag="campsite-card-byeolbit", timeout=90)
+        find_node(text="전국 모든 지역")
+        check("Korean app language renders native UI", True)
+        adb("shell", "cmd", "uimode", "night", "yes")
+        pause(3)
+        find_node(tag="campsite-card-byeolbit", timeout=90)
+        screenshot("dark")
+        check("Native app remains usable in system night mode", True)
+        adb("shell", "cmd", "uimode", "night", "no")
+        pause(3)
+        find_node(tag="campsite-card-byeolbit", timeout=90)
+        screenshot("discover")
     recorder_log = (QA / "native-screenrecord.log").open("w")
     START = time.monotonic()
-    recorder = subprocess.Popen([ADB, "-s", SERIAL, "shell", "screenrecord", "--bit-rate", "6M", "--time-limit", "0", "/sdcard/camp-room-native.mp4"], stdout=recorder_log, stderr=subprocess.STDOUT)
+    if CAPTURE_BACKEND == "emulator":
+        raw = OUT / "Camp_Room_Native_Raw.webm"
+        response = adb("emu", "screenrecord", "start", "--fps", "12", "--bit-rate", "3M", "--time-limit", "1800", str(raw))
+        if "OK" not in response:
+            raise RuntimeError("Emulator host recording could not start")
+        recorder_log.write(response)
+        recorder = None
+    else:
+        raw = OUT / "Camp_Room_Native_Raw.mp4"
+        recorder = subprocess.Popen([ADB, "-s", SERIAL, "shell", "screenrecord", "--bit-rate", "6M", "--time-limit", "0", "/sdcard/camp-room-native.mp4"], stdout=recorder_log, stderr=subprocess.STDOUT)
     try:
         caption("CAMP ROOM · KOTLIN + JETPACK COMPOSE", "캠핑장을 찾는 순간부터 내 차에서 쉬는 시간까지.", 3.5)
         tap(text="전국 모든 지역")
@@ -298,7 +350,7 @@ def run():
         tap(tag="voice-open")
         tap(text="독서와 휴식")
         tap(tag="voice-preview")
-        find_node(tag="voice-preview-open")
+        reveal("voice-preview-open")
         check("Command preview does not apply vehicle changes", api("/vehicle")["updatedAt"] == before_preview)
         caption("말이나 문장을 설정 미리보기로", "예시 문장을 직접 선택한 화면입니다. 차량 설정은 확인 후 별도로 적용합니다.", 4)
         screenshot("command-preview")
@@ -334,19 +386,23 @@ def run():
         check("Successful checkout clears the cart", len(api("/cart")["items"]) == 0)
         caption("준비부터 머무는 시간까지, 캠프룸", "주문이 저장됐습니다. 이 시연에서는 실제 결제나 배송이 발생하지 않습니다.", 5)
         screenshot("order")
+        reveal("order-back-trip")
         tap(tag="order-back-trip")
         caption("CAMP ROOM", "자연과 나 사이, 작은 방. 실제 Android 앱 화면을 녹화했습니다.", 4)
         write_subtitles()
     finally:
-        stop_recording(recorder)
+        if CAPTURE_BACKEND == "emulator":
+            recorder_log.write(adb("emu", "screenrecord", "stop"))
+        else:
+            stop_recording(recorder)
         recorder_log.close()
-    raw = OUT / "Camp_Room_Native_Raw.mp4"
-    adb("pull", "/sdcard/camp-room-native.mp4", str(raw), timeout=60)
+    if CAPTURE_BACKEND != "emulator":
+        adb("pull", "/sdcard/camp-room-native.mp4", str(raw), timeout=60)
     check("Real native screen recording exists", raw.exists() and raw.stat().st_size > 10000)
     # Process recreation must preserve the server-backed trip, scenes and orders.
     adb("shell", "am", "force-stop", APP)
     adb("shell", "am", "start", "-n", APP + "/camp.room.app.MainActivity", timeout=30)
-    find_node(tag="nav-trip", timeout=60)
+    find_node(tag="nav-trip", timeout=LAUNCH_TIMEOUT)
     check("State persists across Android process recreation", api("/trip")["campsiteId"] == site["id"] and len(api("/orders")["items"]) == orders_before + 1)
     verify_telemetry()
     rendered = OUT / "Camp_Room_Demo.mp4"
@@ -355,9 +411,9 @@ def run():
     if result.returncode:
         raise RuntimeError(result.stderr[-3000:])
     metadata = json.loads(result.stdout.strip().splitlines()[-1])
-    (OUT / "demo-metadata.json").write_text(json.dumps({"capture": "Android adb screenrecord", "applicationId": APP, "video": metadata}, ensure_ascii=False, indent=2))
+    (OUT / "demo-metadata.json").write_text(json.dumps({"capture": "Android Emulator host display capture" if CAPTURE_BACKEND == "emulator" else "Android adb screenrecord", "applicationId": APP, "video": metadata}, ensure_ascii=False, indent=2))
     check("Final MP4 is 1920×1080", metadata["streams"][0]["width"] == 1920 and metadata["streams"][0]["height"] == 1080)
-    report = {"status": "passed", "platform": "Android 35 native Kotlin/Jetpack Compose", "applicationId": APP, "checks": CHECKS, "video": str(rendered.relative_to(ROOT)), "videoDurationSeconds": float(metadata["format"]["duration"]), "limitations": ["Emulated vehicle and demo booking/payment", "Actual SDK artifact compilation is recorded separately", "External campground/weather provider keys are not configured; source data in this recording is explicitly demo"]}
+    report = {"status": "passed", "platform": "Android 35 native Kotlin/Jetpack Compose", "applicationId": APP, "captureBackend": CAPTURE_BACKEND, "preflightEvidence": preflight_evidence, "checks": CHECKS, "video": str(rendered.relative_to(ROOT)), "videoDurationSeconds": float(metadata["format"]["duration"]), "limitations": ["Emulated vehicle and demo booking/payment", "Actual SDK artifact compilation is recorded separately", "External campground/weather provider keys are not configured; source data in this recording is explicitly demo"]}
     (QA / "native-results.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
 
