@@ -50,3 +50,24 @@ class CheckoutInput(Input):
 
 class OrderInput(CheckoutInput):
     idempotencyKey: str = Field(min_length=8, max_length=128, pattern=r"^[A-Za-z0-9_-]+$")
+
+
+class ReceivingInput(Input):
+    acceptsParcels: StrictBool
+    location: str = Field(default="", max_length=200)
+    instructions: str = Field(default="", max_length=1000)
+
+    @model_validator(mode="after")
+    def receiving_location(self):
+        if self.acceptsParcels and not self.location:
+            raise ValueError("택배 수령을 허용하려면 수령 장소를 입력해 주세요.")
+        return self
+
+
+class FulfillmentInput(Input):
+    fulfillmentStatus: Literal["pending", "packing", "ready", "cancelled"]
+    adminNote: str = Field(default="", max_length=1000)
+
+
+class RefreshInput(Input):
+    force: StrictBool = False

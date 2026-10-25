@@ -6,16 +6,62 @@ import math
 import uuid
 from .config import Settings
 from .errors import DomainError
-from .fixtures import now, products, trip_dates
+from .fixtures import now, trip_dates
 from .models import CheckoutInput, ControlInput, OrderInput, TripInput
 from .providers import Providers
-from .repository import Repository
+from .repository import repository_for
+from starlette.concurrency import run_in_threadpool
 
 class CampService:
-    def __init__(self, settings: Settings):
+    def __init__(self, settings: Settings, repository=None):
         self.settings = settings
-        self.repo = Repository(settings.db_path)
+        self.repo = repository if repository is not None else repository_for(settings)
         self.providers = Providers(settings)
+        self.cache_variant = f"{settings.mode}:g{int(bool(settings.gocamping_key))}:w{int(bool(settings.kma_hub_key or settings.kma_service_key))}"
+
+    async def _read(self):
+        return await run_in_threadpool(self.repo.read)
+
+    async def _transact(self, change):
+        return await run_in_threadpool(self.repo.transact, change)
+
+    @staticmethod
+    def with_receiving(site, state):
+        site = deepcopy(site)
+        override = state.get("receivingOverrides", {}).get(site["id"])
+        if override:
+            site["delivery"] = deepcopy(override)
+        return site
+
+    async def _catalog(self, state=None, *, force=False, lease=None):
+        state = state if state is not None else await self._read()
+        cached = state["providerStatuses"].get("status-catalog")
+        if not force and cached and cached["variant"] == self.cache_variant and cached["expiresAt"] > now():
+            self.providers.catalog_status = deepcopy(cached["status"])
+            return self._catalog_warning(state["catalog"])
+        if force:
+            self.providers._catalog = None
+        sites = await self.providers.catalog()
+        failed = self.providers.catalog_status["status"] in {"unavailable", "fallback"}
+        preserve = failed and cached and cached["variant"] == self.cache_variant and state["catalog"]
+        if preserve:
+            await run_in_threadpool(self.repo.store_provider_status, "catalog", "catalog", self.providers.catalog_status, self.cache_variant, lease=lease)
+            return self._catalog_warning(state["catalog"])
+        await run_in_threadpool(self.repo.store_catalog, sites, self.providers.catalog_status, self.cache_variant, lease=lease)
+        return (await self._read())["catalog"]
+
+    def _catalog_warning(self, sites):
+        sites = deepcopy(sites)
+        if self.providers.catalog_status["status"] in {"unavailable", "fallback"}:
+            for site in sites:
+                site["source"]["fallbackReason"] = self.providers.catalog_status["message"]
+        return sites
+
+    def _weather_warning(self, value):
+        value = deepcopy(value)
+        if self.providers.weather_status["status"] in {"unavailable", "fallback"}:
+            value["message"] = self.providers.weather_status["message"] + " 마지막으로 저장된 예보의 갱신 시각을 확인해 주세요."
+        return value
 
     @staticmethod
     def validate_dates(checkin: date, checkout: date):
@@ -27,7 +73,7 @@ class CampService:
             raise DomainError("최대 30박까지 선택해 주세요.", 422)
 
     async def campsite(self, site_id: str):
-        site = next((s for s in await self.providers.catalog() if s["id"] == site_id), None)
+        site = next((s for s in await self._catalog() if s["id"] == site_id), None)
         if site is None:
             raise DomainError("캠핑장을 찾을 수 없습니다. 데이터 공급자와 검색 조건을 확인해 주세요.", 404)
         return site
@@ -37,7 +83,7 @@ class CampService:
             if checkin is None or checkout is None:
                 raise DomainError("체크인과 체크아웃을 함께 선택해 주세요.", 422)
             self.validate_dates(checkin, checkout)
-        all_items = await self.providers.catalog()
+        all_items = await self._catalog()
         wanted = {f.strip() for f in facilities.split(",") if f.strip()}
         known_facilities = {"shower", "electricity", "pets", "toilet", "water"}
         if not wanted <= known_facilities:
@@ -59,22 +105,24 @@ class CampService:
 
     async def availability(self, data: TripInput):
         self.validate_dates(data.checkIn, data.checkOut)
-        return self.availability_for(await self.campsite(data.campsiteId), data.checkIn, data.checkOut, data.guests)
+        value = self.availability_for(await self.campsite(data.campsiteId), data.checkIn, data.checkOut, data.guests)
+        await run_in_threadpool(self.repo.store_availability, data.campsiteId, data.checkIn.isoformat(), data.checkOut.isoformat(), data.guests, value)
+        return value
 
     async def save_trip(self, data: TripInput):
         available = await self.availability(data)
         if available["status"] == "unavailable":
             raise DomainError("선택한 일정과 인원의 자리가 없습니다. 다른 장소나 날짜를 선택해 주세요.", 409)
         trip = data.model_dump(mode="json") | {"navigationStarted": False, "updatedAt": now()}
-        return self.repo.transact(lambda state: self._save(state, "trip", trip))
+        return await self._transact(lambda state: self._save(state, "trip", trip))
 
     @staticmethod
     def _save(state, key, value):
         state[key] = value
         return deepcopy(value)
 
-    async def weather(self, campsite_id=None, checkin=None, checkout=None):
-        trip = self.repo.read()["trip"]
+    async def weather(self, campsite_id=None, checkin=None, checkout=None, *, force=False, lease=None):
+        trip = (await self._read())["trip"]
         campsite_id = campsite_id or (trip["campsiteId"] if trip else None)
         default_in, default_out = trip_dates()
         checkin = checkin or date.fromisoformat(trip["checkIn"] if trip else default_in)
@@ -86,11 +134,27 @@ class CampService:
             site = await self.campsite(campsite_id) if campsite_id else None
         except DomainError:
             site = None
-        return await self.providers.weather(site, checkin, checkout)
+        if site and not force:
+            cached = await run_in_threadpool(self.repo.cached_weather, site["id"], checkin.isoformat(), checkout.isoformat(), self.cache_variant)
+            if cached:
+                value, status = cached
+                if status: self.providers.weather_status = status
+                return self._weather_warning(value)
+        if force:
+            self.providers._weather_cache.clear()
+        value = await self.providers.weather(site, checkin, checkout)
+        if site:
+            stored = await run_in_threadpool(self.repo.store_weather, site["id"], checkin.isoformat(), checkout.isoformat(), value, self.providers.weather_status, self.cache_variant, lease=lease)
+            if not stored:
+                previous = await run_in_threadpool(self.repo.cached_weather, site["id"], checkin.isoformat(), checkout.isoformat(), self.cache_variant, allow_stale=True)
+                if previous: value = self._weather_warning(previous[0])
+        else:
+            await run_in_threadpool(self.repo.store_provider_status, "weather", "weather", self.providers.weather_status, self.cache_variant, lease=lease)
+        return value
 
     async def bootstrap(self):
-        sites = await self.providers.catalog()
-        state = self.repo.read()
+        state = (await self._read())
+        sites = await self._catalog(state)
         trip = state["trip"]
         if trip and not any(s["id"] == trip["campsiteId"] for s in sites):
             trip = None
@@ -100,7 +164,7 @@ class CampService:
 
     async def navigation(self, campsite_id, start=False):
         site = await self.campsite(campsite_id)
-        state = self.repo.read()
+        state = (await self._read())
         # Fixed origin for the simulator; not a user's geolocation or actual route.
         lat, lon = site.get("latitude"), site.get("longitude")
         if lat is None or lon is None:
@@ -121,7 +185,7 @@ class CampService:
             s["trip"]["navigationStarted"] = True
             s["trip"]["updatedAt"] = now()
             return deepcopy(s["trip"])
-        trip = self.repo.transact(update)
+        trip = await self._transact(update)
         return {"started": True, "mode": "demo", "message": "길안내 데모를 시작했습니다. 실제 내비 실행은 Pleos 호스트 연결이 필요합니다.", "trip": trip, "preview": preview}
 
     @staticmethod
@@ -163,15 +227,8 @@ class CampService:
         return self.repo.transact(update)
 
     def scene(self, scene_id, fail_control=None):
-        scenes = {
-            "load": [("targetTemperature",22,None),("readingLight",True,"front"),("readingLight",True,"rear"),("ambientBrightness",80,"front"),("ambientBrightness",80,"rear"),("blindLevel",0,"front"),("blindLevel",0,"rear")],
-            "together": [("targetTemperature",22,None),("readingLight",False,"front"),("readingLight",False,"rear"),("ambientBrightness",45,"front"),("ambientBrightness",45,"rear"),("blindLevel",40,"front"),("blindLevel",40,"rear")],
-            "split": [("targetTemperature",22,None),("readingLight",True,"front"),("readingLight",False,"rear"),("ambientBrightness",65,"front"),("ambientBrightness",15,"rear"),("blindLevel",25,"front"),("blindLevel",85,"rear")],
-            "sleep": [("targetTemperature",21,None),("readingLight",False,"front"),("readingLight",False,"rear"),("ambientBrightness",5,"front"),("ambientBrightness",5,"rear"),("blindLevel",100,"front"),("blindLevel",100,"rear")],
-            "departure": [("readingLight",False,"front"),("readingLight",False,"rear"),("ambientBrightness",0,"front"),("ambientBrightness",0,"rear"),("blindLevel",0,"front"),("blindLevel",0,"rear"),("windowsClosed",True,None)],
-        }
         def update(s):
-            results = [self._apply_control(s["vehicle"], control, value, zone, fail_control) for control, value, zone in scenes[scene_id]]
+            results = [self._apply_control(s["vehicle"], control, value, zone, fail_control) for control, value, zone in s["scenes"][scene_id]]
             complete = all(r["status"] == "applied" for r in results)
             s["vehicle"]["lastSceneId"] = scene_id if complete else None
             s["vehicle"]["updatedAt"] = now()
@@ -180,11 +237,11 @@ class CampService:
 
     @staticmethod
     def product_list(state):
-        return [p | {"stock": state["inventory"].get(p["id"], 0)} for p in products()]
+        return [p | {"stock": state["inventory"].get(p["id"], 0)} for p in state["products"]]
 
     @staticmethod
     def cart_view(state):
-        catalog = {p["id"]: p for p in products()}
+        catalog = {p["id"]: p for p in state["products"]}
         items = []
         for product_id, quantity in state["cart"].items():
             product = catalog[product_id]
@@ -194,9 +251,9 @@ class CampService:
         return {"items": items, "subtotal": subtotal, "shipping": shipping, "total": subtotal + shipping}
 
     def change_cart(self, product_id, quantity=None, add=False, delete=False):
-        if product_id not in {p["id"] for p in products()}:
-            raise DomainError("상품을 찾을 수 없습니다.", 404)
         def update(s):
+            if product_id not in {p["id"] for p in s["products"]}:
+                raise DomainError("상품을 찾을 수 없습니다.", 404)
             if delete:
                 s["cart"].pop(product_id, None)
             else:
@@ -208,6 +265,7 @@ class CampService:
         return self.repo.transact(update)
 
     def _quote(self, state, data: CheckoutInput, site=None):
+        site = self.with_receiving(site, state) if site is not None else None
         cart = self.cart_view(state)
         eta = date.today() + timedelta(days=2)
         reasons = []
@@ -247,17 +305,17 @@ class CampService:
 
     async def quote(self, data: CheckoutInput):
         site = await self.campsite(data.campsiteId) if data.destination == "campsite" and data.campsiteId else None
-        return self._quote(self.repo.read(), data, site)
+        return self._quote((await self._read()), data, site)
 
     async def create_order(self, data: OrderInput):
         payload = data.model_dump(mode="json", exclude={"idempotencyKey"})
         fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
         # Check idempotency before looking up providers/cart, including retries after checkout.
-        stored = self.repo.read()["idempotency"].get(data.idempotencyKey)
+        stored = (await self._read())["idempotency"].get(data.idempotencyKey)
         if stored:
             if stored["fingerprint"] != fingerprint:
                 raise DomainError("같은 주문 키에 다른 요청이 전달되었습니다. 새 주문으로 다시 확인해 주세요.", 409)
-            return next(o for o in self.repo.read()["orders"] if o["id"] == stored["orderId"])
+            return next(o for o in (await self._read())["orders"] if o["id"] == stored["orderId"])
         site = await self.campsite(data.campsiteId) if data.destination == "campsite" and data.campsiteId else None
         def update(s):
             existing = s["idempotency"].get(data.idempotencyKey)
@@ -275,4 +333,75 @@ class CampService:
             s["idempotency"][data.idempotencyKey] = {"fingerprint": fingerprint, "orderId": order["id"]}
             s["cart"] = {}
             return deepcopy(order)
-        return self.repo.transact(update)
+        return await self._transact(update)
+
+
+    async def admin_overview(self):
+        data = await self.bootstrap()
+        orders = (await run_in_threadpool(self.repo.read, all_profiles=True))["orders"]
+        return {
+            "database": {"backend": self.repo.backend, "namespace": self.repo.namespace},
+            "providers": data["providers"], "campsites": data["campsites"], "orders": orders,
+            "counts": {
+                "campsites": len(data["campsites"]), "orders": len(orders),
+                "openOrders": sum(order.get("fulfillment", {}).get("status", "pending") not in {"ready", "cancelled"} for order in orders),
+            },
+        }
+
+    async def admin_receiving(self, campsite_id, data):
+        await self.campsite(campsite_id)
+        delivery = data.model_dump() | {"updatedAt": now(), "source": "admin"}
+        def update(state):
+            state.setdefault("receivingOverrides", {})[campsite_id] = delivery
+            return {"campsiteId": campsite_id, "delivery": deepcopy(delivery)}
+        return await self._transact(update)
+
+    def admin_fulfillment(self, order_id, data):
+        def update(state):
+            order = next((item for item in state["orders"] if item["id"] == order_id), None)
+            if order is None:
+                raise DomainError("주문을 찾을 수 없습니다.", 404)
+            order["fulfillment"] = {
+                "status": data.fulfillmentStatus, "adminNote": data.adminNote,
+                "updatedAt": now(), "mode": "demo",
+            }
+            return deepcopy(order)
+        return self.repo.transact(update, all_profiles=True)
+
+
+    async def refresh_providers(self, force=False):
+        state = await self._read()
+        statuses = state["providerStatuses"]
+        warm = all(statuses.get(key, {}).get("variant") == self.cache_variant and statuses.get(key, {}).get("expiresAt", "") > now() for key in ("status-catalog", "status-weather"))
+        def report(status, sites, count):
+            return {"status": status, "refreshedAt": now(), "providers": [deepcopy(self.providers.catalog_status), deepcopy(self.providers.weather_status)], "campsites": len(sites), "weatherQueries": count, "database": {"backend": self.repo.backend, "namespace": self.repo.namespace}}
+        if warm and not force:
+            self.providers.catalog_status = deepcopy(statuses["status-catalog"]["status"])
+            self.providers.weather_status = deepcopy(statuses["status-weather"]["status"])
+            return report("cached", state["catalog"], 0)
+        owner = await run_in_threadpool(self.repo.begin_refresh)
+        if owner is None:
+            return report("busy", state["catalog"], 0)
+        lease = ("provider-cache", owner)
+        try:
+            sites = await self._catalog(force=force, lease=lease)
+            trip = state["trip"]
+            checkin, checkout = trip_dates()
+            if trip and trip["checkIn"] >= date.today().isoformat():
+                checkin, checkout = trip["checkIn"], trip["checkOut"]
+            # Refresh the current trip first, then at most two nearby catalog
+            # candidates per run. The worker does not fan out unbounded API calls.
+            selected = sorted(sites, key=lambda site: site["id"] != (trip or {}).get("campsiteId"))[:3]
+            for site in selected:
+                await self.weather(site["id"], date.fromisoformat(checkin), date.fromisoformat(checkout), force=force, lease=lease)
+            if not selected:
+                await self.weather(force=force, lease=lease)
+            failed = any(status["status"] in {"unavailable", "fallback"} for status in (self.providers.catalog_status, self.providers.weather_status))
+            await run_in_threadpool(self.repo.finish_refresh, owner, "failed" if failed else "succeeded", "provider_unavailable" if failed else None)
+            return report("refreshed", sites, len(selected))
+        except Exception:
+            try:
+                await run_in_threadpool(self.repo.finish_refresh, owner, "failed", "refresh_failed")
+            except DomainError:
+                pass
+            raise
