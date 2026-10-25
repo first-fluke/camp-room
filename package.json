@@ -1,10 +1,11 @@
 {
-  "name": "fullstack-starter",
+  "name": "camp-room",
   "private": true,
-  "packageManager": "bun@1.4.2",
-  "workspaces": ["apps/web", "packages/*"],
-  "devDependencies": {
-    "@commitlint/cli": "20",
-    "@gracefullight/validate-branch": "1.1.6"
+  "scripts": {
+    "android:build": "bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug",
+    "android:pleos": "bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug",
+    "demo": "python scripts/record-native-demo.py",
+    "test:api": ".venv/bin/python -m pytest apps/api/tests/test_camp_room.py -q",
+    "test:sdk": "python apps/pleos/verify_contracts.py"
   }
 }

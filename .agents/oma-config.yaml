@@ -2,7 +2,7 @@
 language: ko
 date_format: ISO
 timezone: Asia/Seoul
-model_preset: antigravity
+model_preset: auto
 
 # Added by oma update — new config keys (template defaults; edit freely)
 translation_voice: balanced
@@ -60,6 +60,19 @@ agents:
 # Added by oma update — new config keys (template defaults; edit freely)
 providers:
   code_intelligence: serena
+  web: native
+  semantic_memory: none
 mcp:
   devtools_browsers:
     - aside
+vendors:
+  - codex
+
+# Added by oma migration 022 — moved from .agents/skills/*/config/*.yaml, which `oma update` overwrites. Edit freely.
+video:
+  default_compositor: hyperframes
+  providers:
+    compositor:
+      order:
+        - hyperframes
+        - mpt

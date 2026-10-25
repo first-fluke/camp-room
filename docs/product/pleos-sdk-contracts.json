@@ -1,0 +1,1768 @@
+[
+  {
+    "id": "decl_4a90b011ee",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()"
+    ],
+    "summary": "애플리케이션 생성 시 Vehicle SDK를 초기화한다.",
+    "permissions": {
+      "names": [],
+      "documentation": []
+    },
+    "notes": [],
+    "manifestLine": 21
+  },
+  {
+    "id": "decl_66d4105da1",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "summary": "애플리케이션 파괴 시 Vehicle SDK 리소스를 해제한다.",
+    "permissions": {
+      "names": [],
+      "documentation": []
+    },
+    "notes": [],
+    "manifestLine": 22
+  },
+  {
+    "id": "decl_dfb8970321",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#Vehicle",
+    "name": "Vehicle",
+    "signatures": [
+      "constructor(context: Context)"
+    ],
+    "summary": "차량 서비스에 bind할 Android Context를 받아 Vehicle 진입 객체를 생성한다.",
+    "permissions": {
+      "names": [],
+      "documentation": []
+    },
+    "notes": [
+      "생성자 예제의 getGear/getCurrentSpeedDisplayUnit 등은 현재 검사한 accessor API 목록과 일치하지 않는다. 예제만으로 실제 API 존재를 인정하거나 큐 확장하지 않았다. capability 예제는 get/set 전에 지원 여부, AccessType 및 범위를 검사하도록 안내한다."
+    ],
+    "manifestLine": 23
+  },
+  {
+    "id": "decl_f4ecd1d557",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Brake#getCurrentBrakePedalStatus",
+    "name": "getCurrentBrakePedalStatus",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_DRIVE\")abstract fun getCurrentBrakePedalStatus(onComplete: (Boolean?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "브레이크 페달의 현재 눌림 상태를 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_DRIVE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_DRIVE"
+      ]
+    },
+    "notes": [
+      "정확한 파라미터·nullable·콜백 기본값은 signatures/overloadDetails 기준. 모든 함수의 직접 반환은 Unit이며 조회 결과는 onComplete로 전달된다.",
+      "실패 콜백은 (Exception) -> Unit. 이 상세페이지는 구체적 ErrorCode 목록·실패별 조건을 명시하지 않는다.",
+      "시그니처의 결과 타입은 nullable이다. 문서에서 null의 구체적 의미를 설명하지 않는 API도 있으므로 false/0과 동일시하지 않는다."
+    ],
+    "manifestLine": 25
+  },
+  {
+    "id": "decl_7c00792de4",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Brake#registerBrakePedalStatus",
+    "name": "registerBrakePedalStatus",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_DRIVE\")abstract fun registerBrakePedalStatus(listener: BrakePedalStatusListener)"
+    ],
+    "summary": "브레이크 페달 눌림 상태 변경 알림을 받을 리스너를 등록한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_DRIVE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_DRIVE"
+      ]
+    },
+    "notes": [
+      "정확한 파라미터·nullable·콜백 기본값은 signatures/overloadDetails 기준. 모든 함수의 직접 반환은 Unit이며 조회 결과는 onComplete로 전달된다."
+    ],
+    "manifestLine": 26
+  },
+  {
+    "id": "decl_98de33a2ae",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.DrivingMode#getCruiseControlTargetSpeed",
+    "name": "getCruiseControlTargetSpeed",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_DRIVE\")abstract fun getCruiseControlTargetSpeed(onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "크루즈 컨트롤 목표 속도(m/s)의 현재 값을 비동기 조회합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_DRIVE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_DRIVE"
+      ]
+    },
+    "notes": [
+      "정확한 파라미터·nullable·콜백 기본값은 signatures/overloadDetails 기준. 모든 함수의 직접 반환은 Unit이며 조회 결과는 onComplete로 전달된다.",
+      "실패 콜백은 (Exception) -> Unit. 이 상세페이지는 구체적 ErrorCode 목록·실패별 조건을 명시하지 않는다.",
+      "시그니처의 결과 타입은 nullable이다. 문서에서 null의 구체적 의미를 설명하지 않는 API도 있으므로 false/0과 동일시하지 않는다."
+    ],
+    "manifestLine": 55
+  },
+  {
+    "id": "decl_7f30d096d4",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.DrivingMode#getCurrentDrivingModeState",
+    "name": "getCurrentDrivingModeState",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_DRIVE\")abstract fun getCurrentDrivingModeState(onComplete: (DrivingModeType?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "현재 주행 모드를 DrivingModeType?으로 비동기 조회합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_DRIVE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_DRIVE"
+      ]
+    },
+    "notes": [
+      "정확한 파라미터·nullable·콜백 기본값은 signatures/overloadDetails 기준. 모든 함수의 직접 반환은 Unit이며 조회 결과는 onComplete로 전달된다.",
+      "실패 콜백은 (Exception) -> Unit. 이 상세페이지는 구체적 ErrorCode 목록·실패별 조건을 명시하지 않는다.",
+      "시그니처의 결과 타입은 nullable이다. 문서에서 null의 구체적 의미를 설명하지 않는 API도 있으므로 false/0과 동일시하지 않는다."
+    ],
+    "manifestLine": 56
+  },
+  {
+    "id": "decl_73836bcf1f",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#getEvBatteryStateOfCharge",
+    "name": "getEvBatteryStateOfCharge",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun getEvBatteryStateOfCharge(onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "전기차 구동 배터리에 남은 충전량을 퍼센트로 읽는다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_ENERGY"
+      ]
+    },
+    "notes": [
+      "[권장] 현재 잔량 표시와 충전 목표 제한 설정을 별도 항목으로 만든다.",
+      "[권장] null이면 잔량 확인 불가로 표시한다.",
+      "성공 콜백 결과 타입이 nullable이다. null을 유효한 측정값으로 단정하지 말 것."
+    ],
+    "manifestLine": 74
+  },
+  {
+    "id": "decl_e356b78c80",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#getEvChargeCurrentDrawLimit",
+    "name": "getEvChargeCurrentDrawLimit",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun getEvChargeCurrentDrawLimit(onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "EV 충전 전류 인출 제한값(A): 현재 이용 가능한 값을 성공 콜백으로 일회 조회합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_ENERGY"
+      ]
+    },
+    "notes": [
+      "Float?; 값 없으면 null. 단위 A.",
+      "성공 콜백 결과 타입이 nullable이다. null을 유효한 측정값으로 단정하지 말 것."
+    ],
+    "manifestLine": 75
+  },
+  {
+    "id": "decl_3761e5b0fa",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#registerEvBatteryStateOfCharge",
+    "name": "registerEvBatteryStateOfCharge",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun registerEvBatteryStateOfCharge(listener: EvBatteryStateOfChargeListener)"
+    ],
+    "summary": "현재 EV 배터리 충전율(%): 변화 업데이트를 받는 리스너를 등록한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_ENERGY"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 81
+  },
+  {
+    "id": "decl_3bafc49091",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#setEvChargeCurrentDrawLimit",
+    "name": "setEvChargeCurrentDrawLimit",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_ENERGY\")abstract fun setEvChargeCurrentDrawLimit(value: Float, onComplete: (Float?) -> Unit = {}, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "충전할 때 사용할 전류의 제한값을 암페어로 설정한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_ENERGY"
+      ]
+    },
+    "notes": [
+      "[권장] checkEvChargeCurrentDrawLimitCapabilities로 지원 정보를 확인한 뒤 입력을 구성한다.",
+      "[권장] 제한 전류(A)와 실시간 소비 전류·충전 전력(kW)을 서로 다른 항목으로 표시한다.",
+      "onComplete와 onFailed의 기본값은 빈 람다 {}. 콜백은 선택 인자이며 실패를 관측하려면 onFailed 제공.",
+      "성공 콜백 결과 타입이 nullable이다. null을 유효한 측정값으로 단정하지 말 것."
+    ],
+    "manifestLine": 84
+  },
+  {
+    "id": "decl_b2c3288462",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#setEvChargePercentLimit",
+    "name": "setEvChargePercentLimit",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_ENERGY\")abstract fun setEvChargePercentLimit(value: Float, onComplete: (Float?) -> Unit = {}, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "충전을 어디까지 할지 목표 배터리 충전량 제한을 설정한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_ENERGY"
+      ]
+    },
+    "notes": [
+      "[공식] checkEvChargePercentLimitCapabilities로 차량 지원값을 조회한 뒤 선택지를 만든다.",
+      "[권장] 현재 SOC와 충전 목표 SOC를 화면에서 구분한다.",
+      "0~100% 및 차량 지원값 조건. checkEvChargePercentLimitCapabilities의 List<Float>를 먼저 조회. 성공 콜백은 요청한 목표값(%).",
+      "onComplete와 onFailed의 기본값은 빈 람다 {}. 콜백은 선택 인자이며 실패를 관측하려면 onFailed 제공.",
+      "성공 콜백 결과 타입이 nullable이다. null을 유효한 측정값으로 단정하지 말 것."
+    ],
+    "manifestLine": 85
+  },
+  {
+    "id": "decl_63b8b2de5f",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#setEvChargeSwitch",
+    "name": "setEvChargeSwitch",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_ENERGY\")abstract fun setEvChargeSwitch(value: Boolean, onComplete: (Boolean?) -> Unit = {}, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "배터리 충전을 시작하거나 중지하도록 요청한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_ENERGY"
+      ]
+    },
+    "notes": [
+      "[공식 문서 충돌] 시그니처는 Boolean?이고 Parameters의 onComplete 설명에는 Float가 잘못 섞여 있다. Boolean? 시그니처를 표시한다.",
+      "[권장] 설정 성공 표시와 충전 완료·실제 전류 표시를 나누어 구현한다.",
+      "[공식] CONTROL_CAR_ENERGY 권한을 확인한다.",
+      "본문 Parameters는 onComplete를 Float라고 적지만 실제 signature는 (Boolean?) -> Unit이다. signature를 기준으로 정리하고 문서 오기를 기록한다.",
+      "onComplete와 onFailed의 기본값은 빈 람다 {}. 콜백은 선택 인자이며 실패를 관측하려면 onFailed 제공.",
+      "성공 콜백 결과 타입이 nullable이다. null을 유효한 측정값으로 단정하지 말 것."
+    ],
+    "manifestLine": 87
+  },
+  {
+    "id": "decl_1160ca0aca",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#unregisterEvBatteryStateOfCharge",
+    "name": "unregisterEvBatteryStateOfCharge",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun unregisterEvBatteryStateOfCharge(listener: EvBatteryStateOfChargeListener)"
+    ],
+    "summary": "현재 EV 배터리 충전율(%): 등록된 리스너를 해제하여 해당 속성 업데이트 수신을 중지한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_ENERGY"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_ENERGY"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 90
+  },
+  {
+    "id": "decl_a5b342e446",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#checkHvacFanSpeedCapabilities",
+    "name": "checkHvacFanSpeedCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacFanSpeedCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacFanSpeedCapabilities(onComplete: (Map<SeatArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "송풍 속도의 차량 지원 여부·설정 가능 특성과 지원 영역 또는 허용 범위를 비동기로 확인합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "구형 오버로드 Deprecated. level 명시 여부는 아래 deprecated와 원문을 확인."
+    ],
+    "manifestLine": 120
+  },
+  {
+    "id": "decl_31d17e37af",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#checkHvacTemperatureCapabilities",
+    "name": "checkHvacTemperatureCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacTemperatureCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Float>>, HvacTemperatureConfigArray?) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacTemperatureCapabilities(onComplete: (Map<SeatArea, AreaBounds<Float>>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacTemperatureCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Float>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "목표 공조 온도의 차량 지원 여부·설정 가능 특성과 지원 영역 또는 허용 범위를 비동기로 확인합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다.",
+      "구형 오버로드 Deprecated. level 명시 여부는 아래 deprecated와 원문을 확인."
+    ],
+    "manifestLine": 125
+  },
+  {
+    "id": "decl_d331ef9b8f",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#getHvacFanSpeed",
+    "name": "getHvacFanSpeed",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacFanSpeed(area: SeatArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "송풍 속도의 현재 값을 단발 비동기 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다."
+    ],
+    "manifestLine": 134
+  },
+  {
+    "id": "decl_81844bb609",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#getHvacTemperature",
+    "name": "getHvacTemperature",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacTemperature(area: SeatArea, unit: TemperatureUnit, onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "목표 공조 온도의 현재 값을 단발 비동기 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다."
+    ],
+    "manifestLine": 139
+  },
+  {
+    "id": "decl_f0da5227a4",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#getHvacTemperatureCurrent",
+    "name": "getHvacTemperatureCurrent",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacTemperatureCurrent(area: SeatArea, onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacTemperatureCurrent(area: SeatArea, unit: TemperatureUnit, onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "실내 현재 측정 온도의 현재 값을 단발 비동기 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다."
+    ],
+    "manifestLine": 140
+  },
+  {
+    "id": "decl_d0983a8f77",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#registerHvacTemperature",
+    "name": "registerHvacTemperature",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun registerHvacTemperature(area: SeatArea, listener: HvacTemperatureListener)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun registerHvacTemperature(area: SeatArea, listener: HvacTemperatureValueListener)"
+    ],
+    "summary": "목표 공조 온도의 변경을 지속적으로 전달받을 리스너를 등록한다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 152
+  },
+  {
+    "id": "decl_f89530c4e4",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#registerHvacTemperatureCurrent",
+    "name": "registerHvacTemperatureCurrent",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun registerHvacTemperatureCurrent(area: SeatArea, listener: HvacTemperatureListener)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun registerHvacTemperatureCurrent(area: SeatArea, listener: HvacTemperatureValueListener)"
+    ],
+    "summary": "실내 현재 측정 온도의 변경을 지속적으로 전달받을 리스너를 등록한다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 153
+  },
+  {
+    "id": "decl_1d4e10b11f",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#setHvacFanSpeed",
+    "name": "setHvacFanSpeed",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_CLIMATE\")abstract fun setHvacFanSpeed(area: SeatArea, value: Int, onComplete: (SeatArea, Int?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "송풍 속도를 지정 값으로 제어하고 성공·실패 콜백으로 결과를 받는다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다.",
+      "고정 범위가 아니다. checkHvacFanSpeedCapabilities 선행 호출 후 CapabilityConfig가 아니라 영역별 Map 값 AreaBounds.minValue/maxValue를 사용."
+    ],
+    "manifestLine": 161
+  },
+  {
+    "id": "decl_4351a9aebe",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#setHvacPower",
+    "name": "setHvacPower",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_CLIMATE\")abstract fun setHvacPower(area: SeatArea, value: Boolean, onComplete: (SeatArea, Boolean?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "공조 전체 전원를 지정 값으로 제어하고 성공·실패 콜백으로 결과를 받는다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다."
+    ],
+    "manifestLine": 164
+  },
+  {
+    "id": "decl_a65e0d32c8",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#setHvacTemperature",
+    "name": "setHvacTemperature",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_CLIMATE\")abstract fun setHvacTemperature(area: SeatArea, value: Float, unit: TemperatureUnit, onComplete: (SeatArea, Float?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "목표 공조 온도를 지정 값으로 제어하고 성공·실패 콜백으로 결과를 받는다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다."
+    ],
+    "manifestLine": 166
+  },
+  {
+    "id": "decl_4485433cd1",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#checkAmbientLightBrightnessCapabilities",
+    "name": "checkAmbientLightBrightnessCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkAmbientLightBrightnessCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 밝기 기능의 지원·접근 설정을 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 181
+  },
+  {
+    "id": "decl_5f56850ef9",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#checkAmbientLightBrightnessColorCapabilities",
+    "name": "checkAmbientLightBrightnessColorCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkAmbientLightBrightnessColorCapabilities(onComplete: (CapabilityConfig, List<SeatArea>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 색상(32비트 ARGB) 기능의 지원·접근 설정을 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 182
+  },
+  {
+    "id": "decl_3b333dec8c",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#checkReadingLightSwitchCapabilities",
+    "name": "checkReadingLightSwitchCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkReadingLightSwitchCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, List<LightSwitch>>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkReadingLightSwitchCapabilities(onComplete: (Map<SeatArea, List<LightSwitch>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 독서등 스위치 기능의 지원·접근 설정을 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "구형 capability 오버로드는 Deprecated. 새 오버로드의 onComplete는 CapabilityConfig를 추가 반환. 상세페이지는 DeprecationLevel(WARNING/ERROR/HIDDEN)을 명시하지 않으므로 level은 미확인. 교체 코드는 overloadDetails.replacement에 원문 보존."
+    ],
+    "manifestLine": 194
+  },
+  {
+    "id": "decl_a32a14b20e",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#getAmbientLightBrightness",
+    "name": "getAmbientLightBrightness",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun getAmbientLightBrightness(area: SeatArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 밝기의 현재 값을 비동기 조회하여 onComplete로 전달합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 200
+  },
+  {
+    "id": "decl_a60473cf68",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#getAmbientLightBrightnessColor",
+    "name": "getAmbientLightBrightnessColor",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun getAmbientLightBrightnessColor(area: SeatArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 색상(32비트 ARGB)의 현재 값을 비동기 조회하여 onComplete로 전달합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "32비트 ARGB. Alpha=0xFF 고정(완전 불투명).",
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 201
+  },
+  {
+    "id": "decl_cdc17dd03f",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#getCurrentReadingLightState",
+    "name": "getCurrentReadingLightState",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun getCurrentReadingLightState(area: SeatArea, onComplete: (LightState?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 독서등 실제 상태의 현재 값을 비동기 조회하여 onComplete로 전달합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 209
+  },
+  {
+    "id": "decl_a25c4c92c3",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#getReadingLightSwitch",
+    "name": "getReadingLightSwitch",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun getReadingLightSwitch(area: SeatArea, onComplete: (LightSwitch?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 독서등 스위치의 현재 값을 비동기 조회하여 onComplete로 전달합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 215
+  },
+  {
+    "id": "decl_f52d104d8b",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#registerAmbientLightBrightnessColorListener",
+    "name": "registerAmbientLightBrightnessColorListener",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun registerAmbientLightBrightnessColorListener(area: SeatArea, listener: AmbientLightBrightnessColorListener)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 색상(32비트 ARGB) 변경 이벤트를 받도록 리스너를 등록합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 219
+  },
+  {
+    "id": "decl_fe9c16f2d6",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#registerAmbientLightBrightnessListener",
+    "name": "registerAmbientLightBrightnessListener",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun registerAmbientLightBrightnessListener(area: SeatArea, listener: AmbientLightBrightnessListener)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 밝기 변경 이벤트를 받도록 리스너를 등록합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 220
+  },
+  {
+    "id": "decl_f41b44777f",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#registerReadingLightState",
+    "name": "registerReadingLightState",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun registerReadingLightState(area: SeatArea, listener: LightStateListener)"
+    ],
+    "summary": "좌석 영역별 독서등 실제 상태 변경 이벤트를 받도록 리스너를 등록합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 226
+  },
+  {
+    "id": "decl_f167f2388b",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#setAmbientLightBrightness",
+    "name": "setAmbientLightBrightness",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun setAmbientLightBrightness(area: SeatArea, value: Int, onComplete: (SeatArea, Int) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 밝기 값을 설정하고 적용 결과 또는 실패를 콜백으로 받습니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "setter지만 annotation/본문 모두 CAR_LIGHTS. 콜백 기본값 없으므로 onComplete/onFailed를 명시. 숫자 단위·공통 0~100 범위는 이 상세문서에 없음.",
+      "이 상세페이지는 Int 값의 물리 단위·고정 숫자 범위를 명시하지 않음. 지원 범위 capability가 있으면 차량별 반환값으로 확인하며 퍼센트/온도 등으로 추정하지 않음."
+    ],
+    "manifestLine": 230
+  },
+  {
+    "id": "decl_bf3ee761d8",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#setAmbientLightBrightnessColor",
+    "name": "setAmbientLightBrightnessColor",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun setAmbientLightBrightnessColor(area: SeatArea, value: Int, onComplete: (SeatArea, Int) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "좌석 영역별 앰비언트 조명 색상(32비트 ARGB) 값을 설정하고 적용 결과 또는 실패를 콜백으로 받습니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "value는 32비트 ARGB이며 Alpha=0xFF 고정. setter지만 annotation/본문 모두 CAR_LIGHTS이며 CONTROL_CAR_LIGHTS로 추정 변경하면 안 됨."
+    ],
+    "manifestLine": 231
+  },
+  {
+    "id": "decl_068ddf7a62",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#setReadingLightSwitch",
+    "name": "setReadingLightSwitch",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_LIGHTS\")abstract fun setReadingLightSwitch(area: SeatArea, value: LightSwitch, onComplete: (LightSwitch?) -> Unit = {}, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "좌석 영역별 독서등 스위치 값을 설정하고 적용 결과 또는 실패를 콜백으로 받습니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_LIGHTS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_LIGHTS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 237
+  },
+  {
+    "id": "decl_a9378d09a8",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Seat#selectSeatMemory",
+    "name": "selectSeatMemory",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_SEATS\")abstract fun selectSeatMemory(area: SeatArea, value: Int, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "selectSeatMemory의 현재 값을 단발 비동기 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_SEATS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_SEATS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 402
+  },
+  {
+    "id": "decl_b29cdf4a9e",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#checkSmartGlassLevelCapabilities",
+    "name": "checkSmartGlassLevelCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun checkSmartGlassLevelCapabilities(onComplete: (CapabilityConfig, Map<WindowArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "창문 영역별 스마트글라스 레벨 기능의 지원·접근 설정을 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 447
+  },
+  {
+    "id": "decl_8395245d35",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#checkWindowPositionCapabilities",
+    "name": "checkWindowPositionCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun checkWindowPositionCapabilities(onComplete: (CapabilityConfig, Map<WindowArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun checkWindowPositionCapabilities(onComplete: (Map<WindowArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "창문 개방 위치 기능의 지원·접근 설정을 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "Deprecated Replace with 텍스트는 { capabilityConfig, list }이지만 새 signature의 둘째 콜백 인자 타입은 Map<WindowArea, AreaBounds<Int>>. 변수명 템플릿을 타입으로 오해하지 말 것.",
+      "구형 capability 오버로드는 Deprecated. 새 오버로드의 onComplete는 CapabilityConfig를 추가 반환. 상세페이지는 DeprecationLevel(WARNING/ERROR/HIDDEN)을 명시하지 않으므로 level은 미확인. 교체 코드는 overloadDetails.replacement에 원문 보존."
+    ],
+    "manifestLine": 452
+  },
+  {
+    "id": "decl_a5b2f32247",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#getCurrentSmartGlassLevel",
+    "name": "getCurrentSmartGlassLevel",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun getCurrentSmartGlassLevel(area: WindowArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "선택한 창의 현재 스마트글라스 단계값을 읽는다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "[권장] checkSmartGlassLevelCapabilities의 해당 창 범위와 함께 표시한다.",
+      "[권장] 단계 숫자만으로 투과율(%)이나 더 밝음/어두움을 결정하지 않는다.",
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 453
+  },
+  {
+    "id": "decl_a8b5a97ac6",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#getCurrentWindowBlindPosition",
+    "name": "getCurrentWindowBlindPosition",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun getCurrentWindowBlindPosition(area: WindowArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "창문 블라인드 위치의 현재 값을 비동기 조회하여 onComplete로 전달합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 455
+  },
+  {
+    "id": "decl_b3e1ed1981",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#getCurrentWindowPosition",
+    "name": "getCurrentWindowPosition",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun getCurrentWindowPosition(area: WindowArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "창문 개방 위치의 현재 값을 비동기 조회하여 onComplete로 전달합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 457
+  },
+  {
+    "id": "decl_dc3f78ee54",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#getSmartGlassConfig",
+    "name": "getSmartGlassConfig",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun getSmartGlassConfig(area: WindowArea, onComplete: (SmartGlassConfig?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "선택한 창의 스마트글라스 구역 수와 단계 수를 읽는다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "[공식] area는 정확히 창 한 곳이어야 한다.",
+      "[공식] 설정 객체가 있어도 단계 조절 지원을 별도로 checkSmartGlassLevelCapabilities에서 확인한다.",
+      "[권장] levelCount만 보고 단계 인덱스를 0..count-1로 만들지 말고 capability의 실제 범위를 읽는다.",
+      "area는 정확히 한 개의 창문 영역 값이어야 함. 차량 [zoneCount, levelCount]를 디코딩하며 예: [4,1] → SmartGlassConfig(zoneCount=4,levelCount=1).",
+      "zoneCount를 setSmartGlassZoneState 명령 목록 길이로 사용. 구성 조회 성공이 level 기능 지원을 보장하지 않으므로 checkSmartGlassLevelCapabilities 별도 확인.",
+      "잘못된 입력, 조회 실패, 빈/잘못된 구성 서비스 응답이면 onFailed(Exception).",
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 458
+  },
+  {
+    "id": "decl_010e0f9acb",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#moveWindowBlind",
+    "name": "moveWindowBlind",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_WINDOWS\")abstract fun moveWindowBlind(area: WindowArea, value: MoveControl, onComplete: (WindowArea, MoveControl?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "지정 창문 영역의 블라인드에 MoveControl 이동 명령을 적용하고 적용된 명령을 콜백으로 받습니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음."
+    ],
+    "manifestLine": 459
+  },
+  {
+    "id": "decl_291706455d",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#registerSmartGlassLevel",
+    "name": "registerSmartGlassLevel",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun registerSmartGlassLevel(area: WindowArea, listener: SmartGlassLevelListener)"
+    ],
+    "summary": "창문 영역별 스마트글라스 레벨 변경 이벤트를 받도록 리스너를 등록합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 460
+  },
+  {
+    "id": "decl_b9005b9c7c",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#registerWindowBlindPosition",
+    "name": "registerWindowBlindPosition",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun registerWindowBlindPosition(area: WindowArea, listener: WindowPositionListener)"
+    ],
+    "summary": "창문 블라인드 위치 변경 이벤트를 받도록 리스너를 등록합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 462
+  },
+  {
+    "id": "decl_c0a4a73456",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#registerWindowPosition",
+    "name": "registerWindowPosition",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun registerWindowPosition(area: WindowArea, listener: WindowPositionListener)"
+    ],
+    "summary": "창문 개방 위치 변경 이벤트를 받도록 리스너를 등록합니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_WINDOWS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 464
+  },
+  {
+    "id": "decl_be399b6514",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#setSmartGlassLevel",
+    "name": "setSmartGlassLevel",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_WINDOWS\")abstract fun setSmartGlassLevel(area: WindowArea, value: Int, onComplete: (WindowArea, Int?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "선택한 창의 스마트글라스를 지정한 단계값으로 설정한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "[공식] checkSmartGlassLevelCapabilities는 CapabilityConfig와 창별 AreaBounds<Int> Map을 제공한다.",
+      "[권장] getSmartGlassConfig의 levelCount를 허용 최댓값으로 바로 사용하지 않는다.",
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음.",
+      "이 상세페이지는 Int 값의 물리 단위·고정 숫자 범위를 명시하지 않음. 지원 범위 capability가 있으면 차량별 반환값으로 확인하며 퍼센트/온도 등으로 추정하지 않음."
+    ],
+    "manifestLine": 465
+  },
+  {
+    "id": "decl_b2bf6c5921",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#setWindowPosition",
+    "name": "setWindowPosition",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_WINDOWS\")abstract fun setWindowPosition(area: WindowArea, value: Int, onComplete: (WindowArea, Int?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "summary": "창문 개방 위치 값을 설정하고 적용 결과 또는 실패를 콜백으로 받습니다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CONTROL_CAR_WINDOWS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CONTROL_CAR_WINDOWS"
+      ]
+    },
+    "notes": [
+      "콜백 결과의 nullable(?)는 exact signature에 보존. Parameters 본문은 종종 ?를 생략하므로 non-null을 보장하지 않음.",
+      "이 상세페이지는 Int 값의 물리 단위·고정 숫자 범위를 명시하지 않음. 지원 범위 capability가 있으면 차량별 반환값으로 확인하며 퍼센트/온도 등으로 추정하지 않음."
+    ],
+    "manifestLine": 469
+  },
+  {
+    "id": "decl_8e94972cb7",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#addListener",
+    "name": "addListener",
+    "signatures": [
+      "fun addListener(listener: NaviHelperEventListener)"
+    ],
+    "summary": "내비 결과를 받을 수신함을 등록한다.",
+    "permissions": {
+      "names": [],
+      "documentation": "문서에 권한 어노테이션 없음"
+    },
+    "notes": [],
+    "manifestLine": 1069
+  },
+  {
+    "id": "decl_3bb06f0ac2",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()",
+      "fun initialize(onConnected: () -> Unit, onFailed: (Throwable) -> Unit)"
+    ],
+    "summary": "내비게이션 서비스에 연결한다.",
+    "permissions": {
+      "names": [],
+      "documentation": "문서에 권한 어노테이션 없음"
+    },
+    "notes": [
+      "initialize()와 initialize(onConnected,onFailed) 두 오버로드가 있다. 연결 성공을 명확히 받아 후속 작업하려면 콜백 오버로드를 선택한다.",
+      "onConnected: 최초 서비스 연결 성공. onFailed(Throwable): 초기 연결 재시도 소진."
+    ],
+    "manifestLine": 1081
+  },
+  {
+    "id": "decl_0c9aba1948",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "summary": "내비 연동 연결과 자원을 정리한다.",
+    "permissions": {
+      "names": [],
+      "documentation": "문서에 권한 어노테이션 없음"
+    },
+    "notes": [],
+    "manifestLine": 1083
+  },
+  {
+    "id": "decl_7fb23706bd",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#removeListener",
+    "name": "removeListener",
+    "signatures": [
+      "fun removeListener(listener: NaviHelperEventListener)"
+    ],
+    "summary": "등록했던 내비 수신함을 제거한다.",
+    "permissions": {
+      "names": [],
+      "documentation": "문서에 권한 어노테이션 없음"
+    },
+    "notes": [],
+    "manifestLine": 1084
+  },
+  {
+    "id": "decl_29e41d7cb8",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#requestRoute",
+    "name": "requestRoute",
+    "signatures": [
+      "fun requestRoute(routeInfo: RouteInfo)"
+    ],
+    "summary": "목적지를 설정하고 경로 탐색을 요청한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.NAVI_ROUTE_SEARCH"
+      ],
+      "documentation": "pleos.car.permission.NAVI_ROUTE_SEARCH"
+    },
+    "notes": [
+      "내비 앱의 구현과 현재 상태에 따라 관련 이벤트가 전달된다. 요청 한 번마다 이 콜백이 반드시 한 번씩 도착한다고 가정하지 말고 수신한 상태를 기준으로 화면을 갱신한다.",
+      "onRouteStarted의 원문 의미는 경로 탐색 시작이다. onRoutingCompleted는 탐색 완료다. 실제 주행 상태는 onNavigationStatus의 ROUTE_DRIVE 등 별도 상태로 읽는다. 이벤트 순서나 모든 이벤트 도착을 고정하지 않는다.",
+      "RouteInfo와 RequestWaypointInfo의 생성자 인자 순서는 latitude, longitude다. 일부 Java 가이드 예제의 반대 순서를 복사하지 말고 named argument 또는 exact signature를 따른다.",
+      "콜백 전달은 NaviProvider 기반 Navigation 앱의 처리 구현·현재 상태에 따라 달라진다."
+    ],
+    "manifestLine": 1088
+  },
+  {
+    "id": "decl_b8788e5a15",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#requestRouteWithWaypoints",
+    "name": "requestRouteWithWaypoints",
+    "signatures": [
+      "fun requestRouteWithWaypoints(request: RouteWithWaypointsRequest)"
+    ],
+    "summary": "목적지와 경유지를 묶어 경로 탐색을 요청한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.NAVI_ROUTE_SEARCH"
+      ],
+      "documentation": "pleos.car.permission.NAVI_ROUTE_SEARCH"
+    },
+    "notes": [
+      "내비 앱의 구현과 현재 상태에 따라 관련 이벤트가 전달된다. 요청 한 번마다 이 콜백이 반드시 한 번씩 도착한다고 가정하지 말고 수신한 상태를 기준으로 화면을 갱신한다.",
+      "onRouteStarted의 원문 의미는 경로 탐색 시작이다. onRoutingCompleted는 탐색 완료다. 실제 주행 상태는 onNavigationStatus의 ROUTE_DRIVE 등 별도 상태로 읽는다. 이벤트 순서나 모든 이벤트 도착을 고정하지 않는다.",
+      "RouteInfo와 RequestWaypointInfo의 생성자 인자 순서는 latitude, longitude다. 일부 Java 가이드 예제의 반대 순서를 복사하지 말고 named argument 또는 exact signature를 따른다.",
+      "경유지는 최대 2개, FIRST/SECOND를 사용한다. 전체 제거에는 ALL을 쓴다. onWayPointInfo의 대소문자를 그대로 구현한다.",
+      "콜백 전달은 NaviProvider 기반 Navigation 앱의 처리 구현·현재 상태에 따라 달라진다."
+    ],
+    "manifestLine": 1089
+  },
+  {
+    "id": "decl_6b30e54f46",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#requestTrip",
+    "name": "requestTrip",
+    "signatures": [
+      "fun requestTrip(tripRequest: TripRequest)"
+    ],
+    "summary": "장소까지 갈 때의 예상 주행 계획을 요청한다.",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.NAVI_ROUTE"
+      ],
+      "documentation": "pleos.car.permission.NAVI_ROUTE"
+    },
+    "notes": [
+      "내비 앱의 구현과 현재 상태에 따라 관련 이벤트가 전달된다. 요청 한 번마다 이 콜백이 반드시 한 번씩 도착한다고 가정하지 말고 수신한 상태를 기준으로 화면을 갱신한다.",
+      "TripInfo는 예상 주행 계획이다. 이 정보를 받았다는 사실만으로 목적지가 설정되거나 실제 길안내가 시작됐다고 표시하지 않는다.",
+      "TripInfo.summary → TripSummary.trafficConditions(List<TrafficInfo>)와 routePoints(List<RoutePointInfo>)로 연결된다. 모델 스키마에서 거리·소비 전력량·비율 단위를 확인한다.",
+      "eta는 초 단위 계약이다. Unix timestamp 또는 현재 시각부터의 남은 시간으로 임의 해석하지 말고 기준을 제공자와 맞춘다.",
+      "콜백 전달은 NaviProvider 기반 Navigation 앱의 처리 구현·현재 상태에 따라 달라진다."
+    ],
+    "manifestLine": 1090
+  },
+  {
+    "id": "decl_646488d244",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.helper.listener",
+    "qualifiedName": "ai.pleos.playground.navi.helper.listener.NaviHelperEventListener#onTripInfo",
+    "name": "onTripInfo",
+    "signatures": [
+      "open fun onTripInfo(tripInfo: TripInfo)"
+    ],
+    "summary": "주행 계획 정보",
+    "permissions": {
+      "names": [],
+      "documentation": "콜백 자체의 권한 어노테이션 없음; 요청 API별 권한 참조"
+    },
+    "notes": [],
+    "manifestLine": 1112
+  },
+  {
+    "id": "decl_1fa863defa",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.RequestWaypointInfo#RequestWaypointInfo",
+    "name": "RequestWaypointInfo",
+    "signatures": [
+      "data class RequestWaypointInfo(val latitude: Double, val longitude: Double, val poiName: String?, val waypointIndex: WaypointIndex, val poiId: String, val address: String, val poiSubId: String, val poiProvider: String = \"\")"
+    ],
+    "summary": "입출력 데이터 모델/화면 요청 variant. 서비스 엔드포인트가 아님.",
+    "permissions": {
+      "names": [],
+      "documentation": "데이터 생성 자체 권한 없음; 사용하는 요청 메서드 권한 적용"
+    },
+    "notes": [
+      "@Serializabledata class RequestWaypointInfo(val latitude: Double, val longitude: Double, val poiName: String?, val waypointIndex: WaypointIndex, val poiId: String, val address: String, val poiSubId: String, val poiProvider: String = \"\")Data class representing a waypoint request in a navigation system. Members Constructors RequestWaypointInfo Link copied to clipboard constructor(latitude: Double, longitude: Double, poiName: String?, waypointIndex: WaypointIndex, poiId: String, address: String, poiSubId: String, poiProvider: String = \"\") Properties address Link copied to clipboard val address: StringThe Address is the complete location information of a place (ex 123 Main St, Los Angeles, CA 90001, United States) latitude Link copied to clipboard val latitude: DoubleLatitude is the geographic coordinate that specifies the north-south position of a point on Earth. It is measured in degrees (°), ranging from -90° (South) to 90° (North). longitude Link copied to clipboard val longitude: DoubleLongitude is the geographic coordinate that specifies the east-west position of a point on Earth. It is measured in degrees (°), ranging from -180° (West) to 180° (East). poiId Link copied to clipboard val poiId: StringPOI ID is a unique identifier for a specific POI on a map poiName Link copied to clipboard val poiName: String?The name of the POI at the waypoint. poiProvider Link copied to clipboard val poiProvider: StringPOI Content Provider Name (e.g., 42dot, Google) poiSubId Link copied to clipboard val poiSubId: StringPOI Sub ID is a POI sequence, in case of the same POI, it is distinguished by sequence. waypointIndex Link copied to clipboard val waypointIndex: WaypointIndexThe index of the waypoint in the route sequence. @see WaypointIndex"
+    ],
+    "manifestLine": 1218
+  },
+  {
+    "id": "decl_ccaf40d74c",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.RouteInfo#RouteInfo",
+    "name": "RouteInfo",
+    "signatures": [
+      "data class RouteInfo(val latitude: Double, val longitude: Double, val displayLatitude: Double? = null, val displayLongitude: Double? = null, val poiName: String, val poiId: String, val address: String, val poiSubId: String, val routeOption: RouteOption = RouteOption.RECOMMENDED, val poiProvider: String = \"\", val isMobileRequest: Boolean = false)"
+    ],
+    "summary": "입출력 데이터 모델/화면 요청 variant. 서비스 엔드포인트가 아님.",
+    "permissions": {
+      "names": [],
+      "documentation": "데이터 생성 자체 권한 없음; 사용하는 요청 메서드 권한 적용"
+    },
+    "notes": [
+      "@Serializabledata class RouteInfo(val latitude: Double, val longitude: Double, val displayLatitude: Double? = null, val displayLongitude: Double? = null, val poiName: String, val poiId: String, val address: String, val poiSubId: String, val routeOption: RouteOption = RouteOption.RECOMMENDED, val poiProvider: String = \"\", val isMobileRequest: Boolean = false)Data class representing navigation route information. Members Constructors RouteInfo Link copied to clipboard constructor(latitude: Double, longitude: Double, displayLatitude: Double? = null, displayLongitude: Double? = null, poiName: String, poiId: String, address: String, poiSubId: String, routeOption: RouteOption = RouteOption.RECOMMENDED, poiProvider: String = \"\", isMobileRequest: Boolean = false) Properties address Link copied to clipboard val address: StringThe Address is the complete location information of a place (ex 123 Main St, Los Angeles, CA 90001, United States) displayLatitude Link copied to clipboard val displayLatitude: Double? = nullDisplays the latitude coordinate on the map. displayLongitude Link copied to clipboard val displayLongitude: Double? = nullDisplays the longitude coordinate on the map. isMobileRequest Link copied to clipboard val isMobileRequest: Boolean = falseWhether the request is received from mobile (default: false) latitude Link copied to clipboard val latitude: DoubleLatitude is the geographic coordinate that specifies the north-south position of a point on Earth. It is measured in degrees (°), ranging from -90° (South) to 90° (North). longitude Link copied to clipboard val longitude: DoubleLongitude is the geographic coordinate that specifies the east-west position of a point on Earth. It is measured in degrees (°), ranging from -180° (West) to 180° (East). poiId Link copied to clipboard val poiId: StringPOI ID is a unique identifier for a specific POI on a map poiName Link copied to clipboard val poiName: StringThe name of the POI. poiProvider Link copied to clipboard val poiProvider: StringPOI Content Provider Name (e.g., 42dot, Google) poiSubId Link copied to clipboard val poiSubId: StringPOI Sub ID is a POI sequence, in case of the same POI, it is distinguished by sequence. routeOption Link copied to clipboard val routeOption: RouteOptionThe routing option to be used (default: recommended route)"
+    ],
+    "manifestLine": 1219
+  },
+  {
+    "id": "decl_f2ad9a1932",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.RouteWithWaypointsRequest#RouteWithWaypointsRequest",
+    "name": "RouteWithWaypointsRequest",
+    "signatures": [
+      "data class RouteWithWaypointsRequest(val destination: RouteInfo, val waypoints: List<RequestWaypointInfo>)"
+    ],
+    "summary": "입출력 데이터 모델/화면 요청 variant. 서비스 엔드포인트가 아님.",
+    "permissions": {
+      "names": [],
+      "documentation": "데이터 생성 자체 권한 없음; 사용하는 요청 메서드 권한 적용"
+    },
+    "notes": [
+      "@Serializabledata class RouteWithWaypointsRequest(val destination: RouteInfo, val waypoints: List<RequestWaypointInfo>)Data class representing a route request, including the destination and waypoints. Members Constructors RouteWithWaypointsRequest Link copied to clipboard constructor(destination: RouteInfo, waypoints: List<RequestWaypointInfo>) Properties destination Link copied to clipboard val destination: RouteInfoThe final destination information in the requested route. @see RouteInfo waypoints Link copied to clipboard val waypoints: List<RequestWaypointInfo>The list of waypoint information in the requested route. @see RequestWaypointInfo"
+    ],
+    "manifestLine": 1225
+  },
+  {
+    "id": "decl_2183033169",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripInfo#TripInfo",
+    "name": "TripInfo",
+    "signatures": [
+      "data class TripInfo(val distance: Int, val eta: Int, val estimatedSocAtDest: Int, val energyConsumption: Double, val summary: TripSummary)"
+    ],
+    "summary": "입출력 데이터 모델/화면 요청 variant. 서비스 엔드포인트가 아님.",
+    "permissions": {
+      "names": [],
+      "documentation": "데이터 생성 자체 권한 없음; 사용하는 요청 메서드 권한 적용"
+    },
+    "notes": [
+      "@Serializabledata class TripInfo(val distance: Int, val eta: Int, val estimatedSocAtDest: Int, val energyConsumption: Double, val summary: TripSummary)Data class representing trip information. Members Constructors TripInfo Link copied to clipboard constructor(distance: Int, eta: Int, estimatedSocAtDest: Int, energyConsumption: Double, summary: TripSummary) Properties distance Link copied to clipboard val distance: IntThe total distance traveled in meters to the destination. energyConsumption Link copied to clipboard val energyConsumption: DoubleEstimated battery consumption after route driving (Wh) estimatedSocAtDest Link copied to clipboard val estimatedSocAtDest: IntEstimated remaining battery after route driving (%) eta Link copied to clipboard val eta: IntEstimated Time of Arrival (ETA) in seconds. summary Link copied to clipboard val summary: TripSummaryDriving route information. @see TripSummary"
+    ],
+    "manifestLine": 1234
+  },
+  {
+    "id": "decl_e38280c8f9",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripRequest#TripRequest",
+    "name": "TripRequest",
+    "signatures": [
+      "data class TripRequest(val latitude: Double, val longitude: Double, val poiId: String, val poiName: String, val poiSubId: String?)"
+    ],
+    "summary": "입출력 데이터 모델/화면 요청 variant. 서비스 엔드포인트가 아님.",
+    "permissions": {
+      "names": [],
+      "documentation": "데이터 생성 자체 권한 없음; 사용하는 요청 메서드 권한 적용"
+    },
+    "notes": [
+      "@Serializabledata class TripRequest(val latitude: Double, val longitude: Double, val poiId: String, val poiName: String, val poiSubId: String?)Data class representing a trip request. Members Constructors TripRequest Link copied to clipboard constructor(latitude: Double, longitude: Double, poiId: String, poiName: String, poiSubId: String?) Properties latitude Link copied to clipboard val latitude: DoubleLatitude is the geographic coordinate that specifies the north-south position of a point on Earth. It is measured in degrees (°), ranging from -90° (South) to 90° (North). longitude Link copied to clipboard val longitude: DoubleLongitude is the geographic coordinate that specifies the east-west position of a point on Earth. It is measured in degrees (°), ranging from -180° (West) to 180° (East). poiId Link copied to clipboard val poiId: StringPOI ID is a unique identifier for a specific POI on a map. poiName Link copied to clipboard val poiName: StringThe name of the POI. poiSubId Link copied to clipboard val poiSubId: String?POI Sub ID is a POI sequence, in case of the same POI, it is distinguished by sequence."
+    ],
+    "manifestLine": 1235
+  },
+  {
+    "id": "decl_141d9d436d",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripSummary#TripSummary",
+    "name": "TripSummary",
+    "signatures": [
+      "data class TripSummary(val trafficConditions: List<TrafficInfo>, val routePoints: List<RoutePointInfo>)"
+    ],
+    "summary": "입출력 데이터 모델/화면 요청 variant. 서비스 엔드포인트가 아님.",
+    "permissions": {
+      "names": [],
+      "documentation": "데이터 생성 자체 권한 없음; 사용하는 요청 메서드 권한 적용"
+    },
+    "notes": [
+      "@Serializabledata class TripSummary(val trafficConditions: List<TrafficInfo>, val routePoints: List<RoutePointInfo>)Data class representing driving route information. Members Constructors TripSummary Link copied to clipboard constructor(trafficConditions: List<TrafficInfo>, routePoints: List<RoutePointInfo>) Properties routePoints Link copied to clipboard val routePoints: List<RoutePointInfo>List of waypoint and destination information. trafficConditions Link copied to clipboard val trafficConditions: List<TrafficInfo>List of traffic congestion information."
+    ],
+    "manifestLine": 1236
+  },
+  {
+    "id": "decl_8d6001145d",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripInfo#TripInfo",
+    "name": "TripInfo",
+    "signatures": [
+      "constructor(distance: Int, eta: Int, estimatedSocAtDest: Int, energyConsumption: Double, summary: TripSummary)"
+    ],
+    "summary": "TripInfo 데이터/화면요청 객체 생성",
+    "permissions": {
+      "names": [],
+      "documentation": "이 데이터 모델·속성·enum/helper에 RequiresPermission 명시 없음. 실제 서비스 호출 권한과 분리."
+    },
+    "notes": [
+      "이 leaf 본문은 시그니처만 제공. 기능·단위 설명은 이미 확인한 클래스 인덱스 근거를 사용함."
+    ],
+    "manifestLine": 1436
+  },
+  {
+    "id": "decl_781dbfaf6e",
+    "sdk": {
+      "name": "NaviHelper",
+      "version": "3.0.5"
+    },
+    "package": "ai.pleos.playground.navi.data",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripSummary#TripSummary",
+    "name": "TripSummary",
+    "signatures": [
+      "constructor(trafficConditions: List<TrafficInfo>, routePoints: List<RoutePointInfo>)"
+    ],
+    "summary": "교통 정체 정보 목록(trafficConditions)과 경유지·목적지 정보 목록(routePoints)을 묶는 TripSummary 데이터 모델을 생성합니다.",
+    "permissions": {
+      "names": [],
+      "documentation": "해당 leaf에 권한 annotation/권한 요구 설명 없음. 모델/enum 사용 자체와 이를 전달하는 서비스 요청 권한은 별개."
+    },
+    "notes": [
+      "생성자 leaf에는 signature만 있고 별도 의미/검증 설명은 없음. 모델 의미는 기존 클래스 인덱스의 본문과 대조."
+    ],
+    "manifestLine": 1445
+  },
+  {
+    "id": "decl_1ce72bc7b0",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#checkHvacPowerCapabilities",
+    "name": "checkHvacPowerCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacPowerCapabilities(onComplete: (CapabilityConfig, List<SeatArea>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacPowerCapabilities(onComplete: (List<SeatArea>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "공조 전체 전원의 차량 지원 여부·설정 가능 특성과 지원 영역 또는 허용 범위를 비동기로 확인합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "구형 오버로드 Deprecated. level 명시 여부는 아래 deprecated와 원문을 확인."
+    ],
+    "manifestLine": 123
+  },
+  {
+    "id": "decl_d0305b0c4b",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#getHvacPowerState",
+    "name": "getHvacPowerState",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacPowerState(area: SeatArea, onComplete: (Boolean?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "공조 전체 전원의 현재 값을 단발 비동기 조회합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [
+      "시그니처의 ? nullable을 유지했다. 본문 parameter 설명은 nullable 표기를 생략하는 경우가 있다."
+    ],
+    "manifestLine": 137
+  },
+  {
+    "id": "decl_640426515e",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#registerHvacPowerState",
+    "name": "registerHvacPowerState",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun registerHvacPowerState(area: SeatArea, listener: HvacPowerStateListener)"
+    ],
+    "summary": "공조 전체 전원의 변경을 지속적으로 전달받을 리스너를 등록한다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_CLIMATE"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 150
+  },
+  {
+    "id": "decl_c7774ab48c",
+    "sdk": {
+      "name": "Vehicle",
+      "version": "2.3.2"
+    },
+    "package": "ai.pleos.playground.vehicle.api",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Seat#checkSeatMemoryCapabilities",
+    "name": "checkSeatMemoryCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_SEATS\")abstract fun checkSeatMemoryCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "summary": "SeatMemory의 차량 지원 여부·설정 가능 특성과 지원 영역 또는 허용 범위를 비동기로 확인합니다",
+    "permissions": {
+      "names": [
+        "pleos.car.permission.CAR_SEATS"
+      ],
+      "documentation": [
+        "pleos.car.permission.CAR_SEATS"
+      ]
+    },
+    "notes": [],
+    "manifestLine": 355
+  }
+]

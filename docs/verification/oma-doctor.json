@@ -1,0 +1,537 @@
+{
+  "providers": {
+    "web": {
+      "provider": "native",
+      "capability": "web",
+      "status": "runtime-managed",
+      "reachability": "not-probed"
+    },
+    "docs": {
+      "provider": "context7",
+      "configured": false,
+      "authentication": "anonymous-or-client-managed",
+      "reachability": "not-probed",
+      "fallback": "official documentation via web search"
+    },
+    "codeIntelligence": {
+      "provider": "serena",
+      "experimental": false,
+      "fallback": "native search/read; no automatic provider switch"
+    },
+    "semanticMemory": {
+      "provider": "none",
+      "reachable": false,
+      "reason": "disabled"
+    },
+    "issues": []
+  },
+  "ok": false,
+  "issues": 13,
+  "clis": [
+    {
+      "name": "claude",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    },
+    {
+      "name": "codex",
+      "installed": true,
+      "version": "codex-cli 0.163.0",
+      "authenticated": true
+    },
+    {
+      "name": "qwen",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    },
+    {
+      "name": "antigravity",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    },
+    {
+      "name": "grok",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    },
+    {
+      "name": "kiro",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    },
+    {
+      "name": "kimi",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    },
+    {
+      "name": "pi",
+      "installed": false,
+      "version": null,
+      "authenticated": false
+    }
+  ],
+  "mcp": [
+    {
+      "name": "codex",
+      "configured": true,
+      "path": "/root/.codex/config.toml"
+    }
+  ],
+  "skills": [
+    {
+      "name": "oma-architecture",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-backend",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-db",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-frontend",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-mobile",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-design",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-brainstorm",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-coordination",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-orchestration",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-pm",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-qa",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-academic-writing",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-debug",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-docs",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-explanation",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-hwp",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-image",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-market",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-pdf",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-recap",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-refactor",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-scholar",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-scm",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-search",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-security",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-skill-creation",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-slide",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-translation",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-video",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-voice",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-dev-workflow",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-observability",
+      "installed": true,
+      "complete": true
+    },
+    {
+      "name": "oma-tf-infra",
+      "installed": true,
+      "complete": true
+    }
+  ],
+  "missingSkills": [],
+  "coordination": {
+    "exists": false,
+    "fileCount": 0
+  },
+  "serena": {
+    "exists": true,
+    "fileCount": 5,
+    "binary": {
+      "installed": true,
+      "version": "Serena 2.1.0",
+      "installCmd": "uv tool install -p 3.13 serena-agent@latest --prerelease=allow"
+    }
+  },
+  "agentMemory": {
+    "status": {
+      "provider": "agentmemory",
+      "reachable": false,
+      "reason": "endpoint not configured"
+    },
+    "binary": {
+      "command": "agentmemory",
+      "available": false
+    },
+    "retryQueue": {
+      "path": "/root/.oma/u/0/projects/e1f78b92eaebfa7b43b0a237b9309ec005ba18c0f2a93cf220869f4290a7d1d8/retry/observe.jsonl",
+      "total": 0,
+      "invalid": 0
+    },
+    "service": {
+      "platform": "linux",
+      "supported": true,
+      "servicePath": "/root/.config/systemd/user/oma-agentmemory.service",
+      "installed": false
+    },
+    "daemon": {
+      "pidPath": "/root/.agentmemory/oma-agentmemory.pid",
+      "ownedProcessRunning": false,
+      "endpoint": null
+    },
+    "issues": []
+  },
+  "state": {
+    "rootPath": "/root/workspace/camp-room/.agents/state",
+    "rootExists": true,
+    "gitignored": true,
+    "gitignoreSkipped": false,
+    "index": {
+      "path": "/root/.oma/u/0/projects/e1f78b92eaebfa7b43b0a237b9309ec005ba18c0f2a93cf220869f4290a7d1d8/_index.json",
+      "exists": false,
+      "parseOk": true,
+      "active": {},
+      "missingActive": []
+    },
+    "sessions": [],
+    "archiveSessions": 0,
+    "issues": [
+      "hook order invalid: claude",
+      "hook order invalid: codex",
+      "hook order invalid: cursor",
+      "hook order invalid: qwen"
+    ],
+    "hookOrder": [
+      {
+        "vendor": "claude",
+        "settingsPath": "/root/workspace/camp-room/.claude/settings.json",
+        "configured": true,
+        "parseOk": true,
+        "promptEvent": "UserPromptSubmit",
+        "order": [
+          "oma-hook-UserPromptSubmit"
+        ],
+        "ok": false,
+        "agentMemory": "absent"
+      },
+      {
+        "vendor": "codex",
+        "settingsPath": "/root/workspace/camp-room/.codex/hooks.json",
+        "configured": true,
+        "parseOk": true,
+        "promptEvent": "UserPromptSubmit",
+        "order": [
+          "oma-hook-UserPromptSubmit"
+        ],
+        "ok": false,
+        "agentMemory": "absent"
+      },
+      {
+        "vendor": "cursor",
+        "settingsPath": "/root/workspace/camp-room/.cursor/hooks.json",
+        "configured": true,
+        "parseOk": true,
+        "promptEvent": "UserPromptSubmit",
+        "order": [
+          "oma-hook-UserPromptSubmit"
+        ],
+        "ok": false,
+        "agentMemory": "absent"
+      },
+      {
+        "vendor": "grok",
+        "settingsPath": "/root/workspace/camp-room/.grok/hooks/oma-hooks.json",
+        "configured": false,
+        "parseOk": true,
+        "order": [],
+        "ok": true,
+        "agentMemory": "absent"
+      },
+      {
+        "vendor": "kiro",
+        "settingsPath": "/root/workspace/camp-room/.kiro/settings/cli.json",
+        "configured": false,
+        "parseOk": true,
+        "order": [],
+        "ok": true,
+        "agentMemory": "absent"
+      },
+      {
+        "vendor": "qwen",
+        "settingsPath": "/root/workspace/camp-room/.qwen/settings.json",
+        "configured": true,
+        "parseOk": true,
+        "promptEvent": "UserPromptSubmit",
+        "order": [
+          "oma-hook-UserPromptSubmit"
+        ],
+        "ok": false,
+        "agentMemory": "absent"
+      },
+      {
+        "vendor": "antigravity",
+        "settingsPath": "/root/workspace/camp-room/.agents/hooks.json",
+        "configured": false,
+        "parseOk": true,
+        "order": [],
+        "ok": true,
+        "agentMemory": "absent"
+      }
+    ]
+  },
+  "selfHealing": null,
+  "timezoneAdvisory": {
+    "file": "/root/workspace/camp-room/.agents/oma-config.yaml",
+    "configured": "Asia/Seoul",
+    "system": "America/Los_Angeles",
+    "message": "timezone: Asia/Seoul in oma-config.yaml differs from the system timezone (America/Los_Angeles). Older oh-my-agent templates shipped Asia/Seoul as a default, so it may not be your choice. Delete the timezone line in oma-config.yaml to follow the system timezone. If you want it, set it in your local config (oma-config.local.yaml or .local.cue) to silence this warning."
+  },
+  "vendorDocs": [
+    {
+      "file": "AGENTS.md",
+      "required": true,
+      "hasOmaBlock": true
+    }
+  ],
+  "skillAudit": {
+    "skillCount": 34,
+    "worstPair": {
+      "a": "oma-academic-writing",
+      "b": "oma-scholar",
+      "similarity": 0.2734663083313337
+    },
+    "findings": [],
+    "blackHoles": [],
+    "sizeFinding": null
+  },
+  "skillEval": {
+    "skillsWithEval": 0,
+    "totalSkills": 34
+  },
+  "dualInstall": {
+    "project": {
+      "version": "20.13.0",
+      "mode": "project",
+      "schemaVersion": 2
+    },
+    "global": null,
+    "warnings": []
+  },
+  "hookWrappers": [
+    {
+      "vendor": "claude",
+      "wrapperPath": "/root/workspace/camp-room/.claude/hooks/oma-hook.sh",
+      "status": "pass",
+      "remediation": null
+    },
+    {
+      "vendor": "codex",
+      "wrapperPath": "/root/workspace/camp-room/.codex/hooks/oma-hook.sh",
+      "status": "pass",
+      "remediation": null
+    },
+    {
+      "vendor": "commandcode",
+      "wrapperPath": "/root/workspace/camp-room/.commandcode/hooks/oma-hook.sh",
+      "status": "skip",
+      "remediation": null
+    },
+    {
+      "vendor": "cursor",
+      "wrapperPath": "/root/workspace/camp-room/.cursor/hooks/oma-hook.sh",
+      "status": "pass",
+      "remediation": null
+    },
+    {
+      "vendor": "grok",
+      "wrapperPath": "/root/workspace/camp-room/.grok/hooks/oma-hook.sh",
+      "status": "skip",
+      "remediation": null
+    },
+    {
+      "vendor": "kimi",
+      "wrapperPath": "/root/workspace/camp-room/.agents/hooks/core/oma-hook.sh",
+      "status": "skip",
+      "remediation": null
+    },
+    {
+      "vendor": "kiro",
+      "wrapperPath": "/root/workspace/camp-room/.kiro/hooks/oma-hook.sh",
+      "status": "skip",
+      "remediation": null
+    },
+    {
+      "vendor": "qwen",
+      "wrapperPath": "/root/workspace/camp-room/.qwen/hooks/oma-hook.sh",
+      "status": "pass",
+      "remediation": null
+    }
+  ],
+  "serenaDaemons": {
+    "daemons": [],
+    "prunedCount": 0,
+    "issues": []
+  },
+  "serenaAdapter": {
+    "applicable": true,
+    "pendingRestart": false,
+    "issues": [],
+    "adapter": {
+      "status": "ready",
+      "version": "2.1.0",
+      "changed": false,
+      "revision": "298037dea501b0188a5609c7f428c575cdc5799d29fa3b81622a48477dce8b6d",
+      "package": "/root/.local/share/uv/tools/serena-agent/lib/python3.13/site-packages/serena",
+      "python": "/root/.local/share/uv/tools/serena-agent/bin/python"
+    }
+  },
+  "serenaReap": {
+    "rootCount": 0,
+    "totalLspRssMb": 0,
+    "reapableRssMb": 0,
+    "reapTargetCount": 0,
+    "config": {
+      "enabled": false,
+      "policy": "lru",
+      "keepWarm": 2,
+      "idleMinutes": 10,
+      "graceSeconds": 90
+    },
+    "roots": [],
+    "languageAdvisories": [],
+    "issues": []
+  },
+  "gitRecommended": {
+    "available": true,
+    "allOk": false,
+    "issueCount": 2,
+    "items": [
+      {
+        "key": "rerere.enabled",
+        "desired": "true",
+        "current": null,
+        "ok": false,
+        "fixHint": "git config --global rerere.enabled true"
+      },
+      {
+        "key": "init.defaultBranch",
+        "desired": "main",
+        "current": null,
+        "ok": false,
+        "fixHint": "git config --global init.defaultBranch main"
+      }
+    ]
+  }
+}

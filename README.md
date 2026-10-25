@@ -1,502 +1,87 @@
-# Fullstack Starter
+# Camp Room · 캠프룸
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/first-fluke/fullstack-starter?logo=githubsponsors)](https://github.com/first-fluke/fullstack-starter/stargazers)
-[![Last Commit](https://img.shields.io/github/last-commit/first-fluke/fullstack-starter/main?label=last%20updated&logo=github&logoColor=white)](https://github.com/first-fluke/fullstack-starter)
-[![Version](https://img.shields.io/github/v/release/first-fluke/fullstack-starter?label=version)](https://github.com/first-fluke/fullstack-starter/releases)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/first-fluke/fullstack-starter)
+**Kotlin·Jetpack Compose로 구현한 Pleos 차량용 캠핑 앱입니다.** 찾기 / 내 캠핑 / 차박의 세 메뉴가 같은 캠핑장과 일정을 공유하고, 준비물 추천부터 장바구니·수령지·데모 주문까지 연결합니다. 메인 프런트엔드는 실제 Android 앱이며 브라우저 화면으로 대체하지 않습니다.
 
-English | [한국어](./docs/README.ko.md) | [简体中文](./docs/README.cn.md) | [日本語](./docs/README.jp.md) | [Português](./docs/README.pt.md)
+## 실행 구조
 
-> Template versioning via [Release Please](https://github.com/googleapis/release-please) — see [CHANGELOG.md](./CHANGELOG.md) for release history.
+| 경로 | 책임 |
+|---|---|
+| apps/pleos/app/src/main | Kotlin Compose 화면, 모델, OkHttp 저장소, ViewModel/StateFlow |
+| apps/pleos/app/src/demo | Android 에뮬레이터용 명시적 차량/내비 시뮬레이터 연결 |
+| apps/pleos/app/src/pleos | 실제 Vehicle2.3.2/NaviHelper3.0.5 SDK 직접 연결 |
+| apps/api | FastAPI·SQLite, 캠핑장/날씨 공급자, 여행·커머스 상태 |
+| docs/PRD.md / FUNCTIONAL_SPEC.md | 제품 및 기능 요구사항 |
+| docs/plans/contracts/camp-room-api.md | 앱·서버 공통 HTTP 계약 |
+| docs/product | 사용자 제공 SDK 원본·선언 검토 |
+| docs/verification | 실제 수행한 설치·빌드·검증 결과 |
 
-Production-ready fullstack monorepo template with Next.js 16, FastAPI, Flutter, and GCP infrastructure.
+기반은 [first-fluke/fullstack-starter](https://github.com/first-fluke/fullstack-starter)입니다. 불필요한 worker, Terraform infra, Flutter 앱을 제거했습니다. 초기 브라우저 구현 가정은 사용자의 Kotlin 플랫폼 정정으로 폐기했으며 이전 작업은 완료로 꾸미지 않고 partial 기록으로 보존합니다.
 
-### 3-Tier Architecture
+## 1. API 실행
 
-```mermaid
-graph TB
-    subgraph Client
-        Web[Next.js 16<br/>React 19]
-        Mobile[Flutter 3.44.8<br/>Riverpod]
-    end
-
-    subgraph GCP["GCP Cloud Run"]
-        API[FastAPI<br/>Python 3.14]
-        Worker[Worker<br/>CloudTasks]
-    end
-
-    subgraph Data
-        DB[(PostgreSQL 16)]
-        Cache[(Redis 7)]
-        Storage[(Cloud Storage)]
-    end
-
-    Web --> API
-    Mobile --> API
-    API --> DB
-    API --> Cache
-    API --> Worker
-    Worker --> DB
-    API --> Storage
-
-    style Web fill:#0070f3,color:#fff
-    style Mobile fill:#02569B,color:#fff
-    style API fill:#009688,color:#fff
-    style Worker fill:#009688,color:#fff
-    style DB fill:#336791,color:#fff
-    style Cache fill:#DC382D,color:#fff
-    style Storage fill:#4285F4,color:#fff
-```
-
-## Key Features
-
-- **Modern Stack**: Next.js 16 + React 19, FastAPI, Flutter 3.44.8, TailwindCSS v4
-- **Type Safety**: Full type support with TypeScript, Pydantic, and Dart
-- **Authentication**: Email/password, OAuth Authorization Code (Google/GitHub PKCE, Facebook), and WebAuthn passkeys
-- **Internationalization**: next-intl (web), Flutter ARB (mobile), shared i18n package
-- **Auto-generated API Clients**: Orval (web), swagger_parser (mobile)
-- **Infrastructure as Code**: Terraform + GCP (Cloud Run, Cloud SQL, Cloud Storage)
-- **CI/CD**: GitHub Actions + Workload Identity Federation (keyless deployment)
-- **AI Agent Support**: Guidelines for AI coding agents (Gemini, Claude, etc.)
-- **mise Monorepo**: mise-based task management and unified tool versions
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | Next.js 16, React 19, TailwindCSS v4, shadcn/ui, TanStack Query, Jotai |
-| **Backend** | FastAPI, SQLAlchemy (async), PostgreSQL 16, Redis 7 |
-| **Mobile** | Flutter 3.44.8, Riverpod 3, go_router 17, Firebase Crashlytics, Fastlane |
-| **Worker** | FastAPI + CloudTasks/PubSub |
-| **Infrastructure** | Terraform, GCP (Cloud Run, Cloud SQL, Cloud Storage, CDN) |
-| **CI/CD** | GitHub Actions, Workload Identity Federation |
-| **Tool Management** | mise (unified Node, Python, Flutter, Terraform versions) |
-
-> **[Why this tech stack?](./docs/WHY.md)** — Detailed reasoning behind each technology choice.
-
-![Fullstack](./docs/fullstack.jpg)
-
-## AI Agent Orchestration
-
-This template includes a multi-agent coordination workflow for complex cross-domain tasks.
-
-```mermaid
-graph TB
-    subgraph Coordination["Coordination Layer"]
-        User([User Request])
-        PM[PM Agent<br/>Task Decomposition]
-    end
-
-    subgraph Execution["Parallel Execution"]
-        FE[Frontend Agent<br/>Next.js/Flutter]
-        BE[Backend Agent<br/>FastAPI]
-        Infra[Infra Agent<br/>Terraform]
-    end
-
-    subgraph Review["Quality Assurance"]
-        QA[QA Agent<br/>Security/A11y/Perf]
-    end
-
-    User --> PM
-    PM --> FE & BE & Infra
-    FE & BE & Infra --> QA
-    QA -->|Issues Found| FE & BE & Infra
-    QA -->|Approved| Done([Complete])
-
-    style PM fill:#8B5CF6,color:#fff
-    style FE fill:#0070f3,color:#fff
-    style BE fill:#009688,color:#fff
-    style Infra fill:#F59E0B,color:#fff
-    style QA fill:#EF4444,color:#fff
-```
-
-| Agent | Role |
-|-------|------|
-| **PM Agent** | Analyzes requirements, defines API contracts, creates prioritized task breakdown |
-| **Domain Agents** | Frontend, Backend, Mobile, Infra agents execute tasks in parallel by priority |
-| **QA Agent** | Reviews security (OWASP), performance, accessibility (WCAG 2.1 AA) |
-
-> See [`.agents/workflows/work.md`](.agents/workflows/work.md) for the full orchestration workflow.
-
-## Quick Start
-
-Choose one of the following methods to start with this template:
+Python3.12 이상과 uv가 필요합니다.
 
 ```bash
-# Create from CLI
-bun create fullstack-starter my-app
-# or
-npm create fullstack-starter my-app
+uv sync --all-packages
+cp .env.example .env
+.venv/bin/python -m uvicorn app.main:app --app-dir apps/api --host 127.0.0.1 --port 8000
 ```
 
-Or use GitHub:
+API 문서: http://127.0.0.1:8000/docs. SQLite 상태는 기본 `apps/api/data/camp-room.sqlite3`에 저장됩니다. 실제 `.env`와 DB는 Git에 포함하지 않습니다. 서버는 단일 가상 시연 계정이며 공개 multi-user 서비스로 배포하지 않습니다.
 
-1. Click **[Use this template](https://github.com/first-fluke/fullstack-starter/generate)** to create a new repository
-2. Or **[Fork](https://github.com/first-fluke/fullstack-starter/fork)** this repository
+## 2. Android 앱 빌드·설치
 
-### Prerequisites
-
-**Required for all platforms:**
-- [mise](https://mise.jdx.dev/) - Runtime version manager
-- [Docker](https://www.docker.com/), [OrbStack](https://orbstack.dev/) (macOS), or [Podman Desktop](https://podman-desktop.io/downloads) - Local infrastructure
-
-**For mobile development (iOS/Android):**
-- [Xcode](https://apps.apple.com/app/xcode/id497799835) - Includes iOS Simulator (macOS only)
-- [Android Studio](https://developer.android.com/studio) - Includes Android SDK and emulator
-
-**Optional:**
-- [Terraform](https://www.terraform.io/) - Cloud infrastructure
-
-### 1. Install Runtimes
+JDK17, Android SDK35/build-tools35가 필요합니다. `ANDROID_HOME` 또는 gitignored `apps/pleos/local.properties`의 sdk.dir을 설정합니다. Gradle8.11.1 wrapper, AGP8.9.2, Kotlin2.1.20, Compose BOM2025.04.01을 사용합니다.
 
 ```bash
-# Install mise (if not installed)
-curl https://mise.run | sh
-
-# Trust project config (required on first clone)
-mise trust
-
-# Install all runtimes (Node 26, Python 3.14, Flutter 3, bun, uv, Terraform)
-mise install
+bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug
+adb install -r apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk
+adb shell am start -n camp.room.app.demo/camp.room.app.MainActivity
 ```
 
-### 2. Install Dependencies
+기본 demo API 주소는 `http://10.0.2.2:8000/api/v1`입니다. Android emulator에서 호스트 API로 연결하는 주소입니다. 다른 장치에서는 `-PcampApiBaseUrl=https://YOUR_BACKEND/api/v1`를 빌드 명령에 전달합니다. demo flavor에서만 개발 HTTP cleartext를 허용합니다.
+
+실제 SDK flavor 컴파일/빌드:
 
 ```bash
-# Install all dependencies at once
-mise run install
+bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug -PcampApiBaseUrl=https://YOUR_BACKEND/api/v1
 ```
 
-### 3. Start Local Infrastructure
+Pleos SDK는 공식 Maven `https://nexus-playground.pleos.ai/repository/maven-releases/`의 `ai.pleos.playground:Vehicle:2.3.2`, `ai.pleos.playground:NaviHelper:3.0.5`를 사용합니다. 차량·내비 호출은 로컬 SDK로 실행하며 백엔드 차량 시뮬레이터를 사용하지 않습니다. 실제 차량 권한·서비스 연결·정차 상태 호스트 계약은 해당 환경에서 검증해야 합니다. APK 빌드 성공은 실차 검증과 다릅니다.
+
+## 직접 사용할 수 있는 여정
+
+1. **찾기**에서 지역·날짜·인원·시설을 정하고 장소 상세의 규칙·가용성 출처를 확인합니다.
+2. 장소를 저장하면 **내 캠핑**에 일정·날씨·이동 예상이 모입니다. demo에서는 길안내 상태가 저장되고, pleos에서는 실제 NaviHelper 이벤트를 기다립니다.
+3. **차박**에서 앞좌석 독서·뒷좌석 휴식 등 장면과 구역별 설정을 조절합니다. 명령 수락·관측·미지원·실패를 구분합니다.
+4. 준비물을 담고 수량을 바꾼 뒤 자택 주소 또는 캠핑장 수령 위치·사이트 참조를 입력합니다.
+5. 배송 조건·예정일·전체 금액을 확인하고 **데모 결제**로 주문을 저장합니다. 실제 카드 승인·예약·택배 접수는 발생하지 않습니다.
+
+## 외부 데이터와 토큰
+
+루트 `.env`에서 CAMP_DATA_MODE=demo/auto/live를 선택합니다. GOCAMPING_SERVICE_KEY, KMA_API_HUB_KEY 또는 KMA_SERVICE_KEY는 서버에서만 읽습니다. Android 앱이나 공개 환경변수에 토큰을 넣지 않습니다. 실제 키 발급·공급자 호출 성공 여부는 [INTEGRATIONS.md](docs/INTEGRATIONS.md)와 검증 결과를 따릅니다.
+
+고캠핑 장소 정보로 예약 재고를 만들어내지 않습니다. 실제 응답이 없는 가격·차박 숙박 허용·잔여 자리·예약 수는 확인 필요입니다. 예보 제공 기간 밖은 미제공입니다. 공급자별 실제/데모·출처·갱신 시각을 유지합니다.
+
+## 검증과 영상
 
 ```bash
-mise infra:up
+.venv/bin/python -m pytest apps/api/tests/test_camp_room.py -q
+python apps/pleos/verify_contracts.py
+bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug :app:compilePleosDebugKotlin
+python scripts/record-native-demo.py
 ```
 
-This starts:
-- PostgreSQL (5432)
-- Redis (6379)
-- MinIO (9000, 9001)
+기록 스크립트는 실제 설치한 Android APK를 emulator에서 조작하고 API 결과를 확인하며 native MP4를 녹화합니다. 소스 계약 검사와 Gradle 컴파일, Android emulator 실행, 실제 차량 검증의 범위를 구분합니다. 실제 진행 결과는 docs/verification에 기록합니다.
 
-### 4. Run Database Migrations
+## OMA
+
+공식 oh-my-agent20.13.0 전체 설치(All33 skills) 후 PRD → 기능명세/API 계약 → native 역할 구현 → Android 통합 QA/녹화로 진행했습니다. 사용자가 지정한 Codex Sol Ultra 리드를 사용하며 실제 역할은 native dispatch 모델 설정을 상속합니다. 외부 CLI 모델을 대신 실행했다고 주장하지 않습니다. 초기 web lineage와 명시적 native scope correction lineage는 각각 보존됩니다.
 
 ```bash
-mise db:migrate
+npm install --global oh-my-agent@20.13.0
+oma install --semantic-memory none
+oma doctor --json
 ```
 
-### 5. Start Development Servers
-
-```bash
-# Start API and Web services (recommended for web development)
-mise dev:web
-
-# Start API and Mobile services (recommended for mobile development)
-mise dev:mobile
-
-# Or start all services
-mise dev
-```
-
-## Project Structure
-
-```
-fullstack-starter/
-├── package.json       # bun workspace (apps/web, packages/*)
-├── pyproject.toml     # uv workspace (apps/api, apps/worker)
-├── apps/
-│   ├── api/           # FastAPI backend
-│   ├── web/           # Next.js frontend
-│   ├── worker/        # Background worker
-│   ├── mobile/        # Flutter mobile app
-│   └── infra/         # Terraform infrastructure
-├── packages/
-│   ├── design-tokens/ # Shared design tokens (Source of Truth)
-│   └── i18n/          # Shared i18n package (Source of Truth)
-├── .agents/rules/      # AI agent guidelines
-├── .serena/           # Serena MCP config
-└── .github/workflows/ # CI/CD
-```
-
-## Commands
-
-### mise Monorepo Tasks
-
-This project uses mise monorepo mode with `//path:task` syntax.
-
-```bash
-# List all available tasks
-mise tasks --all
-```
-
-| Command | Description |
-|---------|-------------|
-| `mise db:migrate` | Run database migrations |
-| `mise dev` | Start all services |
-| `mise dev:web` | Start API and Web services |
-| `mise dev:mobile` | Start API and Mobile services |
-| `mise format` | Format all apps |
-| `mise gen:api` | Generate OpenAPI schema and API clients |
-| `mise i18n:build` | Build i18n files |
-| `mise infra:down` | Stop local infrastructure |
-| `mise infra:up` | Start local infrastructure |
-| `mise lint` | Lint all apps |
-| `mise run install` | Install all dependencies |
-| `mise test` | Test all apps |
-| `mise tokens:build` | Build design tokens |
-| `mise typecheck` | Type check |
-
-### App-specific Tasks
-
-<details>
-<summary>API (apps/api)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //apps/api:install` | Install dependencies |
-| `mise //apps/api:dev` | Start development server |
-| `mise //apps/api:test` | Run tests |
-| `mise //apps/api:lint` | Run linter |
-| `mise //apps/api:format` | Format code |
-| `mise //apps/api:typecheck` | Type check |
-| `mise //apps/api:migrate` | Run migrations |
-| `mise //apps/api:migrate:create` | Create new migration |
-| `mise //apps/api:gen:openapi` | Generate OpenAPI schema |
-| `mise //apps/api:infra:up` | Start local infrastructure |
-| `mise //apps/api:infra:down` | Stop local infrastructure |
-
-</details>
-
-<details>
-<summary>Web (apps/web)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //apps/web:install` | Install dependencies |
-| `mise //apps/web:dev` | Start development server |
-| `mise //apps/web:build` | Production build |
-| `mise //apps/web:test` | Run tests |
-| `mise //apps/web:lint` | Run linter |
-| `mise //apps/web:format` | Format code |
-| `mise //apps/web:typecheck` | Type check |
-| `mise //apps/web:gen:api` | Generate API client |
-
-</details>
-
-<details>
-<summary>Mobile (apps/mobile)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //apps/mobile:install` | Install dependencies |
-| `mise //apps/mobile:dev` | Run on device/simulator |
-| `mise //apps/mobile:build` | Build |
-| `mise //apps/mobile:test` | Run tests |
-| `mise //apps/mobile:lint` | Run analyzer |
-| `mise //apps/mobile:format` | Format code |
-| `mise //apps/mobile:gen:l10n` | Generate localizations |
-| `mise //apps/mobile:gen:api` | Generate API client |
-
-</details>
-
-<details>
-<summary>Worker (apps/worker)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //apps/worker:install` | Install dependencies |
-| `mise //apps/worker:dev` | Start worker |
-| `mise //apps/worker:test` | Run tests |
-| `mise //apps/worker:lint` | Run linter |
-| `mise //apps/worker:format` | Format code |
-
-</details>
-
-<details>
-<summary>Infrastructure (apps/infra/gcp, apps/infra/aws)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //apps/infra:gcp:init` | Initialize Terraform |
-| `mise //apps/infra:gcp:plan` | Preview changes |
-| `mise //apps/infra:gcp:apply` | Apply changes |
-| `mise //apps/infra:gcp:plan:prod` | Preview production |
-| `mise //apps/infra:gcp:apply:prod` | Apply production |
-
-</details>
-
-<details>
-<summary>i18n (packages/i18n)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //packages/i18n:install` | Install dependencies |
-| `mise //packages/i18n:build` | Build i18n files for web and mobile |
-| `mise //packages/i18n:build:web` | Build for web only |
-| `mise //packages/i18n:build:mobile` | Build for mobile only |
-
-</details>
-
-<details>
-<summary>Design Tokens (packages/design-tokens)</summary>
-
-| Command | Description |
-|---------|-------------|
-| `mise //packages/design-tokens:install` | Install dependencies |
-| `mise //packages/design-tokens:build` | Build tokens for web and mobile |
-| `mise //packages/design-tokens:dev` | Watch mode for development |
-| `mise //packages/design-tokens:test` | Run tests |
-
-</details>
-
-## Internationalization (i18n)
-
-`packages/i18n` is the Single Source of Truth for i18n resources.
-
-```bash
-# Edit i18n files
-packages/i18n/src/en.arb  # English (default)
-packages/i18n/src/ko.arb  # Korean
-packages/i18n/src/ja.arb  # Japanese
-
-# Build and deploy to each app
-mise i18n:build
-# Generated files:
-# - apps/web/src/config/messages/*.json (Nested JSON)
-# - apps/mobile/lib/i18n/messages/app_*.arb (Flutter ARB)
-```
-
-## Design Tokens
-
-`packages/design-tokens` is the Single Source of Truth for design tokens (colors, spacing, etc.).
-
-```bash
-# Edit tokens
-packages/design-tokens/src/tokens.ts
-
-# Build and distribute
-mise tokens:build
-# Generated files:
-# - apps/web/src/app/[locale]/tokens.css (CSS variables)
-# - apps/mobile/lib/core/theme/generated_theme.dart (Flutter Theme)
-```
-
-## Configuration
-
-### Environment Variables
-
-Copy example files and configure:
-
-```bash
-# API
-cp apps/api/.env.example apps/api/.env
-
-# Web
-cp apps/web/.env.example apps/web/.env
-
-# Infra
-cp apps/infra/gcp/terraform.tfvars.example apps/infra/gcp/terraform.tfvars
-```
-
-### GitHub Actions Secrets
-
-Set these secrets in your repository:
-
-| Secret | Description |
-|--------|-------------|
-| `GCP_PROJECT_ID` | GCP project ID |
-| `GCP_REGION` | GCP region (e.g., `asia-northeast3`) |
-| `WORKLOAD_IDENTITY_PROVIDER` | From Terraform output |
-| `GCP_SERVICE_ACCOUNT` | From Terraform output |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Firebase service account JSON (for mobile deployment) |
-| `FIREBASE_ANDROID_APP_ID` | Firebase Android app ID |
-
-### Firebase (Mobile)
-
-1. Install FlutterFire CLI:
-
-```bash
-dart pub global activate flutterfire_cli
-```
-
-2. Configure Firebase for your project:
-
-```bash
-cd apps/mobile
-flutterfire configure
-```
-
-This generates `lib/firebase_options.dart` with your Firebase configuration.
-
-## Deployment
-
-### GitHub Actions (Recommended)
-
-Push to `main` branch triggers automatic deployment:
-- `apps/api/` changes → Deploy API
-- `apps/web/` changes → Deploy Web
-- `apps/worker/` changes → Deploy Worker
-- `apps/mobile/` changes → Build & Deploy to Firebase App Distribution
-
-### Manual Deployment
-
-```bash
-# Build and push Docker images from the repository root
-docker build -f apps/api/Dockerfile -t gcr.io/PROJECT_ID/api .
-docker push gcr.io/PROJECT_ID/api
-
-# Deploy to Cloud Run
-gcloud run deploy api --image gcr.io/PROJECT_ID/api --region REGION
-```
-
-### Mobile (Fastlane)
-
-The mobile app uses Fastlane for build automation and deployment.
-
-```bash
-cd apps/mobile
-
-# Install Ruby dependencies
-bundle install
-
-# Available lanes
-bundle exec fastlane android build       # Build APK
-bundle exec fastlane android firebase    # Deploy to Firebase App Distribution
-bundle exec fastlane android internal    # Deploy to Play Store (internal)
-bundle exec fastlane ios build           # Build iOS (no codesign)
-bundle exec fastlane ios testflight_deploy  # Deploy to TestFlight
-```
-
-## AI Agent Support
-
-This template is designed to work with AI coding agents (Gemini, Claude, etc.).
-
-- `.agents/rules/` - Guidelines for AI agents
-- `.serena/` - Serena MCP configuration
-
-> Try [oh-my-agent](https://github.com/first-fluke/oh-my-agent) to maximize productivity with AI coding agents.
-
-## Documentation
-
-- [Build Guide](.agents/rules/build-guide.md)
-- [Lint & Format Guide](.agents/rules/lint-format-guide.md)
-- [Test Guide](.agents/rules/test-guide.md)
-
-## License
-
-MIT
-
-## Sponsors
-
-If this project helped you, please consider buying me a coffee!
-
-<a href="https://www.buymeacoffee.com/firstfluke" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
-Or leave a star:
-
-```bash
-gh api --method PUT /user/starred/first-fluke/fullstack-starter
-```
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=first-fluke/fullstack-starter&type=date&legend=bottom-right)](https://www.star-history.com/#first-fluke/fullstack-starter&type=date&legend=bottom-right)
+설치에서 Korean / Codex / Auto / All / Python을 선택합니다. Aside 외부 사이트 계정 작업은 공식 CLI와 인증된 브라우저 프로필이 필요합니다. 실제 계정 선택·사용자 인증이 필요한 상태와 토큰 발급 완료 상태를 구분합니다.

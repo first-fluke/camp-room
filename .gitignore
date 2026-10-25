@@ -104,3 +104,33 @@ docs/plans/
 
 .agents/oma-config.local.cue
 .agents/oma-config.local.yaml
+
+# Camp Room local runtime and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+.tooling/
+.venv/
+**/__pycache__/
+**/.pytest_cache/
+apps/api/data/
+*.sqlite3
+*.sqlite3-*
+artifacts/
+
+# Retain Camp Room adopted product/API contracts and execution plan
+!docs/plans/
+!docs/plans/contracts/
+!docs/plans/contracts/camp-room-api.md
+!docs/plans/work/
+!docs/plans/work/001-camp-room.md
+
+# Android local SDK/build outputs
+**/local.properties
+**/.gradle/
+**/build/
+apps/pleos/app/libs/*.aar
+apps/pleos/app/libs/*.jar
+
+!docs/plans/work/002-native-kotlin-correction.md
