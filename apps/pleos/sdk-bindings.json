@@ -1,0 +1,1653 @@
+[
+  {
+    "id": "decl_f808968fba",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#getEvBattery",
+    "name": "getEvBattery",
+    "signatures": [
+      "fun getEvBattery(): EvBattery"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_a760c81f39",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#getLight",
+    "name": "getLight",
+    "signatures": [
+      "fun getLight(): Light"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_23270a11df",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#getSeat",
+    "name": "getSeat",
+    "signatures": [
+      "fun getSeat(): Seat"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_db4a863845",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#getWindow",
+    "name": "getWindow",
+    "signatures": [
+      "fun getWindow(): Window"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_4a90b011ee",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_66d4105da1",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_73836bcf1f",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#getEvBatteryStateOfCharge",
+    "name": "getEvBatteryStateOfCharge",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun getEvBatteryStateOfCharge(onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_ENERGY"
+    ]
+  },
+  {
+    "id": "decl_3761e5b0fa",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#registerEvBatteryStateOfCharge",
+    "name": "registerEvBatteryStateOfCharge",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun registerEvBatteryStateOfCharge(listener: EvBatteryStateOfChargeListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_ENERGY"
+    ]
+  },
+  {
+    "id": "decl_b2c3288462",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#setEvChargePercentLimit",
+    "name": "setEvChargePercentLimit",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_ENERGY\")abstract fun setEvChargePercentLimit(value: Float, onComplete: (Float?) -> Unit = {}, onFailed: (Exception) -> Unit = {})"
+    ],
+    "permissions": [
+      "pleos.car.permission.CONTROL_CAR_ENERGY"
+    ]
+  },
+  {
+    "id": "decl_1160ca0aca",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.EvBattery#unregisterEvBatteryStateOfCharge",
+    "name": "unregisterEvBatteryStateOfCharge",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_ENERGY\")abstract fun unregisterEvBatteryStateOfCharge(listener: EvBatteryStateOfChargeListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_ENERGY"
+    ]
+  },
+  {
+    "id": "decl_81844bb609",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#getHvacTemperature",
+    "name": "getHvacTemperature",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacTemperature(area: SeatArea, unit: TemperatureUnit, onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_CLIMATE"
+    ]
+  },
+  {
+    "id": "decl_f0da5227a4",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#getHvacTemperatureCurrent",
+    "name": "getHvacTemperatureCurrent",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacTemperatureCurrent(area: SeatArea, onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun getHvacTemperatureCurrent(area: SeatArea, unit: TemperatureUnit, onComplete: (Float?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_CLIMATE"
+    ]
+  },
+  {
+    "id": "decl_a65e0d32c8",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#setHvacTemperature",
+    "name": "setHvacTemperature",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_CLIMATE\")abstract fun setHvacTemperature(area: SeatArea, value: Float, unit: TemperatureUnit, onComplete: (SeatArea, Float?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "permissions": [
+      "pleos.car.permission.CONTROL_CAR_CLIMATE"
+    ]
+  },
+  {
+    "id": "decl_a32a14b20e",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#getAmbientLightBrightness",
+    "name": "getAmbientLightBrightness",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun getAmbientLightBrightness(area: SeatArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_cdc17dd03f",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#getCurrentReadingLightState",
+    "name": "getCurrentReadingLightState",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun getCurrentReadingLightState(area: SeatArea, onComplete: (LightState?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_f167f2388b",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#setAmbientLightBrightness",
+    "name": "setAmbientLightBrightness",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun setAmbientLightBrightness(area: SeatArea, value: Int, onComplete: (SeatArea, Int) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_068ddf7a62",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#setReadingLightSwitch",
+    "name": "setReadingLightSwitch",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_LIGHTS\")abstract fun setReadingLightSwitch(area: SeatArea, value: LightSwitch, onComplete: (LightSwitch?) -> Unit = {}, onFailed: (Exception) -> Unit = {})"
+    ],
+    "permissions": [
+      "pleos.car.permission.CONTROL_CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_c7774ab48c",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Seat#checkSeatMemoryCapabilities",
+    "name": "checkSeatMemoryCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_SEATS\")abstract fun checkSeatMemoryCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_SEATS"
+    ]
+  },
+  {
+    "id": "decl_a9378d09a8",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Seat#selectSeatMemory",
+    "name": "selectSeatMemory",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_SEATS\")abstract fun selectSeatMemory(area: SeatArea, value: Int, onFailed: (Exception) -> Unit = {})"
+    ],
+    "permissions": [
+      "pleos.car.permission.CONTROL_CAR_SEATS"
+    ]
+  },
+  {
+    "id": "decl_a5b2f32247",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#getCurrentSmartGlassLevel",
+    "name": "getCurrentSmartGlassLevel",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun getCurrentSmartGlassLevel(area: WindowArea, onComplete: (Int?) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_WINDOWS"
+    ]
+  },
+  {
+    "id": "decl_be399b6514",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#setSmartGlassLevel",
+    "name": "setSmartGlassLevel",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CONTROL_CAR_WINDOWS\")abstract fun setSmartGlassLevel(area: WindowArea, value: Int, onComplete: (WindowArea, Int?) -> Unit = { _, _ -> }, onFailed: (Exception) -> Unit = {})"
+    ],
+    "permissions": [
+      "pleos.car.permission.CONTROL_CAR_WINDOWS"
+    ]
+  },
+  {
+    "id": "decl_3bb06f0ac2",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()",
+      "fun initialize(onConnected: () -> Unit, onFailed: (Throwable) -> Unit)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_0c9aba1948",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_29e41d7cb8",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#requestRoute",
+    "name": "requestRoute",
+    "signatures": [
+      "fun requestRoute(routeInfo: RouteInfo)"
+    ],
+    "permissions": [
+      "pleos.car.permission.NAVI_ROUTE_SEARCH"
+    ]
+  },
+  {
+    "id": "decl_b8788e5a15",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#requestRouteWithWaypoints",
+    "name": "requestRouteWithWaypoints",
+    "signatures": [
+      "fun requestRouteWithWaypoints(request: RouteWithWaypointsRequest)"
+    ],
+    "permissions": [
+      "pleos.car.permission.NAVI_ROUTE_SEARCH"
+    ]
+  },
+  {
+    "id": "decl_6b30e54f46",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#requestTrip",
+    "name": "requestTrip",
+    "signatures": [
+      "fun requestTrip(tripRequest: TripRequest)"
+    ],
+    "permissions": [
+      "pleos.car.permission.NAVI_ROUTE"
+    ]
+  },
+  {
+    "id": "decl_0e3cc56c37",
+    "qualifiedName": "ai.pleos.playground.vehicle.Vehicle#getHVAC",
+    "name": "getHVAC",
+    "signatures": [
+      "fun getHVAC(): HVAC"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_31d17e37af",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.HVAC#checkHvacTemperatureCapabilities",
+    "name": "checkHvacTemperatureCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacTemperatureCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Float>>, HvacTemperatureConfigArray?) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacTemperatureCapabilities(onComplete: (Map<SeatArea, AreaBounds<Float>>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_CLIMATE\")abstract fun checkHvacTemperatureCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Float>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_CLIMATE"
+    ]
+  },
+  {
+    "id": "decl_4485433cd1",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#checkAmbientLightBrightnessCapabilities",
+    "name": "checkAmbientLightBrightnessCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkAmbientLightBrightnessCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_6deba3c6c3",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#checkReadingLightStateCapabilities",
+    "name": "checkReadingLightStateCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkReadingLightStateCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, List<LightState>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_3b333dec8c",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Light#checkReadingLightSwitchCapabilities",
+    "name": "checkReadingLightSwitchCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkReadingLightSwitchCapabilities(onComplete: (CapabilityConfig, Map<SeatArea, List<LightSwitch>>) -> Unit, onFailed: (Exception) -> Unit)",
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_LIGHTS\")abstract fun checkReadingLightSwitchCapabilities(onComplete: (Map<SeatArea, List<LightSwitch>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_LIGHTS"
+    ]
+  },
+  {
+    "id": "decl_b29cdf4a9e",
+    "qualifiedName": "ai.pleos.playground.vehicle.api.Window#checkSmartGlassLevelCapabilities",
+    "name": "checkSmartGlassLevelCapabilities",
+    "signatures": [
+      "@RequiresPermission(value = \"pleos.car.permission.CAR_WINDOWS\")abstract fun checkSmartGlassLevelCapabilities(onComplete: (CapabilityConfig, Map<WindowArea, AreaBounds<Int>>) -> Unit, onFailed: (Exception) -> Unit)"
+    ],
+    "permissions": [
+      "pleos.car.permission.CAR_WINDOWS"
+    ]
+  },
+  {
+    "id": "decl_1399d6ac0b",
+    "qualifiedName": "ai.pleos.playground.vehicle.listener.EvBatteryStateOfChargeListener#onEvBatteryStateOfChargeUpdated",
+    "name": "onEvBatteryStateOfChargeUpdated",
+    "signatures": [
+      "abstract fun onEvBatteryStateOfChargeUpdated(value: Int?)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_8e94972cb7",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#addListener",
+    "name": "addListener",
+    "signatures": [
+      "fun addListener(listener: NaviHelperEventListener)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_7fb23706bd",
+    "qualifiedName": "ai.pleos.playground.navi.helper.NaviHelper#removeListener",
+    "name": "removeListener",
+    "signatures": [
+      "fun removeListener(listener: NaviHelperEventListener)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_ccaf40d74c",
+    "qualifiedName": "ai.pleos.playground.navi.data.RouteInfo#RouteInfo",
+    "name": "RouteInfo",
+    "signatures": [
+      "data class RouteInfo(val latitude: Double, val longitude: Double, val displayLatitude: Double? = null, val displayLongitude: Double? = null, val poiName: String, val poiId: String, val address: String, val poiSubId: String, val routeOption: RouteOption = RouteOption.RECOMMENDED, val poiProvider: String = \"\", val isMobileRequest: Boolean = false)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_f2ad9a1932",
+    "qualifiedName": "ai.pleos.playground.navi.data.RouteWithWaypointsRequest#RouteWithWaypointsRequest",
+    "name": "RouteWithWaypointsRequest",
+    "signatures": [
+      "data class RouteWithWaypointsRequest(val destination: RouteInfo, val waypoints: List<RequestWaypointInfo>)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2183033169",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripInfo#TripInfo",
+    "name": "TripInfo",
+    "signatures": [
+      "data class TripInfo(val distance: Int, val eta: Int, val estimatedSocAtDest: Int, val energyConsumption: Double, val summary: TripSummary)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_e38280c8f9",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripRequest#TripRequest",
+    "name": "TripRequest",
+    "signatures": [
+      "data class TripRequest(val latitude: Double, val longitude: Double, val poiId: String, val poiName: String, val poiSubId: String?)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_8d6001145d",
+    "qualifiedName": "ai.pleos.playground.navi.data.TripInfo#TripInfo",
+    "name": "TripInfo",
+    "signatures": [
+      "constructor(distance: Int, eta: Int, estimatedSocAtDest: Int, energyConsumption: Double, summary: TripSummary)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_3528617f5a",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#addListener",
+    "name": "addListener",
+    "signatures": [
+      "fun addListener(listener: ResultListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_1157b37ee2",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#removeListener",
+    "name": "removeListener",
+    "signatures": [
+      "fun removeListener(listener: ResultListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_2b61068e64",
+    "qualifiedName": "ai.pleos.playground.vehicle.listener.VehicleListener#onFailed",
+    "name": "onFailed",
+    "signatures": [
+      "abstract fun onFailed(e: Exception)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_fbc857df0c",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#addEventListener",
+    "name": "addEventListener",
+    "signatures": [
+      "fun addEventListener(listener: EventListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_2ca64d88fa",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()",
+      "fun initialize(listener: OnInitializeListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_08fdf9bb43",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#registerApp",
+    "name": "registerApp",
+    "signatures": [
+      "fun registerApp(clientID: String, clientSecret: String, listener: OnServerConnectionListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_760259e531",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_49bde12982",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#removeEventListener",
+    "name": "removeEventListener",
+    "signatures": [
+      "fun removeEventListener(listener: EventListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_5ed01d988a",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#setAudioAttributes",
+    "name": "setAudioAttributes",
+    "signatures": [
+      "fun setAudioAttributes(audioAttributes: AudioAttributes)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_9edef9ba3c",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#setAudioZoneId",
+    "name": "setAudioZoneId",
+    "signatures": [
+      "fun setAudioZoneId(zoneId: Int)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_5de767288b",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#setLocale",
+    "name": "setLocale",
+    "signatures": [
+      "fun setLocale(locale: Locale)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE."
+    ]
+  },
+  {
+    "id": "decl_69f61a4f8c",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#setSpeakerType",
+    "name": "setSpeakerType",
+    "signatures": [
+      "fun setSpeakerType(type: String)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE."
+    ]
+  },
+  {
+    "id": "decl_c9b12daca8",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#speak",
+    "name": "speak",
+    "signatures": [
+      "fun speak(text: String, isFinal: Boolean = true)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_af14e88b2d",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#stop",
+    "name": "stop",
+    "signatures": [
+      "fun stop()"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_5413b8b67a",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech#TextToSpeech",
+    "name": "TextToSpeech",
+    "signatures": [
+      "constructor(context: Context, mode: Mode = Mode.HYBRID)"
+    ],
+    "permissions": [
+      "pleos.car.permission.TTS_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_3a3a7ec030",
+    "qualifiedName": "ai.pleos.playground.tts.TextToSpeech.Companion#version",
+    "name": "version",
+    "signatures": [
+      "val version: String"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_7a2e5922b3",
+    "qualifiedName": "ai.pleos.playground.tts.listener.EventListener#onDone",
+    "name": "onDone",
+    "signatures": [
+      "abstract fun onDone()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_e325d9b930",
+    "qualifiedName": "ai.pleos.playground.tts.listener.EventListener#onError",
+    "name": "onError",
+    "signatures": [
+      "abstract fun onError(errorType: ErrorType)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_34027bb3d4",
+    "qualifiedName": "ai.pleos.playground.tts.listener.EventListener#onReady",
+    "name": "onReady",
+    "signatures": [
+      "abstract fun onReady()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_d206d89841",
+    "qualifiedName": "ai.pleos.playground.tts.listener.EventListener#onStart",
+    "name": "onStart",
+    "signatures": [
+      "abstract fun onStart()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_40df3ccb3e",
+    "qualifiedName": "ai.pleos.playground.tts.listener.EventListener#onStop",
+    "name": "onStop",
+    "signatures": [
+      "abstract fun onStop()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_7e78091075",
+    "qualifiedName": "ai.pleos.playground.tts.listener.EventListener#onUpdatedRms",
+    "name": "onUpdatedRms",
+    "signatures": [
+      "abstract fun onUpdatedRms(rms: Double)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_73bce53a9a",
+    "qualifiedName": "ai.pleos.playground.tts.listener.OnInitializeListener#onFailure",
+    "name": "onFailure",
+    "signatures": [
+      "abstract fun onFailure(errorType: ErrorType)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_1352261f51",
+    "qualifiedName": "ai.pleos.playground.tts.listener.OnInitializeListener#onSuccess",
+    "name": "onSuccess",
+    "signatures": [
+      "abstract fun onSuccess()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_f0f5226f67",
+    "qualifiedName": "ai.pleos.playground.tts.listener.OnServerConnectionListener#onConnected",
+    "name": "onConnected",
+    "signatures": [
+      "abstract fun onConnected()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_d3377bdfbe",
+    "qualifiedName": "ai.pleos.playground.tts.listener.OnServerConnectionListener#onFailed",
+    "name": "onFailed",
+    "signatures": [
+      "abstract fun onFailed(errorType: ErrorType)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_ceb950e314",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#AUDIO_ERROR",
+    "name": "AUDIO_ERROR",
+    "signatures": [
+      "ErrorType.AUDIO_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_5f9cb680e4",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#entries",
+    "name": "entries",
+    "signatures": [
+      "val entries: EnumEntries<ErrorType>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_9b56f0f894",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#INVALID_REQUEST_ERROR",
+    "name": "INVALID_REQUEST_ERROR",
+    "signatures": [
+      "ErrorType.INVALID_REQUEST_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_300daad3ed",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#MIC_ERROR",
+    "name": "MIC_ERROR",
+    "signatures": [
+      "ErrorType.MIC_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_77eba363a9",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#NETWORK_ERROR",
+    "name": "NETWORK_ERROR",
+    "signatures": [
+      "ErrorType.NETWORK_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2b3ebc0ca5",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#NOT_SUPPORTED_API",
+    "name": "NOT_SUPPORTED_API",
+    "signatures": [
+      "ErrorType.NOT_SUPPORTED_API"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_3451f39638",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#ON_DEVICE_ENGINE_ERROR",
+    "name": "ON_DEVICE_ENGINE_ERROR",
+    "signatures": [
+      "ErrorType.ON_DEVICE_ENGINE_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_b40e4dd55e",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#PERMISSION_DENIED",
+    "name": "PERMISSION_DENIED",
+    "signatures": [
+      "ErrorType.PERMISSION_DENIED"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_114e3ec73b",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#SERVER_INTERNAL_ERROR",
+    "name": "SERVER_INTERNAL_ERROR",
+    "signatures": [
+      "ErrorType.SERVER_INTERNAL_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_543d6589ff",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#TIMEOUT",
+    "name": "TIMEOUT",
+    "signatures": [
+      "ErrorType.TIMEOUT"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_3868298215",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#UNAUTHENTICATED",
+    "name": "UNAUTHENTICATED",
+    "signatures": [
+      "ErrorType.UNAUTHENTICATED"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_c8a15cf315",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#UNAVAILABLE_LANGUAGE",
+    "name": "UNAVAILABLE_LANGUAGE",
+    "signatures": [
+      "ErrorType.UNAVAILABLE_LANGUAGE"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_145ac3fd49",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#UNKNOWN",
+    "name": "UNKNOWN",
+    "signatures": [
+      "ErrorType.UNKNOWN"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_e27365026e",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#valueOf",
+    "name": "valueOf",
+    "signatures": [
+      "fun valueOf(value: String): ErrorType"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_87296f25bd",
+    "qualifiedName": "ai.pleos.playground.tts.constant.ErrorType#values",
+    "name": "values",
+    "signatures": [
+      "fun values(): Array<ErrorType>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_3bf9c5b007",
+    "qualifiedName": "ai.pleos.playground.tts.constant.Mode#entries",
+    "name": "entries",
+    "signatures": [
+      "val entries: EnumEntries<Mode>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_410cc43991",
+    "qualifiedName": "ai.pleos.playground.tts.constant.Mode#HYBRID",
+    "name": "HYBRID",
+    "signatures": [
+      "Mode.HYBRID"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_5a260e0610",
+    "qualifiedName": "ai.pleos.playground.tts.constant.Mode#ON_DEVICE",
+    "name": "ON_DEVICE",
+    "signatures": [
+      "Mode.ON_DEVICE"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2306a9acf8",
+    "qualifiedName": "ai.pleos.playground.tts.constant.Mode#SERVER",
+    "name": "SERVER",
+    "signatures": [
+      "Mode.SERVER"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_0693185468",
+    "qualifiedName": "ai.pleos.playground.tts.constant.Mode#valueOf",
+    "name": "valueOf",
+    "signatures": [
+      "fun valueOf(value: String): Mode"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_21800a6269",
+    "qualifiedName": "ai.pleos.playground.tts.constant.Mode#values",
+    "name": "values",
+    "signatures": [
+      "fun values(): Array<Mode>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_f891cc224c",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#completeAudioSend",
+    "name": "completeAudioSend",
+    "signatures": [
+      "fun completeAudioSend()"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_6b9ad2f0a8",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()",
+      "fun initialize(listener: OnInitializeListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_09ad5fae4f",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#registerApp",
+    "name": "registerApp",
+    "signatures": [
+      "fun registerApp(clientID: String, clientSecret: String, listener: OnServerConnectionListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_1d5e1209ac",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_426acba17b",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#request",
+    "name": "request",
+    "signatures": [
+      "fun request()"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_ef6f882470",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#sendAudio",
+    "name": "sendAudio",
+    "signatures": [
+      "fun sendAudio(bytes: ByteArray)"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_9e01819382",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#setLocale",
+    "name": "setLocale",
+    "signatures": [
+      "fun setLocale(locale: Locale)"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_a127b3c420",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#SpeechToText",
+    "name": "SpeechToText",
+    "signatures": [
+      "constructor(context: Context, mode: Mode = Mode.HYBRID)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_6c34c0ba45",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText.Companion#version",
+    "name": "version",
+    "signatures": [
+      "val version: String"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_7188dc7fc3",
+    "qualifiedName": "ai.pleos.playground.stt.SpeechToText#stop",
+    "name": "stop",
+    "signatures": [
+      "fun stop()"
+    ],
+    "permissions": [
+      "pleos.car.permission.STT_SERVICE"
+    ]
+  },
+  {
+    "id": "decl_4078e3acba",
+    "qualifiedName": "ai.pleos.playground.stt.listener.OnInitializeListener#onFailure",
+    "name": "onFailure",
+    "signatures": [
+      "abstract fun onFailure(errorType: ErrorType)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_17f1164a5f",
+    "qualifiedName": "ai.pleos.playground.stt.listener.OnInitializeListener#onSuccess",
+    "name": "onSuccess",
+    "signatures": [
+      "abstract fun onSuccess()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_70db98a8d1",
+    "qualifiedName": "ai.pleos.playground.stt.listener.OnServerConnectionListener#onConnected",
+    "name": "onConnected",
+    "signatures": [
+      "abstract fun onConnected()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_1a7fb37a7e",
+    "qualifiedName": "ai.pleos.playground.stt.listener.OnServerConnectionListener#onFailed",
+    "name": "onFailed",
+    "signatures": [
+      "abstract fun onFailed(errorType: ErrorType)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_f26184a577",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onEndedRecognition",
+    "name": "onEndedRecognition",
+    "signatures": [
+      "abstract fun onEndedRecognition()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_ce00969602",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onError",
+    "name": "onError",
+    "signatures": [
+      "abstract fun onError(errorType: ErrorType)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_c4d2cc7fb3",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onReady",
+    "name": "onReady",
+    "signatures": [
+      "abstract fun onReady()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_55605a941d",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onStartedRecognition",
+    "name": "onStartedRecognition",
+    "signatures": [
+      "abstract fun onStartedRecognition()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_1e376885d9",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onUpdated",
+    "name": "onUpdated",
+    "signatures": [
+      "abstract fun onUpdated(stt: String, completed: Boolean)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_206e359115",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onUpdatedEpdData",
+    "name": "onUpdatedEpdData",
+    "signatures": [
+      "abstract fun onUpdatedEpdData(on: Long, off: Long)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_520412875c",
+    "qualifiedName": "ai.pleos.playground.stt.listener.ResultListener#onUpdatedRms",
+    "name": "onUpdatedRms",
+    "signatures": [
+      "abstract fun onUpdatedRms(rms: Double)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_ab98fe98ee",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#AUDIO_ERROR",
+    "name": "AUDIO_ERROR",
+    "signatures": [
+      "AUDIO_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_cb3a582186",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#entries",
+    "name": "entries",
+    "signatures": [
+      "val entries: EnumEntries<ErrorType>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_5e34f9088e",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#INVALID_REQUEST_ERROR",
+    "name": "INVALID_REQUEST_ERROR",
+    "signatures": [
+      "INVALID_REQUEST_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_1319a91bd6",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#MIC_ERROR",
+    "name": "MIC_ERROR",
+    "signatures": [
+      "MIC_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_e35931a63d",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#NETWORK_ERROR",
+    "name": "NETWORK_ERROR",
+    "signatures": [
+      "NETWORK_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_85b4637f2b",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#NOT_SUPPORTED_API",
+    "name": "NOT_SUPPORTED_API",
+    "signatures": [
+      "NOT_SUPPORTED_API"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_74013c25ff",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#ON_DEVICE_ENGINE_ERROR",
+    "name": "ON_DEVICE_ENGINE_ERROR",
+    "signatures": [
+      "ON_DEVICE_ENGINE_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_cfdb997210",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#PERMISSION_DENIED",
+    "name": "PERMISSION_DENIED",
+    "signatures": [
+      "PERMISSION_DENIED"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_8c11855aee",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#SERVER_INTERNAL_ERROR",
+    "name": "SERVER_INTERNAL_ERROR",
+    "signatures": [
+      "SERVER_INTERNAL_ERROR"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_26460ea586",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#TIMEOUT",
+    "name": "TIMEOUT",
+    "signatures": [
+      "TIMEOUT"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_985896cb67",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#UNAUTHENTICATED",
+    "name": "UNAUTHENTICATED",
+    "signatures": [
+      "UNAUTHENTICATED"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_7be2fe7fbc",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#UNAVAILABLE_LANGUAGE",
+    "name": "UNAVAILABLE_LANGUAGE",
+    "signatures": [
+      "UNAVAILABLE_LANGUAGE"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_9816e91d5b",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#UNKNOWN",
+    "name": "UNKNOWN",
+    "signatures": [
+      "UNKNOWN"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2341ebcfa0",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#valueOf",
+    "name": "valueOf",
+    "signatures": [
+      "fun valueOf(value: String): ErrorType"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_a44b13fd1b",
+    "qualifiedName": "ai.pleos.playground.stt.constant.ErrorType#values",
+    "name": "values",
+    "signatures": [
+      "fun values(): Array<ErrorType>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_80197cf17b",
+    "qualifiedName": "ai.pleos.playground.stt.data.InferenceSource.Companion#DEFAULT",
+    "name": "DEFAULT",
+    "signatures": [
+      "val DEFAULT: InferenceSource"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_fffb3dd604",
+    "qualifiedName": "ai.pleos.playground.stt.data.InferenceSource#entries",
+    "name": "entries",
+    "signatures": [
+      "val entries: EnumEntries<InferenceSource>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_173fadfcf0",
+    "qualifiedName": "ai.pleos.playground.stt.data.InferenceSource#ON_DEVICE",
+    "name": "ON_DEVICE",
+    "signatures": [
+      "ON_DEVICE"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2d95e76c29",
+    "qualifiedName": "ai.pleos.playground.stt.data.InferenceSource#SERVER",
+    "name": "SERVER",
+    "signatures": [
+      "SERVER"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_b32a897bd1",
+    "qualifiedName": "ai.pleos.playground.stt.data.InferenceSource#valueOf",
+    "name": "valueOf",
+    "signatures": [
+      "fun valueOf(value: String): InferenceSource"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_c33e3fc343",
+    "qualifiedName": "ai.pleos.playground.stt.data.InferenceSource#values",
+    "name": "values",
+    "signatures": [
+      "fun values(): Array<InferenceSource>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_6b7f55347c",
+    "qualifiedName": "ai.pleos.playground.stt.constant.Mode#entries",
+    "name": "entries",
+    "signatures": [
+      "val entries: EnumEntries<Mode>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_fe7ef3ae63",
+    "qualifiedName": "ai.pleos.playground.stt.constant.Mode#HYBRID",
+    "name": "HYBRID",
+    "signatures": [
+      "HYBRID"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_b20481bc4f",
+    "qualifiedName": "ai.pleos.playground.stt.constant.Mode#ON_DEVICE",
+    "name": "ON_DEVICE",
+    "signatures": [
+      "ON_DEVICE"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_4d7e26f3a5",
+    "qualifiedName": "ai.pleos.playground.stt.constant.Mode#SERVER",
+    "name": "SERVER",
+    "signatures": [
+      "SERVER"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_296282b994",
+    "qualifiedName": "ai.pleos.playground.stt.constant.Mode#valueOf",
+    "name": "valueOf",
+    "signatures": [
+      "fun valueOf(value: String): Mode"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_40bdca8c5a",
+    "qualifiedName": "ai.pleos.playground.stt.constant.Mode#values",
+    "name": "values",
+    "signatures": [
+      "fun values(): Array<Mode>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_8b543e6fbc",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#addProximityAlert",
+    "name": "addProximityAlert",
+    "signatures": [
+      "fun addProximityAlert(request: ProximityAlertRequest, listener: ProximityAlertListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.FUSED_LOCATION"
+    ]
+  },
+  {
+    "id": "decl_639737eb41",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#FusedLocation",
+    "name": "FusedLocation",
+    "signatures": [
+      "constructor(context: Context)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_e8b6f1cac1",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#getLastKnownLocation",
+    "name": "getLastKnownLocation",
+    "signatures": [
+      "fun getLastKnownLocation(callback: FusedLocationListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.FUSED_LOCATION"
+    ]
+  },
+  {
+    "id": "decl_f9b1a02682",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#initialize",
+    "name": "initialize",
+    "signatures": [
+      "fun initialize()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_3af3d95010",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#isSupported",
+    "name": "isSupported",
+    "signatures": [
+      "fun isSupported(): Boolean"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_4c08cbcae8",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#registerFusedLocationCallback",
+    "name": "registerFusedLocationCallback",
+    "signatures": [
+      "fun registerFusedLocationCallback(listener: FusedLocationListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.FUSED_LOCATION"
+    ]
+  },
+  {
+    "id": "decl_087c37c6bc",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#release",
+    "name": "release",
+    "signatures": [
+      "fun release()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2773870886",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#removeProximityAlert",
+    "name": "removeProximityAlert",
+    "signatures": [
+      "fun removeProximityAlert(alertId: String)"
+    ],
+    "permissions": [
+      "pleos.car.permission.FUSED_LOCATION"
+    ]
+  },
+  {
+    "id": "decl_6299406853",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#showLocationAccessBlockedPopup",
+    "name": "showLocationAccessBlockedPopup",
+    "signatures": [
+      "fun showLocationAccessBlockedPopup()"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_30ae08f98d",
+    "qualifiedName": "ai.pleos.playground.location.fused.FusedLocation#unregisterFusedLocationCallback",
+    "name": "unregisterFusedLocationCallback",
+    "signatures": [
+      "fun unregisterFusedLocationCallback(listener: FusedLocationListener)"
+    ],
+    "permissions": [
+      "pleos.car.permission.FUSED_LOCATION"
+    ]
+  },
+  {
+    "id": "decl_559b66b173",
+    "qualifiedName": "ai.pleos.playground.location.fused.listener.FusedLocationListener#onChanged",
+    "name": "onChanged",
+    "signatures": [
+      "abstract fun onChanged(location: LocationData?)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_0b4bf252a7",
+    "qualifiedName": "ai.pleos.playground.location.fused.listener.FusedLocationListener#onError",
+    "name": "onError",
+    "signatures": [
+      "abstract fun onError(exception: Exception)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_8487e8495a",
+    "qualifiedName": "ai.pleos.playground.location.fused.listener.ProximityAlertListener#onError",
+    "name": "onError",
+    "signatures": [
+      "abstract fun onError(exception: Exception)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_ab95429cf3",
+    "qualifiedName": "ai.pleos.playground.location.fused.listener.ProximityAlertListener#onRegistered",
+    "name": "onRegistered",
+    "signatures": [
+      "abstract fun onRegistered(alertId: String)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_25bee9abbd",
+    "qualifiedName": "ai.pleos.playground.location.fused.listener.ProximityAlertListener#onTransition",
+    "name": "onTransition",
+    "signatures": [
+      "abstract fun onTransition(event: ProximityAlertEvent)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_d945522712",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#altitude",
+    "name": "altitude",
+    "signatures": [
+      "val altitude: Double"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_a0399a79a1",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#confidence",
+    "name": "confidence",
+    "signatures": [
+      "val confidence: Float"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_4d80f3dcda",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#heading",
+    "name": "heading",
+    "signatures": [
+      "val heading: Float"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_c773ecd1c7",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#latitude",
+    "name": "latitude",
+    "signatures": [
+      "val latitude: Double"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_2bac47852b",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#LocationData",
+    "name": "LocationData",
+    "signatures": [
+      "constructor(latitude: Double, longitude: Double, altitude: Double, heading: Float, confidence: Float, timestampMillis: Long)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_ec6199b4b3",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#longitude",
+    "name": "longitude",
+    "signatures": [
+      "val longitude: Double"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_bda62f74a7",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.LocationData#timestampMillis",
+    "name": "timestampMillis",
+    "signatures": [
+      "val timestampMillis: Long"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_93f87fc884",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertEvent#alertId",
+    "name": "alertId",
+    "signatures": [
+      "val alertId: String"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_9d34b0d220",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertEvent#ProximityAlertEvent",
+    "name": "ProximityAlertEvent",
+    "signatures": [
+      "constructor(alertId: String, transition: ProximityTransition)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_6d4425fa32",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertEvent#transition",
+    "name": "transition",
+    "signatures": [
+      "val transition: ProximityTransition"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_a5715bba3e",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertRequest#latitude",
+    "name": "latitude",
+    "signatures": [
+      "val latitude: Double"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_9aaea41b3c",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertRequest#longitude",
+    "name": "longitude",
+    "signatures": [
+      "val longitude: Double"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_c25119a52c",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertRequest#ProximityAlertRequest",
+    "name": "ProximityAlertRequest",
+    "signatures": [
+      "constructor(latitude: Double, longitude: Double, radiusMeters: Float, transitionTypes: Set<ProximityTransition>)"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_263e7cae5b",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertRequest#radiusMeters",
+    "name": "radiusMeters",
+    "signatures": [
+      "val radiusMeters: Float"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_d8f936fb0c",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityAlertRequest#transitionTypes",
+    "name": "transitionTypes",
+    "signatures": [
+      "val transitionTypes: Set<ProximityTransition>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_bf1833c530",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#ENTER",
+    "name": "ENTER",
+    "signatures": [],
+    "permissions": []
+  },
+  {
+    "id": "decl_42c638325b",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#entries",
+    "name": "entries",
+    "signatures": [
+      "val entries: EnumEntries<ProximityTransition>"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_7347748c71",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#EXIT",
+    "name": "EXIT",
+    "signatures": [],
+    "permissions": []
+  },
+  {
+    "id": "decl_97b1cda58d",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#name",
+    "name": "name",
+    "signatures": [
+      "val name: String"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_c31b6fd687",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#ordinal",
+    "name": "ordinal",
+    "signatures": [
+      "val ordinal: Int"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_eea17e2acf",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#valueOf",
+    "name": "valueOf",
+    "signatures": [
+      "fun valueOf(value: String): ProximityTransition"
+    ],
+    "permissions": []
+  },
+  {
+    "id": "decl_d51545ae6c",
+    "qualifiedName": "ai.pleos.playground.location.fused.model.ProximityTransition#values",
+    "name": "values",
+    "signatures": [
+      "fun values(): Array<ProximityTransition>"
+    ],
+    "permissions": []
+  }
+]
