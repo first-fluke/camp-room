@@ -1,0 +1,1017 @@
+{
+  "schemaVersion": 1,
+  "source": "Official Pleos Connect design assets and display guide 2.1.5",
+  "rights": "Hyundai Motor Group / Pleos; separate from Phosphor MIT. See licenses/Pleos-HMG-design-assets.txt.",
+  "geometrySource": "Exact resolved fillGeometry/strokeGeometry commands; visible inheritance and affine transforms; hidden operands excluded. Archived vectorNetwork is not guessed or reconstructed.",
+  "selectedSourceSha256": "f67e34d8d9f5241496e50a09e9b99dd37b35f86ec58fed19ac5b6b9361cc7762",
+  "generatorSha256": "ca081fda92a054a1be2de7fe29eb00961d7dd1874a41795402efa25f834cfc50",
+  "icons": [
+    {
+      "name": "ChevronRight",
+      "source": "design",
+      "guid": [
+        67,
+        22099
+      ],
+      "componentName": "Direction=right",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        47.999996185302734,
+        48
+      ],
+      "svgSha256": "acb027a773174d1a040d3afbd9576b3d66d2c10310cf0c34f6e3603af25f3f23",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 22101
+          },
+          "kind": "fill",
+          "commandsBlob": 1688,
+          "commandsSha256": "5566c16095329c249b7c8c7e3717503c0c50623dd170600f06a58a00ea9b2fa6",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            15,
+            0,
+            1,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ChevronDown",
+      "source": "design",
+      "guid": [
+        67,
+        27433
+      ],
+      "componentName": "Direction=Down",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "300d90506904f4d5afe6eb4e47f3107b501778eb0c24e90c7a65fd3818c25d21",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 27434
+          },
+          "kind": "fill",
+          "commandsBlob": 2320,
+          "commandsSha256": "9c4906e4c832d45a1a866e3fe6b7e580e8cc6a368576a6c1bc35677084b121f1",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            7.192526817321777,
+            0,
+            1,
+            15.272727012634277
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Close",
+      "source": "design",
+      "guid": [
+        67,
+        22415
+      ],
+      "componentName": "Type=Basic",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "77a65d5d15b51c40edc2fdb2666d96111908ab296cb3e0fff9ffa160e0130ce3",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 22419
+          },
+          "kind": "fill",
+          "commandsBlob": 1740,
+          "commandsSha256": "e992c841c7728da9548fbc90f032f68dd912d8f43e457759ef1771395d21db41",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            9,
+            0,
+            1,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Microphone",
+      "source": "design",
+      "guid": [
+        67,
+        22337
+      ],
+      "componentName": "On=on",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "0801740509c51ecb581744decc801a92f27e5fba7b01cdea9bab883168d948f4",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 22343
+          },
+          "kind": "fill",
+          "commandsBlob": 1717,
+          "commandsSha256": "d26beeec8a1749149e8f8e1c3357944dcaf89cda80057ae18b9ee0ebfd26cfd1",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            10.2000732421875,
+            0,
+            1,
+            6.0
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 22343
+          },
+          "kind": "fill",
+          "commandsBlob": 1718,
+          "commandsSha256": "8f96858fb32cf86202bf82d2a92a433bbbf2d6d3f31c4c31bacc50de89557f31",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            10.2000732421875,
+            0,
+            1,
+            6.0
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Speaker",
+      "source": "design",
+      "guid": [
+        67,
+        24418
+      ],
+      "componentName": "volume=high",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48.000003814697266
+      ],
+      "svgSha256": "9cd49eec871d50242a3246ccc5a90019ac02aa1634b44535945af458607c4987",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 24423
+          },
+          "kind": "fill",
+          "commandsBlob": 1980,
+          "commandsSha256": "2f206b96afe0d43ee7aca1e4ab67d60f1565fbc0a04f07668983e398a50e6e71",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            6.0,
+            0,
+            1,
+            9.272705078125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 24423
+          },
+          "kind": "fill",
+          "commandsBlob": 1981,
+          "commandsSha256": "46ed80d0267ed2a4d8a7ba66c6e3523d987b5d258fdff396175daaa41501edab",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            6.0,
+            0,
+            1,
+            9.272705078125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 24423
+          },
+          "kind": "fill",
+          "commandsBlob": 1982,
+          "commandsSha256": "9970f93239f584a496100ae1ff4b2eebd25462425a0d04e5eff8f85759793f75",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            6.0,
+            0,
+            1,
+            9.272705078125
+          ]
+        }
+      ]
+    },
+    {
+      "name": "WarningCircle",
+      "source": "design",
+      "guid": [
+        67,
+        25601
+      ],
+      "componentName": "Type=alert_line",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "ac861f1b6ed65032bc4b18d9b4416c5d937ddce941dae3dd0444d6003deb2997",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25606
+          },
+          "kind": "fill",
+          "commandsBlob": 2177,
+          "commandsSha256": "40d745a8334ab91135c8c72afa886891522776fbcaf98d5be011fc3945548572",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.200000047683716,
+            0,
+            1,
+            3.200000047683716
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25606
+          },
+          "kind": "fill",
+          "commandsBlob": 2178,
+          "commandsSha256": "e0b15e3efb16c84978de35d28d96b11b520998c177b155ddcadb759b1157e97c",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.200000047683716,
+            0,
+            1,
+            3.200000047683716
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25606
+          },
+          "kind": "fill",
+          "commandsBlob": 2179,
+          "commandsSha256": "8c073b41f0a784673eec16bd3fc009c5728017f4713f69a7fffd0b49713c49a7",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.200000047683716,
+            0,
+            1,
+            3.200000047683716
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CheckCircle",
+      "source": "design",
+      "guid": [
+        67,
+        25624
+      ],
+      "componentName": "Type=Round",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        47.999996185302734,
+        48
+      ],
+      "svgSha256": "0452935b2120dfe6817ce599bbc7f6685e3b0594631f9f964b8521495b86983f",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25628
+          },
+          "kind": "fill",
+          "commandsBlob": 2198,
+          "commandsSha256": "5a9315018c98b788f3129deb6615dc647da0f1f69af38d8b33cacb43ceefba3c",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.2000732421875,
+            0,
+            1,
+            3.2000732421875
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25628
+          },
+          "kind": "fill",
+          "commandsBlob": 2199,
+          "commandsSha256": "d2ffe5ced5fce3b8a63a204972474811b3e79ab181bc3470b7b4243ca21884f0",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.2000732421875,
+            0,
+            1,
+            3.2000732421875
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Check",
+      "source": "design",
+      "guid": [
+        67,
+        25618
+      ],
+      "componentName": "Type=basic",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "be8386b1fe3c2b621eb87a4c3799c47f3483344871d21047c2deb087a732b460",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25620
+          },
+          "kind": "fill",
+          "commandsBlob": 2190,
+          "commandsSha256": "533986a8630b539ba4e6d34b020618e163ca85edf0da5cefe5aa56cf5e49352d",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            8.199999809265137,
+            0,
+            1,
+            13.199999809265137
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Eye",
+      "source": "design",
+      "guid": [
+        67,
+        26985
+      ],
+      "componentName": "On=false",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "44574a7647d6b8c86cee24472b125b4b20e54b21e2b2c09326f89373693d57a9",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 26987
+          },
+          "kind": "fill",
+          "commandsBlob": 2256,
+          "commandsSha256": "ee03c46952a2aa6c3ffe03412be2c915c87d99658e24dbe55d0d49f18f3ae3ab",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            5,
+            0,
+            1,
+            10
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 26987
+          },
+          "kind": "fill",
+          "commandsBlob": 2257,
+          "commandsSha256": "1113bc5fd4d69bc10ace7fd0af01cb3852cebe4913814875e7ee8a216cf7eb9f",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            5,
+            0,
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Plus",
+      "source": "design",
+      "guid": [
+        67,
+        22174
+      ],
+      "componentName": "ic_plus",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "1352626cb11ca1dd2a0c232714b946c0920ee97015e4f4db46e38b024293c68f",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 22178
+          },
+          "kind": "fill",
+          "commandsBlob": 1705,
+          "commandsSha256": "0d52f4059157803be8d8ac241779a8505d7e370900ebe51471ae12f13bdcf1bb",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1.0,
+            1.6081230200044232e-16,
+            7.199951171875,
+            -1.6081230200044232e-16,
+            1.0,
+            7.20001220703125
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Minus",
+      "source": "design",
+      "guid": [
+        67,
+        25150
+      ],
+      "componentName": "ic_minus",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "e67ff7bd52515e7ae7abc472e4f5443baec9cee9284e44b724ed6535cc95aad0",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 25152
+          },
+          "kind": "fill",
+          "commandsBlob": 2114,
+          "commandsSha256": "7bbbf203017ff2da4c365d6576f803b14f0f2addcad7d2d30d2195398a237c14",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            7.199999809265137,
+            0,
+            1,
+            22.200000762939453
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Trash",
+      "source": "design",
+      "guid": [
+        67,
+        28922
+      ],
+      "componentName": "ic_trash",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        44,
+        44
+      ],
+      "svgSha256": "e81a8d72ee5652dddd6dfc91cbf370d664990cb681918b1f2e325db6ddf22317",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 28931
+          },
+          "kind": "fill",
+          "commandsBlob": 2507,
+          "commandsSha256": "f6c61b5581fbfcd9a4e857dd278de80ab646aa9aee9cdbb4c9739a9c0965dae5",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            6.1998291015625,
+            0,
+            1,
+            4.199951171875
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 28931
+          },
+          "kind": "fill",
+          "commandsBlob": 2508,
+          "commandsSha256": "ea2218713a6f2a771051c4f3c6a1c5ca639af15edc6f78774ca13d22535c1fdf",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            6.1998291015625,
+            0,
+            1,
+            4.199951171875
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Lightbulb",
+      "source": "design",
+      "guid": [
+        67,
+        32636
+      ],
+      "componentName": "ic_light",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        47.999996185302734,
+        48
+      ],
+      "svgSha256": "5e2e2a4dfb95b61417172d02ea2b362636d72a474b42a79e5509fa1f93974803",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2715,
+          "commandsSha256": "8a51908b2bf52a375fe8eb8d66154516da2c39ff1a0ad11bd088bf4a24dca8a0",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2716,
+          "commandsSha256": "d954729f239bd9cff95108aa10946d6ca841bb8d94a3eeb75882888a05bfb896",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2717,
+          "commandsSha256": "6dbb1fd8fdc84ab7ee01400758d41fb14d0f477bf2d1a56589a8edbe6ccd922d",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2718,
+          "commandsSha256": "3a4a2eaec2971ba9973800864a8a996c809ab552159c066da4b6d837a8b932c5",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2719,
+          "commandsSha256": "8f98c45e0e0ffdc12fc46e2780473b5a3eb42db1896c0f68448ff1dfcbd13c04",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2720,
+          "commandsSha256": "8da7eee657f7b280df4ea6bdc50936a65f06962e156d5b81a0ab394421bf0a61",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2721,
+          "commandsSha256": "c257609ae6b8d308f50141c427dd065f1c9a6c1e5a23de5ae519f7f05563dafc",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 32647
+          },
+          "kind": "fill",
+          "commandsBlob": 2722,
+          "commandsSha256": "24d2a279ead7b8edfb33580355d31428353efe2e244901064e8c7c6c327c33f8",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            2.9954833984375,
+            0,
+            1,
+            3.203125
+          ]
+        }
+      ]
+    },
+    {
+      "name": "BatteryCharging",
+      "source": "design",
+      "guid": [
+        67,
+        4946
+      ],
+      "componentName": "ic_charging",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "d11b04ff8565ab00281bbf37ce4b12e1da84815ef07837f549b0d9b5d865ed52",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 4950
+          },
+          "kind": "fill",
+          "commandsBlob": 544,
+          "commandsSha256": "51faa18990a3901941fe4584fe2d133a85eb81df09db9285d6665fe0bbed5ac4",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            11,
+            0,
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vehicle",
+      "source": "design",
+      "guid": [
+        67,
+        15063
+      ],
+      "componentName": "ic_vehicle/l",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "figSha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "viewport": [
+        64,
+        64
+      ],
+      "svgSha256": "f798b1ed9eb10fc5dc00da7eef50061b5cc05cd0a8c18e2426061f73da2ae90c",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 67,
+            "localID": 15065
+          },
+          "kind": "fill",
+          "commandsBlob": 1362,
+          "commandsSha256": "195de7bc0e704024be9f96ba7b992c4375a0a3668f0775abc0279da6d080badb",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            4,
+            0,
+            1,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clock",
+      "source": "guide",
+      "guid": [
+        2003,
+        6012
+      ],
+      "componentName": "Type=Line",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_display_guide_215.fig",
+      "figSha256": "2283dfc1dfe871cf14fd8e15ee8831441125ef5ec471909fa17d1a03cf0bd25b",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "74a8e8758e3960594eb1994c4c09b7f2b2d517bcba6565e437b402bf8d81f6e5",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 2003,
+            "localID": 6016
+          },
+          "kind": "fill",
+          "commandsBlob": 412,
+          "commandsSha256": "b7bd26d80faec448c907ed0236c583923f9eab6d0b72f759c25436447798f9cc",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.199951171875,
+            0,
+            1,
+            3.199951171875
+          ]
+        },
+        {
+          "node": {
+            "sessionID": 2003,
+            "localID": 6016
+          },
+          "kind": "fill",
+          "commandsBlob": 413,
+          "commandsSha256": "d2ffe5ced5fce3b8a63a204972474811b3e79ab181bc3470b7b4243ca21884f0",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            3.199951171875,
+            0,
+            1,
+            3.199951171875
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Refresh",
+      "source": "guide",
+      "guid": [
+        2003,
+        7113
+      ],
+      "componentName": "Type=single",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_display_guide_215.fig",
+      "figSha256": "2283dfc1dfe871cf14fd8e15ee8831441125ef5ec471909fa17d1a03cf0bd25b",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "e59b20336875433f207ecb1fdd2bc2fc6190834223d18312859ee012aed6537d",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 2003,
+            "localID": 7117
+          },
+          "kind": "fill",
+          "commandsBlob": 925,
+          "commandsSha256": "03fe5794086c9b0cfdc0d0a247aba026f77939460ce9cc1a671912cc71729696",
+          "windingRule": "NONZERO",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            7.2821044921875,
+            0,
+            1,
+            5.3995361328125
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Search",
+      "source": "guide",
+      "guid": [
+        2003,
+        6175
+      ],
+      "componentName": "ic_search",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_display_guide_215.fig",
+      "figSha256": "2283dfc1dfe871cf14fd8e15ee8831441125ef5ec471909fa17d1a03cf0bd25b",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "23769a2a6b43ba258165052ea06276e530c48e0ca3c79cce8cdfb3feba969167",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 2003,
+            "localID": 6179
+          },
+          "kind": "fill",
+          "commandsBlob": 522,
+          "commandsSha256": "059828acbbc324d04f1b70ad1b549af59c4a7312fb062c20d5df23aaf2ca643d",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            1,
+            0,
+            6,
+            0,
+            1,
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wind",
+      "source": "guide",
+      "guid": [
+        2003,
+        11846
+      ],
+      "componentName": "Type=Line",
+      "upstream": "https://document.pleos.ai/img/Pleos_Connect_display_guide_215.fig",
+      "figSha256": "2283dfc1dfe871cf14fd8e15ee8831441125ef5ec471909fa17d1a03cf0bd25b",
+      "viewport": [
+        48,
+        48
+      ],
+      "svgSha256": "a44c9cae38b0ae2c9bdd1a23f5b88dea6c80647831ac4e1ccbea47dd30225cc2",
+      "geometry": [
+        {
+          "node": {
+            "sessionID": 2003,
+            "localID": 11852
+          },
+          "kind": "fill",
+          "commandsBlob": 3950,
+          "commandsSha256": "78468e264a07fc3c3ea160d11b9310b2813aa61ab8b9d95b52ed1d395b06630a",
+          "windingRule": "ODD",
+          "opacity": 1,
+          "transform": [
+            -1,
+            0,
+            44.0,
+            0,
+            1,
+            3.99853515625
+          ]
+        }
+      ]
+    }
+  ]
+}

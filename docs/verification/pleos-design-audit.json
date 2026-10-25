@@ -1,0 +1,787 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-25T09:27:05.399314+00:00",
+  "phase": "C1 source documentation; subsequent runtime evidence belongs to C2",
+  "source_snapshot_is_commit_bound": false,
+  "source_snapshot_note": "Final source files reported frozen by owners and hashed before root stages C1. No commit or build result is inferred from these hashes.",
+  "scope": "Official-guide and supplied-SDK audit plus named-source follow-up. No build, new APK run, vehicle measurement, Git or OMA operation performed by this documentation task.",
+  "historical_baseline_sha256": "802a62b8b4134c2b75d133e8fa6545f9de1a1a0d385de7dd74dade6617a79d55",
+  "historical_baseline": {
+    "schema_version": 1,
+    "completed_at_utc": "2026-10-25T09:03:16.671888+00:00",
+    "scope": "Read-only official-guide static audit with three explicitly old-APK screenshots; no build, new app execution, repository edits or Git/OMA operation. Independent interaction audit is separate.",
+    "report_sha256": "372bff5a055325264dba84b0885380837d31356d4516e7bcbf37f7b28e30db1c",
+    "matrix_count": 25,
+    "status_counts": {
+      "FAIL": 3,
+      "PARTIAL": 10,
+      "NOT_OBSERVED": 6,
+      "PASS": 6
+    },
+    "matrix": [
+      {
+        "id": "D01",
+        "requirement": "일반 앱의 Landscape·Portrait 대응 — [Display Layout][layout], [Window Policy][window]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/layout",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/window"
+        ],
+        "implementation_evidence": "main Manifest의 `screenOrientation=\"sensorLandscape\"`; `MainActivity.kt` 155–188의 850dp 분기",
+        "status": "FAIL",
+        "verdict": "FAIL",
+        "action": "방향 고정을 풀고 세로·분할 창에서 실제 레이아웃 검증"
+      },
+      {
+        "id": "D02",
+        "requirement": "여러 창 크기·비율에 대응 — [Display Layout][layout]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/layout"
+        ],
+        "implementation_evidence": "`CampScreens.kt` 51–113, `CampCabinScreen.kt` 157–168에 720dp 분기. 필터·차량 상태 일부는 줄바꿈 없는 Row",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "작은 창에서 칩, 상단 동작, 상태 정보의 잘림·겹침 확인"
+      },
+      {
+        "id": "D03",
+        "requirement": "시스템 UI가 앱 위에 표시되는 구조 고려 — [Display Layout][layout], [Status bar][statusbar], [GNB][gnb]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/layout",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/status-bar",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/gnb"
+        ],
+        "implementation_evidence": "`MainActivity.kt` 161–190의 Scaffold padding. 실제 Pleos 패널·키보드가 덮는 상황은 관찰하지 않음",
+        "status": "NOT_OBSERVED",
+        "verdict": "NOT_OBSERVED",
+        "action": "시스템 패널·IME·창 크기 전환 시 핵심 동작 접근 확인"
+      },
+      {
+        "id": "D04",
+        "requirement": "Foreground·Background로 나뉜 Adaptive Icon — [App Icon][appicon]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/contents-creation/app-icon"
+        ],
+        "implementation_evidence": "main Manifest에 `android:icon`·`roundIcon` 없음. 담당자가 adaptive/mipmap 리소스 부재도 확인",
+        "status": "FAIL",
+        "verdict": "FAIL",
+        "action": "앱 대표 아이콘 리소스와 Manifest 연결, 마스크·safe area 확인"
+      },
+      {
+        "id": "F01",
+        "requirement": "중립적 서체와 정보 위계 — [Typography][typography]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/typography"
+        ],
+        "implementation_evidence": "`CampTheme.kt` 24, 135–184: Asta Sans, headline/title/body/label 정의. 이전 KO/EN 화면에서 계층 확인",
+        "status": "PASS",
+        "verdict": "PASS — 소스·이전 화면",
+        "action": "최신 APK의 실제 가독성은 별도 확인"
+      },
+      {
+        "id": "F02",
+        "requirement": "최소 12sp 권장 하한 — [Typography][typography]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/typography"
+        ],
+        "implementation_evidence": "읽은 공통 테마·화면의 보조 글자 12sp, 본문 14–18sp",
+        "status": "PASS",
+        "verdict": "PASS — 확인 범위 한정",
+        "action": "이 판정은 18px 또는 물리 mm 충족을 뜻하지 않음"
+      },
+      {
+        "id": "F03",
+        "requirement": "실제 픽셀 기준 최소 높이 18px — [Typography][typography]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/typography"
+        ],
+        "implementation_evidence": "`CampTheme.kt` labelSmall=12sp; MainActivity의 pill·부제·사이드바에 12sp. 동일 폰트의 12px 샘플 잉크 높이 KO 11px/EN 10px",
+        "status": "FAIL",
+        "verdict": "FAIL — 기존 160dpi 표시 구성 기준",
+        "action": "최소 크기 상향 후 실제 Android 렌더 측정. 폰트 확대에 따른 줄바꿈·고정 높이도 함께 확인"
+      },
+      {
+        "id": "F04",
+        "requirement": "중요 정보 5mm·보조 정보 3mm 높이 — [UI Design Guide][intro]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro"
+        ],
+        "implementation_evidence": "실제 차량 디스플레이의 물리 치수 측정 없음",
+        "status": "NOT_OBSERVED",
+        "verdict": "NOT_OBSERVED",
+        "action": "대상 차량에서 텍스트 실측. dp·sp·스크린샷만으로 환산 완료 처리 금지"
+      },
+      {
+        "id": "F05",
+        "requirement": "텍스트·아이콘·이미지의 대비 4.5:1 이상 — [UI Design Guide][intro], [Colors][colors]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/colors"
+        ],
+        "implementation_evidence": "기존 의미별 조합만 통과. 상품 그림·컬렉션 글자·차량 도식 일부의 미달이 별도 발견됨",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL — 수정 후 검증 대기",
+        "action": "담당자의 소스 수정 보고가 있으며 최신 APK·합성 배경에서 재확인 필요"
+      },
+      {
+        "id": "F06",
+        "requirement": "주간·야간에 맞춘 밝기·대비 — [UI Design Guide][intro], [Colors][colors]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/colors"
+        ],
+        "implementation_evidence": "`CampTheme.kt` 44–77, 129–133: 시스템 다크 모드 및 두 팔레트. 이전 두 모드 화면 확인",
+        "status": "PASS",
+        "verdict": "PASS — 구현 구조·이전 화면",
+        "action": "새 벡터와 수정된 도식도 양쪽 모드에서 확인"
+      },
+      {
+        "id": "F07",
+        "requirement": "아이콘의 일관된 규격·의미와 변형 — [Iconography][icons]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/contents-creation/iconography"
+        ],
+        "implementation_evidence": "`icons/CampIcons.kt`: 공식 Pleos 제어 아이콘 우선, Phosphor로 캠핑 범주 보완. nav의 선택 상태 변형 구분",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "새 APK의 크기·밀도·정렬·가독성 미관찰. 48dp 제작 그리드를 모든 표시 크기와 동일시하지 않음"
+      },
+      {
+        "id": "F08",
+        "requirement": "아이콘의 설명 라벨·접근 가능한 이름 — [UI Design Guide][intro], [Icon button][iconbutton]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/icon-button"
+        ],
+        "implementation_evidence": "MainActivity nav·마이크·언어·닫기 동작에 라벨 또는 contentDescription. 장식 아이콘은 인접 텍스트와 함께 사용",
+        "status": "PASS",
+        "verdict": "PASS — 확인한 동작 한정",
+        "action": "전체 화면의 접근성 트리·음성 접근은 미검증"
+      },
+      {
+        "id": "C01",
+        "requirement": "기본 버튼의 pressed·disabled·loading — [Basic button][button]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/basic-button"
+        ],
+        "implementation_evidence": "`MainActivity.kt` 556–589: Material3 Button, busy 시 비활성 및 내부 로더",
+        "status": "PASS",
+        "verdict": "PASS — 공통 버튼 소스",
+        "action": "모든 호출부의 중복 요청·실패 복구는 별도 인터랙션 감사"
+      },
+      {
+        "id": "C02",
+        "requirement": "충분한 터치 영역과 피드백 — [UI Design Guide][intro], [Icon button][iconbutton]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/icon-button"
+        ],
+        "implementation_evidence": "`CampDesign`: 64/56/48dp; primary·secondary가 햅틱 호출",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "모든 아이콘·탭·필드의 실제 hit area와 피드백 대조 필요. 예시 SVG px를 dp 규칙으로 바꾸지 않음"
+      },
+      {
+        "id": "C03",
+        "requirement": "입력 후 0.25초 내 반응 또는 지연 상태 알림 — [UI Design Guide][intro]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro"
+        ],
+        "implementation_evidence": "MainActivity 191–209 전역 progress, 공통 버튼 내부 로더",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL / 시간 NOT_OBSERVED",
+        "action": "입력→첫 피드백 시간을 계측하지 않음. SDK 완료 시간이 0.25초라고 주장하지 않음"
+      },
+      {
+        "id": "C04",
+        "requirement": "짧은 메시지·3줄 한도 — [UI Design Guide][intro]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro"
+        ],
+        "implementation_evidence": "공통 텍스트에 maxLines=3/ellipsis. 기본 영어 리소스에서 120자 또는 24단어 초과 후보 0",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "서버 설명·오류·사용자 값은 별도. 한 줄 80자, 잘린 필수 정보, 다국어 확대 화면 확인"
+      },
+      {
+        "id": "C05",
+        "requirement": "선택 가능한 메뉴·현재 위치 표시 — [Page Navigation][nav], [Tabs][tabs]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/page-navigation",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/segmented-menu"
+        ],
+        "implementation_evidence": "MainActivity 318–349, 394–430: 3개 주요 메뉴, 현재 탭의 라벨·색·아이콘 구분",
+        "status": "PASS",
+        "verdict": "PASS — 주요 탐색 구조",
+        "action": "좁은 창에서 하단 navigation 전환은 실행 검증 필요"
+      },
+      {
+        "id": "C06",
+        "requirement": "팝업의 제목·본문·확인/닫기 구조 — [System Popup][popup]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/popups/system-popup"
+        ],
+        "implementation_evidence": "`CampDialogs.kt` 32–78: dismiss, 닫기 버튼, 최대 폭, 화면 높이 90%, 본문 스크롤",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "작은 창·키보드·확대 글자에서 CTA 접근·focus/뒤로가기 실행 검증"
+      },
+      {
+        "id": "C07",
+        "requirement": "필드의 focus·disabled·read-only·invalid 상태 — [Text Field][field], [Dropdown][dropdown]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/fields/text-field",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/dropdown"
+        ],
+        "implementation_evidence": "이번 감사는 각 입력 상태의 전체 소스·실행 대조를 완료하지 않음",
+        "status": "NOT_OBSERVED",
+        "verdict": "NOT_OBSERVED",
+        "action": "입력·장바구니·날짜 필드 상태를 인터랙션 감사와 합산"
+      },
+      {
+        "id": "C08",
+        "requirement": "Controller의 min/max/step·선택 상태 — [Controllers][controllers], [Toggle button][toggle], [Checkbox][checkbox]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/controllers",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/toggle-button",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/selections/checkbox"
+        ],
+        "implementation_evidence": "Cabin 화면에 목표 온도 증감 등 컨트롤이 존재함",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "끝값·busy·차량 상태별 비활성·오류 반환 검증 필요"
+      },
+      {
+        "id": "C09",
+        "requirement": "날짜/시간 선택과 입력 방식 — [Spinner][spinner], [Keypad][keypad]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/spinner",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/keypad"
+        ],
+        "implementation_evidence": "`CampScreens.kt`에서 DatePickerDialog 사용; 날짜 선택 호출부 확인",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "공식 상태·크기 규칙과 실제 날짜 팝업 대조 미완료"
+      },
+      {
+        "id": "C10",
+        "requirement": "상태 설명 목적의 로딩·애니메이션 — [Animation][animation]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/animation"
+        ],
+        "implementation_evidence": "공통 로딩 인디케이터 확인. 이전 스크린샷은 정적 관찰만 가능",
+        "status": "PARTIAL",
+        "verdict": "PARTIAL",
+        "action": "주행 중 시선을 끄는 반복 동작 제한은 실행 상태 검증 필요"
+      },
+      {
+        "id": "C11",
+        "requirement": "알림·Toast의 맥락·배치 — [System Notification][notification], [Toast][toast]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/notification/system-notification",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/toast"
+        ],
+        "implementation_evidence": "MainActivity 149–163 SnackbarHost. 공식 Toast의 표시 치수·padding 매핑은 검증하지 않음",
+        "status": "NOT_OBSERVED",
+        "verdict": "NOT_OBSERVED",
+        "action": "기본 Material Snackbar를 공식 Toast 치수 준수로 간주하지 않음"
+      },
+      {
+        "id": "C12",
+        "requirement": "OS bar·widgets·shadow의 적용 맥락 — [Bar][bar], [Widgets][widgets], [Shadow][shadow]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/bar",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/components/widgets",
+          "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/shadow"
+        ],
+        "implementation_evidence": "앱에서 사용하는 범위와 OS 소유 영역의 전수 대조는 미완료",
+        "status": "NOT_OBSERVED",
+        "verdict": "NOT_OBSERVED",
+        "action": "적용되는 컴포넌트만 후속 대조. 미사용 컴포넌트 자체는 결함이 아님"
+      },
+      {
+        "id": "S01",
+        "requirement": "주행 제한 상태를 반영한 기능 축소 — [주행 안전 설계][driving]",
+        "source_urls": [
+          "https://document.pleos.ai/docs/pleos-only/vehicle-app-planning-guide/driver-distraction-guideline"
+        ],
+        "implementation_evidence": "차량 parked 표시와 플랫폼 UX restriction은 다른 개념. 별도 독립 인터랙션 감사 진행",
+        "status": "NOT_OBSERVED",
+        "verdict": "NOT_OBSERVED — 본 감사 범위",
+        "action": "CarUxRestrictions·차량 제어·입력/구매 제한 증거를 별도 결과와 합산"
+      }
+    ],
+    "must_fix_ids": [
+      "D01",
+      "D04",
+      "F03",
+      "F05"
+    ],
+    "old_apk_sha256": "131e1b64e3e6752b26b42ee4db2e75ec72dbcd9e26d6e7f14ca6e8fe6f2c571a",
+    "old_apk_source_commit": "29430437acbf5a6cc1cb8a500718fa8be6daeb1d",
+    "old_screenshots_viewed": [
+      "/root/workspace/camp-room/artifacts/qa/native-discover.png",
+      "/root/workspace/camp-room/artifacts/qa/native-dark.png",
+      "/root/workspace/camp-room/artifacts/qa/native-english.png"
+    ],
+    "pillow_font_measurement": {
+      "font": "apps/pleos/app/src/main/res/font/asta_sans.ttf",
+      "samples": [
+        "보조 정보",
+        "Camp Room"
+      ],
+      "ink_height_px_by_nominal_px": {
+        "12": [
+          11,
+          10
+        ],
+        "18": [
+          16,
+          16
+        ],
+        "20": [
+          17,
+          18
+        ],
+        "22": [
+          19,
+          19
+        ]
+      },
+      "limitation": "Pillow ink bounds, not Android final glyph layout or physical vehicle measurement."
+    },
+    "font_mm_measured": false,
+    "input_feedback_250ms_measured": false,
+    "new_apk_render_observed": false,
+    "all_guideline_requirements_verified": false,
+    "source_urls": {
+      "intro": "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro",
+      "layout": "https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/layout",
+      "window": "https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/window",
+      "statusbar": "https://document.pleos.ai/docs/connect/guide/docs-design/components/status-bar",
+      "gnb": "https://document.pleos.ai/docs/connect/guide/docs-design/components/gnb",
+      "typography": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/typography",
+      "colors": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/colors",
+      "icons": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/contents-creation/iconography",
+      "appicon": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/contents-creation/app-icon",
+      "button": "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/basic-button",
+      "toggle": "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/toggle-button",
+      "iconbutton": "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/icon-button",
+      "keypad": "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/keypad",
+      "nav": "https://document.pleos.ai/docs/connect/guide/docs-design/components/page-navigation",
+      "tabs": "https://document.pleos.ai/docs/connect/guide/docs-design/components/segmented-menu",
+      "popup": "https://document.pleos.ai/docs/connect/guide/docs-design/components/popups/system-popup",
+      "field": "https://document.pleos.ai/docs/connect/guide/docs-design/components/fields/text-field",
+      "dropdown": "https://document.pleos.ai/docs/connect/guide/docs-design/components/dropdown",
+      "controllers": "https://document.pleos.ai/docs/connect/guide/docs-design/components/controllers",
+      "checkbox": "https://document.pleos.ai/docs/connect/guide/docs-design/components/selections/checkbox",
+      "spinner": "https://document.pleos.ai/docs/connect/guide/docs-design/components/spinner",
+      "animation": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/animation",
+      "notification": "https://document.pleos.ai/docs/connect/guide/docs-design/components/notification/system-notification",
+      "toast": "https://document.pleos.ai/docs/connect/guide/docs-design/components/toast",
+      "bar": "https://document.pleos.ai/docs/connect/guide/docs-design/components/bar",
+      "widgets": "https://document.pleos.ai/docs/connect/guide/docs-design/components/widgets",
+      "shadow": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/shadow",
+      "driving": "https://document.pleos.ai/docs/pleos-only/vehicle-app-planning-guide/driver-distraction-guideline"
+    }
+  },
+  "historical_baseline_preserved_without_regrading": true,
+  "interaction_audit_original_sha256": "79b7c0c6c80d038b995da94b066e24295a78548e0521dbea586162a0967986bf",
+  "followups": [
+    {
+      "ids": [
+        "D01",
+        "D02"
+      ],
+      "source_status": "implemented",
+      "evidence": "Orientation lock removed; wrapping, stacking and scroll adaptations added.",
+      "remaining": "Portrait, resized/multiwindow, system overlay and keyboard execution.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "D04"
+      ],
+      "source_status": "implemented",
+      "evidence": "Manifest icon/roundIcon and adaptive foreground/background resources; Phosphor tree-evergreen.",
+      "remaining": "Launcher mask and safe-area rendering.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "F02",
+        "F03",
+        "F04"
+      ],
+      "source_status": "implemented",
+      "evidence": "Theme plus seven named screen files: explicit fontSize >=22sp, explicit lineHeight >=28sp.",
+      "remaining": "Actual Android glyph height >=18px and physical vehicle text height 5mm/3mm.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "F05",
+        "F06"
+      ],
+      "source_status": "implemented",
+      "evidence": "Product and collection color combinations changed; day/night maintained; old cabin silhouette replaced.",
+      "remaining": "Complete new-APK contrast for text/icons/images and composited backgrounds.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "F07",
+        "F08"
+      ],
+      "source_status": "implemented",
+      "evidence": "19 official Pleos vectors plus 37 Phosphor variants; separate provenance and rights.",
+      "remaining": "Runtime sizing/alignment, state changes and accessible names.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "C01",
+        "C02",
+        "C08",
+        "I-03",
+        "I-04",
+        "I-06"
+      ],
+      "source_status": "partial",
+      "evidence": "Shared action sizes, switch/slider minimum48dp and busy scene guard; capability enforcement in adapter.",
+      "remaining": "Actual hit bounds and all feature-specific limits/increments/blocked reasons reflected before input.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "C03"
+      ],
+      "source_status": "present",
+      "evidence": "Loaders, disabled states and haptic input acknowledgement.",
+      "remaining": "Input-to-first-feedback timing <=250ms; no SDK duration assertion.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "C04",
+        "C05",
+        "C06",
+        "I-07",
+        "I-08"
+      ],
+      "source_status": "partial",
+      "evidence": "Wrapping, narrow-window stacking, scrolling and larger text.",
+      "remaining": "Dynamic/translated text, truncation, focus/back/IME and CTA access.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "I-01",
+        "I-02",
+        "I-03"
+      ],
+      "source_status": "implemented",
+      "evidence": "Owned recognition Job cancelled on close, quote snapshot checks, busy input and scene locks.",
+      "remaining": "Cancellation, delayed response and duplicate-input runtime regression evidence.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "S01",
+        "I-05"
+      ],
+      "source_status": "implemented",
+      "evidence": "CarUxRestrictionsManager current state/listener with unknown/restricted/disconnected blocked; lifecycle gating.",
+      "remaining": "Real host transitions and restoration; independent trusted motion gate remains.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    },
+    {
+      "ids": [
+        "SDK-CABIN"
+      ],
+      "source_status": "implemented",
+      "evidence": "Original native area object and member order/duplicates preserved with occurrence IDs; separate measured temperature capabilities; confirmed-area cards.",
+      "remaining": "Actual vehicle grouped/independent areas, unknown values and per-area command observations.",
+      "runtime_status": "NOT_OBSERVED_IN_THIS_RECORD"
+    }
+  ],
+  "source_evidence_observed_at_utc": "2026-10-25T09:27:05.399314+00:00",
+  "source_evidence": [
+    {
+      "path": "apps/pleos/app/src/main/AndroidManifest.xml",
+      "sha256": "5635e3d3306783a6fc5a756a0891d92372d23506e8e8d7c8ff1b933798f6e39c"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampTheme.kt",
+      "sha256": "dabc7f0f01663dd1bb837997821c130b76c915245282f41198095bfa61b57f71"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/MainActivity.kt",
+      "sha256": "e94b4d6faceba3e4e5c2b8719234f9c7eb397b34650ec5fd03ef148f090b306c"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampScreens.kt",
+      "sha256": "5f8e8397e6e7f35ee7ec48b9ee2012c3d911a6652d77f660a2930e882000b613"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampCabinScreen.kt",
+      "sha256": "a34bd14e3e91859f56a2a5cb388deb749806e4b3f555f9fb805b0b54dd1b0c91"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampDialogs.kt",
+      "sha256": "911710e6de3c5e1831ff48e7e0a8d92c5170ea7a86073ee405bd2959586c77a6"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampVoiceDialog.kt",
+      "sha256": "bfc5cdaa7b700b97182e65db402e477dcb1ac3a03bce04dc9ac8c0e786f213c8"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/LanguageSettingsDialog.kt",
+      "sha256": "777968437d5cad0f166912c47523858e51748f04669a9aaf9a374df3035380bb"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampViewModel.kt",
+      "sha256": "0a0ac8135541501aea8e75b71782a7b45f8c2c482fd89eade564130a9850e72d"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampUxState.kt",
+      "sha256": "d5d84f979fc2b8a7da4280a53f9338ad7c867000b57c7f34864481b14636e3b7"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampUxRestrictedScreen.kt",
+      "sha256": "011e295d67fc2dd16023e3ff92c95aa15ba32615d383474b5fac72671483c762"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CabinTopology.kt",
+      "sha256": "4f158fc2a8715cec0075661da03371f24f80379b180cf8a944403589cb2b1213"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampModels.kt",
+      "sha256": "ffc47fd3aeb64b6669723d6f689ed153935229c3239855f11af724421f774b06"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/app/CampUxMonitor.kt",
+      "sha256": "684c1247bdeaeb455bf7b346773d37bc1a7ad1c69b37495271d89eadfd7f5944"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/app/PlatformBridge.kt",
+      "sha256": "5dc98a9bff1718d4482ac0e5b6648b8eb9b463ea6dfbbf40447b2badb05b69c2"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/pleos/PleosVehicleAdapter.kt",
+      "sha256": "57bc689818db8a0289162bfb18b61a404bc2c32c4bac88bcb7a433292f183ceb"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/pleos/VehiclePort.kt",
+      "sha256": "2b1c5aed494977cc6216b4d3b727df951c6ea5449e272f834a3c751e55040c37"
+    },
+    {
+      "path": "apps/pleos/app/src/demo/java/camp/room/app/CampUxMonitor.kt",
+      "sha256": "94b85181f408ef7b8dcc992c4c9d3176351ea41231d816a9d1c01f0baa0f8e5a"
+    },
+    {
+      "path": "apps/pleos/app/src/demo/java/camp/room/app/PlatformBridge.kt",
+      "sha256": "023c1268a7c28250e3c26df316edec5f51ad59c81ba260c9b5460ac6c9edfbd4"
+    },
+    {
+      "path": "apps/pleos/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "sha256": "77f66107f8eb4d3a6710a10cb18847f793a38ccffe9f087d54151e1c5a8b64c9"
+    },
+    {
+      "path": "apps/pleos/app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "sha256": "020b39473880ce8ea51249719e9b4617e890bd1f38a065b265d547242fb62642"
+    },
+    {
+      "path": "apps/pleos/app/src/main/res/values/icon_colors.xml",
+      "sha256": "c5be42a4dbc14ac3a97e97cdeead07de119799d30f2ff7b4e898c104dd4ccc71"
+    },
+    {
+      "path": "apps/pleos/app/src/main/assets/icon-provenance/pleos.json",
+      "sha256": "377e6322d4a32af5378b2a3fb763d0519bec5353670b0c4c7ba5f0ae2808163a"
+    },
+    {
+      "path": "apps/pleos/app/src/main/assets/icon-provenance/phosphor.json",
+      "sha256": "d83541bb51a23d9b65b06956c4478066b1b37af130cf5b25abca22bcf5447ac3"
+    }
+  ],
+  "font_literal_evidence": [
+    {
+      "file": "CampTheme.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": 28.0,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "MainActivity.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": 28.0,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "CampScreens.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": null,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "CampCabinScreen.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": 28.0,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "CampDialogs.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": 28.0,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "CampVoiceDialog.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": null,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "LanguageSettingsDialog.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": null,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    },
+    {
+      "file": "CampUxRestrictedScreen.kt",
+      "explicit_font_size_min_sp": 22.0,
+      "explicit_line_height_min_sp": 28.0,
+      "scope": "Named-source literal declarations only; not Android rendered glyph measurement."
+    }
+  ],
+  "icon_provenance": {
+    "official_pleos_vectors": 19,
+    "pleos_manifest_path": "apps/pleos/app/src/main/assets/icon-provenance/pleos.json",
+    "pleos_manifest_sha256": "377e6322d4a32af5378b2a3fb763d0519bec5353670b0c4c7ba5f0ae2808163a",
+    "phosphor_svg_variants": 37,
+    "phosphor_weights": {
+      "duotone": 11,
+      "fill": 2,
+      "regular": 24
+    },
+    "phosphor_manifest_path": "apps/pleos/app/src/main/assets/icon-provenance/phosphor.json",
+    "phosphor_manifest_sha256": "d83541bb51a23d9b65b06956c4478066b1b37af130cf5b25abca22bcf5447ac3",
+    "phosphor_commit": "2b75f3ad12b420c9504ef05df8d2564a28f8500e",
+    "counts_are_not_unique_semantic_icon_inventory": true,
+    "runtime_validation_included": false
+  },
+  "vehicle_layout_contract": {
+    "path": "docs/product/pleos-sdk.spec.jsonl",
+    "sha256": "e877bd335709324b5139bd4e3b655648c9cc93d19d5c4a3835585a376628be96",
+    "declaration_count": 1652,
+    "original_sdk_investigation_sha256": "e0895fdcbb6d06cbf150bdaf49464a46e1e5fb6a1b91f0786a6bae9fe795ecca",
+    "identity_getters": [
+      "CarInfo.getVINInfo",
+      "CarInfo.getCRNInfo"
+    ],
+    "identity_result": "Nullable String callback; no vehicle identity queried by this audit or collected by current implementation.",
+    "geometry_or_model_getter_in_provided_contract": false,
+    "seat_area": "SeatArea(vararg SeatValue), values:Array<out SeatValue>; one area may group members.",
+    "position_identifier_count": 9,
+    "position_semantics": "Rows1-3 x LEFT/CENTER/RIGHT are possible coordinates, not installed seat count or driver/passenger identity.",
+    "original_area_identity_preserved": true,
+    "member_order_and_duplicates_preserved": true,
+    "duplicate_descriptors_get_occurrence_id": true,
+    "getters_and_setters_receive_original_native_objects": true,
+    "coarse_zone_requests": "Fan out only to matching exact groups; groups spanning/unknown zones are blocked, never split.",
+    "measured_temperature_is_separate_capability_and_getter": true,
+    "legacy_zone_summary": "Only nonempty, completely observed, identical values produce a consensus; otherwise null.",
+    "layout_sources": [
+      "sdk_capabilities",
+      "demo_synthetic"
+    ],
+    "exact_model_profile": "Future only after verified model/trim mapping and geometry source exist."
+  },
+  "limitations": {
+    "new_apk_runtime_verified": false,
+    "all_guideline_requirements_verified": false,
+    "physical_text_mm_measured": false,
+    "android_rendered_text_18px_measured": false,
+    "input_to_first_feedback_250ms_measured": false,
+    "all_screen_contrast_verified": false,
+    "real_vehicle_ux_restriction_transitions_verified": false,
+    "real_vehicle_cabin_layout_verified": false,
+    "new_regression_test_execution_claimed": false
+  },
+  "documentation_review": {
+    "completed_at_utc": "2026-10-25T09:27:05.732387+00:00",
+    "skill": "im-not-ai humanize-korean v2.3-codex",
+    "run_id": "2026-10-25-002-2f96",
+    "route": "light",
+    "route_source": "prepare_monolith_input.py route_hint",
+    "independent_role": "monolith",
+    "independent_reviewer": "/root/pleos_docs_current_review",
+    "genre": "report",
+    "finding_count": 0,
+    "self_check_passed": 6,
+    "self_check_total": 6,
+    "grade": "B",
+    "gate": {
+      "genre": "report",
+      "change_rate": {
+        "rate": 0.0,
+        "scope": "전문",
+        "verdict": "OK"
+      },
+      "s1_targets": [],
+      "antithesis": {
+        "before": 0,
+        "after": 0,
+        "verdict": "스킵 (원문 대구 < 5)"
+      },
+      "golden": [],
+      "sentence_touch": {
+        "rate": 0.0,
+        "touched": 0,
+        "total": 98
+      },
+      "numbers_dropped": [],
+      "modality": {
+        "lost_pairs": [],
+        "uncertain_pairs": [],
+        "counts": {
+          "deontic": {
+            "before": 0,
+            "after": 0
+          },
+          "hedge": {
+            "before": 0,
+            "after": 0
+          }
+        },
+        "verdict": "OK"
+      },
+      "gate": {
+        "verdict": "OK — 수렴",
+        "exit_code": 0
+      }
+    },
+    "gate_exit": 0,
+    "change_rate_scope": "Wording review of the factually updated draft; not factual additions relative to the previous repository version.",
+    "review_input_sha256": "0cb7608b9e70e752bdf812787f96750aad597db6c4ce1ffdf73a43fdcbd638c7",
+    "applied_document_sha256": "0cb7608b9e70e752bdf812787f96750aad597db6c4ce1ffdf73a43fdcbd638c7",
+    "review_artifact_final_sha256": "411e3a2a67f768d9eb69fec70ac173498b339217e3f304198c043ade6fd3c212",
+    "review_artifact_summary_blocks": 1,
+    "published_document_contains_review_summary": false,
+    "code_and_url_multisets_preserved": true,
+    "new_oma_run": false,
+    "build_executed": false
+  },
+  "source_evidence_recheck": {
+    "checked_at_utc": "2026-10-25T09:28:12.904920+00:00",
+    "file_count": 24,
+    "matched_file_count": 24,
+    "factual_sync": [
+      {
+        "path": "apps/pleos/app/src/pleos/java/camp/room/pleos/PleosVehicleAdapter.kt",
+        "before_sha256": "47bac46c397ffa88b54b5623ff9324fa566cd15fb00e55ff5bab61b923006649",
+        "after_sha256": "57bc689818db8a0289162bfb18b61a404bc2c32c4bac88bcb7a433292f183ceb"
+      }
+    ],
+    "reason": "Final source freeze: originalReadSeat captured before asynchronous setter and synthesized fallback removed. Reviewed Markdown body unchanged."
+  }
+}

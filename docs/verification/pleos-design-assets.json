@@ -1,0 +1,434 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-10-25T08:41:19.907926+00:00",
+  "source_guide": "https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro",
+  "inspection_method": "Recomputed download SHA-256 and byte counts; compared decoded nodeChange types with the saved inventory; inspected symbol paths. Public Maven, official sample files and organization listing were read directly in the research session.",
+  "official_assets": [
+    {
+      "filename": "Pleos_Connect_design_assets_215.fig",
+      "source_url": "https://document.pleos.ai/img/Pleos_Connect_design_assets_215.fig",
+      "format": "Figma .fig ZIP container",
+      "bytes": 2477386,
+      "sha256": "64ddc591e4a12f765c1d3b4b36473c22c3de312c78b241aab1bf9b680a228db6",
+      "metadata": {
+        "file_name": "Pleos_Connect_design_assets_215",
+        "exported_at": "2026-10-16T06:58:20.025Z"
+      },
+      "zip_entry_count": 25,
+      "root_entries": [
+        "canvas.fig",
+        "thumbnail.png",
+        "meta.json"
+      ],
+      "decoded_node_count": 4548,
+      "node_type_counts": {
+        "DOCUMENT": 1,
+        "CANVAS": 3,
+        "SYMBOL": 567,
+        "FRAME": 720,
+        "TEXT": 451,
+        "VARIABLE_SET": 17,
+        "VARIABLE": 722,
+        "ROUNDED_RECTANGLE": 131,
+        "INSTANCE": 859,
+        "VECTOR": 856,
+        "LINE": 13,
+        "BOOLEAN_OPERATION": 144,
+        "ELLIPSE": 64
+      },
+      "pages": [
+        "✦ Foundation",
+        "Internal Only Canvas",
+        "❖ Components"
+      ],
+      "count_scope": "All decoded nodes, including internal canvas and component variants; SYMBOL count is not a unique-icon count.",
+      "icon_families_observed": [
+        {
+          "family": "ic_mic",
+          "example_name": "ic_mic",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 22336
+          }
+        },
+        {
+          "family": "ic_close",
+          "example_name": "ic_close",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 22414
+          }
+        },
+        {
+          "family": "ic_arrow",
+          "example_name": "ic_arrow",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 22095
+          }
+        },
+        {
+          "family": "ic_sound",
+          "example_name": "ic_sound",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 24417
+          }
+        },
+        {
+          "family": "ic_check",
+          "example_name": "ic_check",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 25617
+          }
+        },
+        {
+          "family": "ic_eye",
+          "example_name": "ic_eye",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 26984
+          }
+        },
+        {
+          "family": "ic_dropdown",
+          "example_name": "ic_dropdown",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 27432
+          }
+        },
+        {
+          "family": "ic_charging",
+          "example_name": "ic_charging",
+          "example_node_type": "SYMBOL",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 4946
+          }
+        },
+        {
+          "family": "ic_seat_heat_3",
+          "example_name": "ic_seat_heat_3",
+          "example_node_type": "FRAME",
+          "example_node_id": {
+            "sessionID": 67,
+            "localID": 14581
+          }
+        }
+      ]
+    },
+    {
+      "filename": "Pleos_Connect_display_guide_215.fig",
+      "source_url": "https://document.pleos.ai/img/Pleos_Connect_display_guide_215.fig",
+      "format": "Figma .fig ZIP container",
+      "bytes": 44427926,
+      "sha256": "2283dfc1dfe871cf14fd8e15ee8831441125ef5ec471909fa17d1a03cf0bd25b",
+      "metadata": {
+        "file_name": "Pleos Connect display guide 2.1.5",
+        "exported_at": "2026-09-30T02:32:53.359Z"
+      },
+      "zip_entry_count": 173,
+      "root_entries": [
+        "canvas.fig",
+        "thumbnail.png",
+        "meta.json"
+      ],
+      "decoded_node_count": 13278,
+      "node_type_counts": {
+        "DOCUMENT": 1,
+        "CANVAS": 2,
+        "VARIABLE_SET": 31,
+        "VARIABLE": 1009,
+        "ROUNDED_RECTANGLE": 1259,
+        "TEXT": 626,
+        "SYMBOL": 1318,
+        "FRAME": 2466,
+        "VECTOR": 3655,
+        "BOOLEAN_OPERATION": 756,
+        "ELLIPSE": 301,
+        "INSTANCE": 1840,
+        "REGULAR_POLYGON": 4,
+        "LINE": 2,
+        "SECTION": 8
+      },
+      "pages": [
+        "Form factors & Display",
+        "Internal Only Canvas"
+      ],
+      "count_scope": "All decoded nodes, including internal canvas and component variants; SYMBOL count is not a unique-icon count."
+    }
+  ],
+  "official_design_documentation": {
+    "iconography_url": "https://document.pleos.ai/docs/connect/guide/docs-design/foundations/contents-creation/iconography",
+    "icon_base_grid_dp": [
+      48,
+      48
+    ],
+    "icon_styles": [
+      "Filled",
+      "Outlined"
+    ],
+    "components_url": "https://document.pleos.ai/docs/connect/guide/docs-design/components/actions/basic-button",
+    "component_sections": [
+      "Actions",
+      "Bar",
+      "Controllers",
+      "Indicator",
+      "Dropdown",
+      "Fields",
+      "Page Navigation",
+      "Popups",
+      "Tabs",
+      "Selections",
+      "Spinner",
+      "System Notification",
+      "Toast",
+      "Widgets"
+    ]
+  },
+  "public_runtime_ui_inspection": {
+    "checked_on": "2026-10-25",
+    "finding": "No separate Pleos Kotlin/Compose/View UI runtime package was found in the inspected public documentation, Maven repository or official sample dependencies.",
+    "scope_limit": "This does not establish absence of private/internal packages or UI classes bundled in other artifacts. It does not change the project vehicle SDK contract.",
+    "sdk_overview_url": "https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/",
+    "official_sample_documentation_url": "https://document.pleos.ai/docs/pleos-only/tutorial/vehicle-sdk-sample-app",
+    "maven": {
+      "repository_url": "https://nexus-playground.pleos.ai/repository/maven-releases/",
+      "query_url": "https://nexus-playground.pleos.ai/service/rest/v1/search?repository=maven-releases",
+      "anonymous_read": true,
+      "http_status": 200,
+      "pages": 1,
+      "component_versions": 36,
+      "distinct_coordinates": 14,
+      "continuation_token": null,
+      "coordinates": [
+        "ai.pleos.playground.security:universal-access",
+        "ai.pleos.playground:FusedLocation",
+        "ai.pleos.playground:LLM",
+        "ai.pleos.playground:NaviHelper",
+        "ai.pleos.playground:SpeechToText",
+        "ai.pleos.playground:TextToSpeech",
+        "ai.pleos.playground:Vehicle",
+        "ai.pleos.playground:fused-location-aidl",
+        "ai.pleos.playground:fused-location-data",
+        "ai.pleos.playground:navi-aidl",
+        "ai.pleos.playground:navi-data",
+        "ai.pleos.playground:placesense",
+        "ai.pleos.playground:vehicle-aidl",
+        "ai.pleos.playground:vehicle-data"
+      ]
+    },
+    "github": {
+      "organization_url": "https://github.com/Pleos-Playground",
+      "public_repositories": [
+        "pleos-playground-api",
+        "pleos-sample-navi-app",
+        "pleos-sample-fusedlocation-app",
+        "pleos-guide",
+        "pleos-sample-vehicle-app"
+      ],
+      "sample_files": [
+        {
+          "url": "https://github.com/Pleos-Playground/pleos-sample-vehicle-app/blob/main/app/build.gradle.kts",
+          "git_blob_sha": "b5fd25b3704543797a546a4b620a161300ae3de6"
+        },
+        {
+          "url": "https://github.com/Pleos-Playground/pleos-sample-vehicle-app/blob/main/gradle/libs.versions.toml",
+          "git_blob_sha": "8125bf4a231ba1179a3f3ebbab482dc48e468276"
+        }
+      ],
+      "sample_ui_dependencies": [
+        "androidx.compose.ui:ui",
+        "androidx.compose.material3:material3"
+      ]
+    }
+  },
+  "licensing": {
+    "pleos_hmg_assets": {
+      "source": "Official Pleos design-resource downloads",
+      "mit_license_claimed": false,
+      "scope": "Provenance only; this record does not assign a license or grant redistribution rights to official Pleos/HMG assets."
+    },
+    "phosphor": {
+      "license": "MIT",
+      "source_url": "https://github.com/phosphor-icons/core/blob/main/LICENSE",
+      "raw_source_url": "https://raw.githubusercontent.com/phosphor-icons/core/main/LICENSE",
+      "observed_header": "MIT License",
+      "observed_copyright": "Copyright (c) 2023 Phosphor Icons",
+      "scope": "Applies to Phosphor assets only, not to Pleos/HMG design assets."
+    }
+  },
+  "application_status_at_documentation_update": {
+    "status": "source_implemented_runtime_not_observed",
+    "official_pleos_vectors": 19,
+    "pleos_manifest_path": "apps/pleos/app/src/main/assets/icon-provenance/pleos.json",
+    "pleos_manifest_sha256": "377e6322d4a32af5378b2a3fb763d0519bec5353670b0c4c7ba5f0ae2808163a",
+    "phosphor_svg_variants": 37,
+    "phosphor_weights": {
+      "duotone": 11,
+      "fill": 2,
+      "regular": 24
+    },
+    "phosphor_manifest_path": "apps/pleos/app/src/main/assets/icon-provenance/phosphor.json",
+    "phosphor_manifest_sha256": "d83541bb51a23d9b65b06956c4478066b1b37af130cf5b25abca22bcf5447ac3",
+    "phosphor_commit": "2b75f3ad12b420c9504ef05df8d2564a28f8500e",
+    "counts_are_not_unique_semantic_icon_inventory": true,
+    "runtime_validation_included": false,
+    "official_icons_usage": "General controls and vehicle functions use official vectors first.",
+    "phosphor_usage": "Camping, location and delivery supplements; variant counts, not 37 unique concepts.",
+    "adaptive_launcher": "Phosphor tree-evergreen foreground plus background, manifest icon/roundIcon connected; not a Pleos official app logo.",
+    "source_audit": "docs/verification/pleos-design-audit.json",
+    "runtime_or_build_validation_claimed_by_this_record": false
+  },
+  "documentation_review": {
+    "completed_at_utc": "2026-10-25T09:27:05.732387+00:00",
+    "skill": "im-not-ai humanize-korean v2.3-codex",
+    "run_id": "2026-10-25-001-17dc",
+    "route": "light",
+    "route_source": "prepare_monolith_input.py route_hint",
+    "independent_role": "monolith",
+    "independent_reviewer": "/root/pleos_docs_current_review",
+    "genre": "report",
+    "finding_count": 2,
+    "self_check_passed": 6,
+    "self_check_total": 6,
+    "grade": "B",
+    "gate": {
+      "genre": "report",
+      "change_rate": {
+        "rate": 0.0005,
+        "scope": "전문",
+        "verdict": "OK"
+      },
+      "s1_targets": [],
+      "antithesis": {
+        "before": 0,
+        "after": 0,
+        "verdict": "스킵 (원문 대구 < 5)"
+      },
+      "golden": [],
+      "sentence_touch": {
+        "rate": 0.0278,
+        "touched": 2,
+        "total": 72
+      },
+      "numbers_dropped": [],
+      "modality": {
+        "lost_pairs": [],
+        "uncertain_pairs": [],
+        "counts": {
+          "deontic": {
+            "before": 4,
+            "after": 4
+          },
+          "hedge": {
+            "before": 2,
+            "after": 2
+          }
+        },
+        "verdict": "OK"
+      },
+      "gate": {
+        "verdict": "OK — 수렴",
+        "exit_code": 0
+      }
+    },
+    "gate_exit": 0,
+    "change_rate_scope": "Wording review of the factually updated draft; not factual additions relative to the previous repository version.",
+    "review_input_sha256": "d074d20c6d5d392604897ed576aa3c5ef30055ef86a84bab8ed205a18331818e",
+    "applied_document_sha256": "b2acb9cb0b0f92eda6830516d391e34fb65eb85bae870ede6ad7d42d404fcb8f",
+    "review_artifact_final_sha256": "447a43eee2d3ba269497a21d0b49076e5238a65beef12f9adb179dd782a6a826",
+    "review_artifact_summary_blocks": 1,
+    "published_document_contains_review_summary": false,
+    "code_and_url_multisets_preserved": true,
+    "new_oma_run": false,
+    "build_executed": false
+  },
+  "documentation_review_history": [
+    {
+      "completed_at_utc": "2026-10-25T08:45:45.663381+00:00",
+      "skill": "im-not-ai humanize-korean v2.3-codex",
+      "run_id": "2026-10-25-001-18ed",
+      "route": "light",
+      "route_source": "prepare_monolith_input.py route_hint",
+      "independent_role": "monolith",
+      "genre": "report",
+      "finding_count": 0,
+      "self_check_passed": 6,
+      "self_check_total": 6,
+      "grade": "B",
+      "change_rate_scope": "Wording review of the factually updated draft, not the factual additions relative to the previous repository document.",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0,
+          "touched": 0,
+          "total": 36
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      },
+      "pre_factual_sync_sha256": "491e4c7a440f7100cff2d7ee577f6993835af10b662e4c45851fabae22f6df92",
+      "review_input_sha256": "dd0aaf72bfb026585672051783f7a90cf5954689941330eb746f5e6b451cf24b",
+      "applied_document_sha256": "dd0aaf72bfb026585672051783f7a90cf5954689941330eb746f5e6b451cf24b",
+      "review_artifact_summary_blocks": 1,
+      "published_document_contains_review_summary": false,
+      "markdown_link_count": 10,
+      "local_link_count": 2,
+      "broken_local_links": [],
+      "existing_implementation_criteria_preserved": true,
+      "new_oma_run": false,
+      "build_executed": false
+    }
+  ],
+  "application_status_history": [
+    {
+      "recorded_at_utc": "2026-10-25T08:41:19.907926+00:00",
+      "status": {
+        "official_icons": "Replacement in progress; intended first choice for general controls and vehicle functions.",
+        "phosphor": "Supplement intended for camping-specific icons.",
+        "runtime_or_build_validation_claimed_by_this_record": false
+      }
+    }
+  ],
+  "application_status_updated_at_utc": "2026-10-25T09:27:05.399314+00:00"
+}

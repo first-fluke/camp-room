@@ -181,6 +181,9 @@ data class Vehicle(
     val sceneId: String,
     val updatedAt: String,
     val mode: String,
+    val layoutSource: String = "unknown",
+    val controlAreas: List<CabinControlGroup> = emptyList(),
+    val unknownFeatures: List<String> = emptyList(),
 ) {
     companion object {
         fun parse(j: JSONObject) =
@@ -196,6 +199,12 @@ data class Vehicle(
                 j.text("lastSceneId"),
                 j.text("updatedAt"),
                 j.text("mode", "demo"),
+                j.text("layoutSource", "unknown"),
+                j.objects("controlAreas").map { group ->
+                    CabinControlGroup(CabinArea(group.text("kind"), group.strings("members"), group.text("areaId").takeIf { it.isNotBlank() }),
+                        group.text("feature"), group.optBoolean("readable"), group.optBoolean("writable"), group.nullNumber("observed"))
+                },
+                j.strings("unknownFeatures"),
             )
     }
 }
@@ -206,6 +215,7 @@ data class CommandResult(
     val confirmation: String,
     val observed: String,
     val message: String,
+    val areaId: String = "",
 ) {
     companion object {
         fun parse(j: JSONObject) =
@@ -218,6 +228,7 @@ data class CommandResult(
                     camp.room.app.CampText.get(camp.room.app.R.string.camp_not_observed),
                 ),
                 j.text("message"),
+                j.text("areaId"),
             )
     }
 }

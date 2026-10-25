@@ -1,4 +1,5 @@
 @file:OptIn(
+    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
     androidx.compose.material3.ExperimentalMaterial3Api::class,
 )
@@ -19,8 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,12 +42,16 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import camp.room.app.icons.CampIcons
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @Inject lateinit var uxMonitor: CampUxMonitor
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(CampLocale.wrap(newBase))
     }
@@ -56,7 +59,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hideDemoSystemBars()
-        setContent { CampTheme { CampRoomRoot() } }
+        setContent { CampTheme { CampRoomRoot(uxMonitor = uxMonitor) } }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        uxMonitor.start()
+    }
+
+    override fun onStop() {
+        uxMonitor.stop()
+        super.onStop()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -75,10 +88,25 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CampRoomRoot(vm: CampViewModel = viewModel()) {
+fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
+    val ux by uxMonitor.state.collectAsStateWithLifecycle()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    LaunchedEffect(ux.allowsInteraction) {
+        vm.onUxAvailabilityChanged(ux.allowsInteraction && lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))
+    }
     val state by vm.state.collectAsStateWithLifecycle()
-    LifecycleEventEffect(Lifecycle.Event.ON_START) { vm.onHostStart() }
-    LifecycleEventEffect(Lifecycle.Event.ON_STOP) { vm.onHostStop() }
+    LifecycleEventEffect(Lifecycle.Event.ON_START) {
+        vm.onUxAvailabilityChanged(uxMonitor.state.value.allowsInteraction)
+        vm.onHostStart()
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        vm.onUxAvailabilityChanged(false)
+        vm.onHostStop()
+    }
+    if (!ux.allowsInteraction) {
+        CampUxRestrictedScreen(ux) { uxMonitor.stop(); uxMonitor.start() }
+        return
+    }
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
     var languageSettingsOpen by remember { mutableStateOf(false) }
@@ -169,7 +197,13 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                             NavigationBarItem(
                                 selected = state.tab == nav.index,
                                 onClick = { vm.tab(nav.index) },
-                                icon = { Icon(nav.icon, nav.label) },
+                                icon = {
+                                    Icon(
+                                        if (state.tab == nav.index) nav.selectedIcon else nav.icon,
+                                        nav.label,
+                                        Modifier.size(28.dp),
+                                    )
+                                },
                                 label = {
                                     Text(nav.label, maxLines = 3, overflow = TextOverflow.Ellipsis)
                                 },
@@ -214,7 +248,7 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
-                                    Icons.Outlined.CloudOff,
+                                    CampIcons.CloudSlash,
                                     null,
                                     Modifier.size(42.dp),
                                     tint = CampPalette.Muted,
@@ -235,7 +269,7 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                 )
                                 CampPrimary(
                                     tr(camp.room.app.R.string.camp_connect_again),
-                                    Icons.Outlined.Refresh,
+                                    CampIcons.Refresh,
                                     onClick = vm::reload,
                                 )
                             }
@@ -253,20 +287,21 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                 1 -> TripScreen(state, vm, arrival, speak)
                                 else -> CabinScreen(state, vm)
                             }
-                            Row(
+                            FlowRow(
                                 Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 20.dp),
-                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                             ) {
                                 Icon(
-                                    Icons.Outlined.Forest,
+                                    CampIcons.TreeEvergreen,
                                     null,
-                                    Modifier.size(17.dp),
+                                    Modifier.size(24.dp),
                                     tint = CampPalette.Muted,
                                 )
                                 Text(
                                     "  camp room",
                                     fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
+                                    fontSize = 22.sp,
                                     color = CampPalette.Muted,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
@@ -276,12 +311,11 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                         camp.room.app.R.string
                                             .camp_a_little_room_between_you_and_nature
                                     ),
-                                    fontSize = 12.sp,
+                                    fontSize = 22.sp,
                                     color = CampPalette.Muted,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
                                 )
-                                Spacer(Modifier.weight(1f))
                                 Text(
                                     if (BuildConfig.IS_DEMO)
                                         tr(
@@ -293,7 +327,7 @@ fun CampRoomRoot(vm: CampViewModel = viewModel()) {
                                             camp.room.app.R.string
                                                 .camp_pleos_vehicle_integration_check_external_data_sources
                                         ),
-                                    fontSize = 12.sp,
+                                    fontSize = 22.sp,
                                     color = CampPalette.Muted,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
@@ -315,27 +349,31 @@ enum class CampNav(
     private val labelResource: Int,
     private val subtitleResource: Int,
     val icon: ImageVector,
+    val selectedIcon: ImageVector,
     val tag: String,
 ) {
     DISCOVER(
         0,
         camp.room.app.R.string.camp_discover,
         camp.room.app.R.string.camp_find_your_kind_of_campsite,
-        Icons.Outlined.Explore,
+        CampIcons.Compass,
+        CampIcons.Selected.Compass,
         "nav-discover",
     ),
     TRIP(
         1,
         camp.room.app.R.string.camp_my_trip,
         camp.room.app.R.string.camp_from_the_journey_to_your_essentials,
-        Icons.Outlined.Forest,
+        CampIcons.Tent,
+        CampIcons.Selected.Tent,
         "nav-trip",
     ),
     CABIN(
         2,
         camp.room.app.R.string.camp_cabin,
         camp.room.app.R.string.camp_a_comfortable_space_of_our_own,
-        Icons.Outlined.DirectionsCar,
+        CampIcons.Vehicle,
+        CampIcons.Selected.Vehicle,
         "nav-cabin",
     );
 
@@ -349,11 +387,12 @@ enum class CampNav(
 @Composable
 private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
     Column(
-        Modifier.width(232.dp).fillMaxHeight().background(CampPalette.Deep).padding(21.dp),
+        Modifier.width(264.dp).fillMaxHeight().background(CampPalette.Deep)
+            .verticalScroll(rememberScrollState()).padding(21.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.Forest, null, Modifier.size(29.dp), tint = Color(0xFFC7D4B7))
+            Icon(CampIcons.Artwork.TreeEvergreen, null, Modifier.size(29.dp), tint = Color(0xFFC7D4B7))
             Column(Modifier.padding(start = 9.dp)) {
                 Text(
                     "camp room",
@@ -366,7 +405,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 )
                 Text(
                     tr(camp.room.app.R.string.camp_a_little_room_between_you_and_nature_017),
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = Color(0xFFA6B8A2),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -376,7 +415,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
         Spacer(Modifier.height(27.dp))
         Text(
             "YOUR CAMPING COMPANION",
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = Color(0xFF9CB09A),
             letterSpacing = 1.sp,
             maxLines = 3,
@@ -395,15 +434,15 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
-                        nav.icon,
+                        if (active) nav.selectedIcon else nav.icon,
                         nav.label,
-                        Modifier.size(23.dp),
+                        Modifier.size(28.dp),
                         tint = if (active) CampPalette.Forest else Color(0xFFA6BBA4),
                     )
                     Column(Modifier.padding(start = 12.dp).weight(1f)) {
                         Text(
                             nav.label,
-                            fontSize = 18.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (active) CampPalette.Ink else CampPalette.OnSidebar,
                             maxLines = 3,
@@ -411,7 +450,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                         )
                         Text(
                             nav.subtitle,
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             color = if (active) CampPalette.Muted else Color(0xFF9CB298),
                             modifier = Modifier.padding(top = 3.dp),
                             maxLines = 3,
@@ -421,12 +460,12 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 }
             }
         }
-        Spacer(Modifier.weight(1f))
-        Icon(Icons.Outlined.Landscape, null, Modifier.size(43.dp), tint = Color(0xFF9EB494))
+        Spacer(Modifier.height(16.dp))
+        Icon(CampIcons.Artwork.Mountains, null, Modifier.size(43.dp), tint = Color(0xFF9EB494))
         Text(
             tr(camp.room.app.R.string.camp_a_little_closer_na_little_more_naturally),
-            fontSize = 14.sp,
-            lineHeight = 21.sp,
+            fontSize = 22.sp,
+            lineHeight = 28.sp,
             color = Color(0xFFB3C4A8),
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -439,7 +478,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 Text(
                     if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_vehicle_connected)
                     else tr(camp.room.app.R.string.camp_pleos_vehicle_status),
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = Color(0xFFD2DDC8),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -447,7 +486,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 Text(
                     if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_pleos_simulator)
                     else tr(camp.room.app.R.string.camp_pleos_local_sdk),
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = Color(0xFF92AC8E),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -455,7 +494,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
             }
             Text(
                 "${number(state.data?.vehicle?.soc)}%",
-                fontSize = 16.sp,
+                fontSize = 22.sp,
                 color = Color(0xFFD2DDC8),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -463,7 +502,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
         }
         Text(
             if (BuildConfig.IS_DEMO) "NATIVE ANDROID · DEMO" else "NATIVE ANDROID · PLEOS",
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = Color(0xFF8FA88A),
             letterSpacing = 1.sp,
             maxLines = 3,
@@ -479,64 +518,64 @@ private fun CampTopbar(
     wide: Boolean,
     onLanguage: () -> Unit,
 ) {
-    Row(
+    FlowRow(
         Modifier.fillMaxWidth()
-            .height(65.dp)
+            .heightIn(min = 72.dp)
             .background(CampPalette.Paper)
             .padding(horizontal = if (wide) 34.dp else 20.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Text(
             if (wide)
                 tr(camp.room.app.R.string.camp_my_little_outdoors, CampNav.entries[state.tab].label)
             else "camp room",
-            fontSize = if (wide) 14.sp else 22.sp,
+            fontSize = 22.sp,
             color = if (wide) CampPalette.Muted else CampPalette.Forest,
             fontWeight = if (wide) FontWeight.Normal else FontWeight.SemiBold,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(Modifier.weight(1f))
         CampPill(
             if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_mode)
             else tr(camp.room.app.R.string.camp_pleos_mode)
         )
-        Spacer(Modifier.width(22.dp))
+        Spacer(Modifier.width(2.dp))
         IconButton(onClick = { vm.voice(true) }, modifier = Modifier.testTag("voice-open")) {
             Icon(
-                Icons.Outlined.Mic,
+                CampIcons.Microphone,
                 tr(camp.room.app.R.string.camp_voice_command),
-                Modifier.size(20.dp),
+                Modifier.size(24.dp),
             )
         }
         TextButton(onClick = { vm.cart(true) }, modifier = Modifier.testTag("cart-open")) {
             Icon(
-                Icons.Outlined.ShoppingBag,
+                CampIcons.ShoppingBag,
                 tr(camp.room.app.R.string.camp_essentials),
-                Modifier.size(20.dp),
+                Modifier.size(24.dp),
             )
             Spacer(Modifier.width(7.dp))
             Text(
                 tr(camp.room.app.R.string.camp_essentials),
-                fontSize = 14.sp,
+                fontSize = 22.sp,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
             if ((state.data?.cart?.count ?: 0) > 0)
                 Text(
                     "  ${state.data?.cart?.count}",
-                    fontSize = 14.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
         }
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(2.dp))
         IconButton(onClick = onLanguage, modifier = Modifier.testTag("language-settings")) {
             Icon(
-                Icons.Outlined.Language,
+                CampIcons.Globe,
                 tr(R.string.language_settings),
-                Modifier.size(22.dp),
+                Modifier.size(24.dp),
                 tint = CampPalette.Forest,
             )
         }
@@ -577,7 +616,7 @@ fun CampPrimary(
             )
         else if (icon != null) Icon(icon, null, Modifier.size(24.dp))
         if (busy || icon != null) Spacer(Modifier.width(8.dp))
-        Text(text, fontSize = 18.sp, fontWeight = FontWeight.Medium, maxLines = 2)
+        Text(text, fontSize = 22.sp, fontWeight = FontWeight.Medium, maxLines = 2)
     }
 }
 
@@ -601,10 +640,10 @@ fun CampSecondary(
         modifier = modifier.heightIn(min = CampDesign.SecondaryHeight),
     ) {
         if (icon != null) {
-            Icon(icon, null, Modifier.size(22.dp))
+            Icon(icon, null, Modifier.size(24.dp))
             Spacer(Modifier.width(7.dp))
         }
-        Text(text, fontSize = 18.sp, maxLines = 2)
+        Text(text, fontSize = 22.sp, maxLines = 2)
     }
 }
 
@@ -613,7 +652,7 @@ fun CampPill(text: String, color: Color = CampPalette.Muted) {
     Surface(color = CampPalette.Sage, shape = RoundedCornerShape(5.dp)) {
         Text(
             text,
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = color,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             maxLines = 3,
@@ -631,24 +670,24 @@ fun CampError(text: String, onClose: () -> Unit) {
     ) {
         Row(Modifier.padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                Icons.Outlined.ErrorOutline,
+                CampIcons.WarningCircle,
                 null,
                 tint = CampPalette.Danger,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(24.dp),
             )
             Text(
                 text,
                 color = CampPalette.Danger,
-                fontSize = 14.sp,
+                fontSize = 22.sp,
                 modifier = Modifier.weight(1f).padding(horizontal = 9.dp),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
             IconButton(onClick = onClose, modifier = Modifier.size(CampDesign.IconTarget)) {
                 Icon(
-                    Icons.Outlined.Close,
+                    CampIcons.Close,
                     tr(camp.room.app.R.string.camp_dismiss_error),
-                    Modifier.size(17.dp),
+                    Modifier.size(24.dp),
                     tint = CampPalette.Danger,
                 )
             }
@@ -668,7 +707,7 @@ fun SectionTitle(
             if (eyebrow.isNotBlank())
                 Text(
                     eyebrow,
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     letterSpacing = 1.5.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(bottom = 7.dp),
@@ -677,7 +716,7 @@ fun SectionTitle(
                 )
             Text(
                 title,
-                fontSize = if (eyebrow.isNotBlank()) 28.sp else 19.sp,
+                fontSize = if (eyebrow.isNotBlank()) 28.sp else 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = (-.7).sp,
                 maxLines = 3,
@@ -686,7 +725,7 @@ fun SectionTitle(
             if (subtitle.isNotBlank())
                 Text(
                     subtitle,
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 7.dp),
                     maxLines = 3,

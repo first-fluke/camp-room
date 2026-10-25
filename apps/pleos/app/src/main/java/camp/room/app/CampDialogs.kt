@@ -1,9 +1,12 @@
 @file:OptIn(
     androidx.compose.ui.ExperimentalComposeUiApi::class,
     androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
 )
 
 package camp.room.app
+
+import camp.room.app.icons.CampIcons
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -11,8 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,9 +62,9 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                 .size(CampDesign.IconTarget),
                     ) {
                         Icon(
-                            Icons.Outlined.Close,
+                            CampIcons.Close,
                             tr(camp.room.app.R.string.camp_close_campsite_details),
-                            Modifier.size(21.dp),
+                            Modifier.size(24.dp),
                         )
                     }
                     Box(Modifier.align(Alignment.BottomStart).padding(18.dp)) {
@@ -80,7 +81,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                 ) {
                     Text(
                         site.region,
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
@@ -94,20 +95,20 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     )
                     Text(
                         site.description,
-                        fontSize = 14.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
-                        lineHeight = 21.sp,
+                        lineHeight = 28.sp,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         site.address,
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         site.facilities.take(5).forEach { CampPill(facilityName(it)) }
                     }
                     HorizontalDivider(color = CampPalette.Line)
@@ -142,7 +143,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     HorizontalDivider(color = CampPalette.Line)
                     Text(
                         tr(camp.room.app.R.string.camp_a_few_promises_for_a_comfortable_stay),
-                        fontSize = 16.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
@@ -150,14 +151,14 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     site.rules.forEach {
                         Row {
                             Icon(
-                                Icons.Outlined.Spa,
+                                CampIcons.Leaf,
                                 null,
-                                Modifier.size(15.dp),
+                                Modifier.size(24.dp),
                                 tint = CampPalette.Muted,
                             )
                             Text(
                                 "  ${it}",
-                                fontSize = 12.sp,
+                                fontSize = 22.sp,
                                 color = CampPalette.Muted,
                                 maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
@@ -167,9 +168,9 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     Surface(color = CampPalette.Sage, shape = RoundedCornerShape(7.dp)) {
                         Row(Modifier.padding(15.dp)) {
                             Icon(
-                                Icons.Outlined.LocalShipping,
+                                CampIcons.Truck,
                                 null,
-                                Modifier.size(23.dp),
+                                Modifier.size(24.dp),
                                 tint = CampPalette.Muted,
                             )
                             Column(Modifier.padding(start = 12.dp)) {
@@ -180,14 +181,14 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                             tr(camp.room.app.R.string.camp_accepted)
                                         else tr(camp.room.app.R.string.camp_not_accepted),
                                     ),
-                                    fontSize = 14.sp,
+                                    fontSize = 22.sp,
                                     fontWeight = FontWeight.Medium,
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
                                     "${site.receivingLocation} · ${site.receivingInstructions}",
-                                    fontSize = 12.sp,
+                                    fontSize = 22.sp,
                                     color = CampPalette.Muted,
                                     modifier = Modifier.padding(top = 4.dp),
                                     maxLines = 3,
@@ -201,7 +202,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                         Column(Modifier.padding(start = 12.dp)) {
                             Text(
                                 site.availability.provider,
-                                fontSize = 12.sp,
+                                fontSize = 22.sp,
                                 color = CampPalette.Muted,
                                 maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
@@ -212,7 +213,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                     site.availability.coverage,
                                     site.availability.checkedAt.take(16).replace('T', ' '),
                                 ),
-                                fontSize = 12.sp,
+                                fontSize = 22.sp,
                                 color = CampPalette.Muted,
                                 maxLines = 3,
                                 overflow = TextOverflow.Ellipsis,
@@ -241,7 +242,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                 displayDate(s.checkOut),
                                 guestCount(s.guests),
                             ),
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 3.dp),
                             maxLines = 3,
@@ -250,7 +251,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     }
                     CampPrimary(
                         tr(camp.room.app.R.string.camp_save_to_my_trip),
-                        Icons.Outlined.Add,
+                        CampIcons.Plus,
                         busy = s.busy,
                         modifier = Modifier.testTag("save-trip"),
                         onClick = vm::saveTrip,
@@ -266,14 +267,14 @@ private fun DetailFact(label: String, value: String) {
     Column {
         Text(
             label,
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
             value,
-            fontSize = 14.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(top = 7.dp),
             maxLines = 3,
@@ -308,7 +309,7 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                     Column(Modifier.weight(1f)) {
                         Text(
                             "PACK A LITTLE HAPPINESS",
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             letterSpacing = 1.4.sp,
                             color = CampPalette.Muted,
                             maxLines = 3,
@@ -327,7 +328,7 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                                 camp.room.app.R.string
                                     .camp_bring_the_little_things_this_journey_needs
                             ),
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 5.dp),
                             maxLines = 3,
@@ -335,7 +336,7 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                         )
                     }
                     IconButton(onClick = { vm.cart(false) }) {
-                        Icon(Icons.Outlined.Close, tr(camp.room.app.R.string.camp_close_cart))
+                        Icon(CampIcons.Close, tr(camp.room.app.R.string.camp_close_cart))
                     }
                 }
                 HorizontalDivider(color = CampPalette.Line)
@@ -371,7 +372,7 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
     Column(modifier.padding(25.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
             tr(camp.room.app.R.string.camp_packed_essentials, data.cart.count),
-            fontSize = 18.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -382,14 +383,14 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Icon(
-                    Icons.Outlined.ShoppingBag,
+                    CampIcons.ShoppingBag,
                     null,
                     Modifier.size(42.dp),
                     tint = CampPalette.Muted,
                 )
                 Text(
                     tr(camp.room.app.R.string.camp_a_travel_bag_waiting_to_be_filled),
-                    fontSize = 16.sp,
+                    fontSize = 22.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 13.dp),
                     maxLines = 3,
@@ -397,7 +398,7 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                 )
                 Text(
                     tr(camp.room.app.R.string.camp_add_a_recommended_essential_below),
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = CampPalette.Muted,
                     modifier = Modifier.padding(top = 5.dp),
                     maxLines = 3,
@@ -410,14 +411,14 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                 Column(Modifier.weight(1f).padding(start = 13.dp)) {
                     Text(
                         item.name,
-                        fontSize = 16.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         won(item.unitPrice),
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 4.dp),
                         maxLines = 3,
@@ -433,14 +434,14 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                             modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
                             Icon(
-                                Icons.Outlined.Remove,
+                                CampIcons.Minus,
                                 tr(camp.room.app.R.string.camp_decrease_quantity, item.name),
-                                Modifier.size(15.dp),
+                                Modifier.size(24.dp),
                             )
                         }
                         Text(
                             item.quantity.toString(),
-                            fontSize = 14.sp,
+                            fontSize = 22.sp,
                             modifier = Modifier.padding(horizontal = 13.dp),
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
@@ -451,9 +452,9 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                             modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
                             Icon(
-                                Icons.Outlined.Add,
+                                CampIcons.Plus,
                                 tr(camp.room.app.R.string.camp_increase_quantity, item.name),
-                                Modifier.size(15.dp),
+                                Modifier.size(24.dp),
                             )
                         }
                     }
@@ -465,16 +466,16 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                         modifier = Modifier.size(CampDesign.IconTarget),
                     ) {
                         Icon(
-                            Icons.Outlined.DeleteOutline,
+                            CampIcons.Trash,
                             tr(camp.room.app.R.string.camp_remove, item.name),
-                            Modifier.size(18.dp),
+                            Modifier.size(24.dp),
                             tint = CampPalette.Muted,
                         )
                     }
                     Spacer(Modifier.height(23.dp))
                     Text(
                         won(item.lineTotal),
-                        fontSize = 14.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
@@ -486,7 +487,7 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
         Spacer(Modifier.height(5.dp))
         Text(
             tr(camp.room.app.R.string.camp_a_few_more_things_to_consider),
-            fontSize = 16.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             fontWeight = FontWeight.Medium,
             maxLines = 3,
@@ -498,14 +499,14 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                 Column(Modifier.weight(1f).padding(start = 12.dp)) {
                     Text(
                         product.name,
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         won(product.price),
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 4.dp),
                         maxLines = 3,
@@ -513,6 +514,13 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                     )
                 }
                 FilledTonalIconButton(
+                    colors =
+                        IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = CampPalette.Sage,
+                            contentColor = CampPalette.Forest,
+                            disabledContainerColor = CampPalette.Canvas,
+                            disabledContentColor = CampPalette.Muted,
+                        ),
                     onClick = { vm.addProduct(product.id) },
                     enabled = !s.busy && product.stock > 0,
                     modifier =
@@ -521,9 +529,9 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                     shape = RoundedCornerShape(6.dp),
                 ) {
                     Icon(
-                        Icons.Outlined.Add,
+                        CampIcons.Plus,
                         tr(camp.room.app.R.string.camp_add_another, product.name),
-                        Modifier.size(19.dp),
+                        Modifier.size(24.dp),
                     )
                 }
             }
@@ -549,7 +557,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
     ) {
         Text(
             tr(camp.room.app.R.string.camp_where_would_you_like_to_receive_it),
-            fontSize = 17.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -558,7 +566,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             DeliveryChoice(
                 tr(camp.room.app.R.string.camp_home),
                 "home",
-                Icons.Outlined.Home,
+                CampIcons.House,
                 s,
                 vm,
                 Modifier.weight(1f),
@@ -566,7 +574,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             DeliveryChoice(
                 tr(camp.room.app.R.string.camp_campsite),
                 "campsite",
-                Icons.Outlined.Forest,
+                CampIcons.Tent,
                 s,
                 vm,
                 Modifier.weight(1f),
@@ -578,14 +586,15 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             label = {
                 Text(
                     tr(camp.room.app.R.string.camp_recipient),
-                    fontSize = 14.sp,
+                    fontSize = 22.sp,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
             },
             singleLine = true,
+            enabled = !s.busy && s.interactionAllowed,
             modifier = Modifier.fillMaxWidth().testTag("recipient-name"),
-            textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
+            textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
             shape = RoundedCornerShape(7.dp),
         )
         if (s.destination == "home")
@@ -595,36 +604,38 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                 label = {
                     Text(
                         tr(camp.room.app.R.string.camp_home_delivery_address),
-                        fontSize = 14.sp,
+                        fontSize = 22.sp,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
                 modifier = Modifier.fillMaxWidth().testTag("delivery-address"),
                 minLines = 2,
-                textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+                maxLines = 3,
+                enabled = !s.busy && s.interactionAllowed,
+                textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
                 shape = RoundedCornerShape(7.dp),
             )
         else {
             Surface(color = CampPalette.Sage, shape = RoundedCornerShape(7.dp)) {
                 Row(Modifier.padding(13.dp)) {
                     Icon(
-                        Icons.Outlined.LocationOn,
+                        CampIcons.MapPin,
                         null,
-                        Modifier.size(19.dp),
+                        Modifier.size(24.dp),
                         tint = CampPalette.Muted,
                     )
                     Column(Modifier.padding(start = 8.dp)) {
                         Text(
                             site?.name ?: tr(camp.room.app.R.string.camp_choose_a_campsite_first),
-                            fontSize = 14.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             site?.receivingLocation.orEmpty(),
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 4.dp),
                             maxLines = 3,
@@ -635,7 +646,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                                 tr(camp.room.app.R.string.camp_parcels_accepted)
                             else
                                 tr(camp.room.app.R.string.camp_parcels_not_accepted_or_unconfirmed),
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 5.dp),
                             maxLines = 3,
@@ -650,14 +661,15 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                 label = {
                     Text(
                         tr(camp.room.app.R.string.camp_pitch_reservation_reference),
-                        fontSize = 14.sp,
+                        fontSize = 22.sp,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
                 },
                 singleLine = true,
+                enabled = !s.busy && s.interactionAllowed,
                 modifier = Modifier.fillMaxWidth().testTag("site-reference"),
-                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
+                textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
                 shape = RoundedCornerShape(7.dp),
             )
             Text(
@@ -666,7 +678,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                     displayDate(trip?.checkIn.orEmpty()),
                     displayDate(trip?.checkOut.orEmpty()),
                 ),
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -674,14 +686,14 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
         }
         Text(
             tr(camp.room.app.R.string.camp_the_prefilled_name_and_address_are_fictional),
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
         CampSecondary(
             tr(camp.room.app.R.string.camp_check_delivery_availability),
-            Icons.Outlined.Schedule,
+            CampIcons.Clock,
             enabled = !s.busy && cart.items.isNotEmpty(),
             modifier = Modifier.fillMaxWidth().testTag("delivery-quote"),
             onClick = vm::quote,
@@ -693,10 +705,10 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             ) {
                 Row(Modifier.padding(14.dp)) {
                     Icon(
-                        if (quote.eligible) Icons.Outlined.CheckCircle
-                        else Icons.Outlined.ErrorOutline,
+                        if (quote.eligible) CampIcons.CheckCircle
+                        else CampIcons.WarningCircle,
                         null,
-                        Modifier.size(21.dp),
+                        Modifier.size(24.dp),
                         tint = if (quote.eligible) CampPalette.Muted else CampPalette.Danger,
                     )
                     Column(Modifier.padding(start = 9.dp)) {
@@ -707,7 +719,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                                     camp.room.app.R.string
                                         .camp_this_delivery_doesn_t_fit_the_receiving
                                 ),
-                            fontSize = 14.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
@@ -715,7 +727,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                         if (quote.reason.isNotBlank())
                             Text(
                                 quote.reason,
-                                fontSize = 12.sp,
+                                fontSize = 22.sp,
                                 color = CampPalette.Muted,
                                 modifier = Modifier.padding(top = 5.dp),
                                 maxLines = 3,
@@ -724,7 +736,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                         quote.conditions.forEach {
                             Text(
                                 it,
-                                fontSize = 12.sp,
+                                fontSize = 22.sp,
                                 color = CampPalette.Muted,
                                 modifier = Modifier.padding(top = 4.dp),
                                 maxLines = 3,
@@ -749,7 +761,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     tr(camp.room.app.R.string.camp_order_total),
-                    fontSize = 14.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -766,7 +778,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
         }
         CampPrimary(
             tr(camp.room.app.R.string.camp_demo_payment, won(s.quote?.total ?: cart.total)),
-            Icons.Outlined.ShoppingBag,
+            CampIcons.ShoppingBag,
             enabled = s.quote?.eligible == true && cart.items.isNotEmpty(),
             busy = s.busy,
             modifier = Modifier.fillMaxWidth().testTag("checkout-submit"),
@@ -774,9 +786,9 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
         )
         Text(
             tr(camp.room.app.R.string.camp_no_real_payment_or_delivery_occurs_ncheck),
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
-            lineHeight = 18.sp,
+            lineHeight = 28.sp,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
@@ -795,6 +807,7 @@ private fun DeliveryChoice(
     val selected = s.destination == value
     Surface(
         onClick = { vm.delivery(destination = value) },
+        enabled = !s.busy && s.interactionAllowed,
         modifier = modifier.testTag("delivery-${value}"),
         shape = RoundedCornerShape(7.dp),
         color = if (selected) CampPalette.Sage else CampPalette.Paper,
@@ -809,10 +822,10 @@ private fun DeliveryChoice(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(icon, null, Modifier.size(20.dp), tint = CampPalette.Muted)
+            Icon(icon, null, Modifier.size(24.dp), tint = CampPalette.Muted)
             Text(
                 "  ${label}",
-                fontSize = 14.sp,
+                fontSize = 22.sp,
                 color = if (selected) CampPalette.Forest else CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -826,7 +839,7 @@ private fun PriceRow(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
         Text(
             label,
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -834,7 +847,7 @@ private fun PriceRow(label: String, value: String) {
         Spacer(Modifier.weight(1f))
         Text(
             value,
-            fontSize = 14.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -857,7 +870,7 @@ private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifie
             Modifier.size(73.dp).background(CampPalette.Sage, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(Icons.Outlined.CheckCircle, null, Modifier.size(46.dp), tint = CampPalette.Muted)
+            Icon(CampIcons.CheckCircle, null, Modifier.size(46.dp), tint = CampPalette.Muted)
         }
         CampPill(tr(camp.room.app.R.string.camp_no_real_payment))
         Text(
@@ -869,7 +882,7 @@ private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifie
         )
         Text(
             tr(camp.room.app.R.string.camp_your_demo_order_has_been_saved),
-            fontSize = 14.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -885,7 +898,7 @@ private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifie
             )
             Text(
                 order.address,
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -897,14 +910,14 @@ private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifie
         }
         Text(
             tr(camp.room.app.R.string.camp_this_is_a_demo_order_no_real),
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
         CampPrimary(
             tr(camp.room.app.R.string.camp_back_to_my_trip),
-            Icons.Outlined.ArrowForward,
+            CampIcons.ChevronRight,
             modifier = Modifier.testTag("order-back-trip"),
             onClick = vm::closeOrder,
         )

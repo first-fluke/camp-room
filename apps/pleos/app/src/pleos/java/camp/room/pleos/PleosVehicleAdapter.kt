@@ -12,8 +12,9 @@ import kotlin.math.abs
 /** Real-SDK flavor. Host supplies checked mappings and marshals callbacks to UI dispatcher. */
 class PleosVehicleAdapter(
     private val vehicle: Vehicle,
-    private val seatAreas: (Control, Zone) -> SeatArea?,
-    private val windowAreas: Map<Zone, WindowArea>,
+    private val seatAreas: (Control, String) -> SeatArea?,
+    private val readSeatAreas: (Control, String) -> SeatArea?,
+    private val windowAreas: (String) -> WindowArea?,
     private val temperatureUnit: TemperatureUnit,
     private val lightSwitch: (Boolean) -> LightSwitch,
     private val lightState: (LightState) -> Boolean?,
@@ -28,7 +29,7 @@ class PleosVehicleAdapter(
     private var generation = 0
     private var liveSocSeen = false
     private var registeredSoc: EvBatteryStateOfChargeListener? = null
-    private val requests = mutableMapOf<Pair<Control, Zone>, Long>()
+    private val requests = mutableMapOf<Pair<Control, String>, Long>()
 
     @Synchronized override fun start() {
         check(!closed) { "Adapter is closed" }
@@ -83,7 +84,7 @@ class PleosVehicleAdapter(
     private fun active(epoch: Int) = started && !closed && generation == epoch
 
     @Synchronized override fun apply(command: Command, onUpdate: (CommandUpdate) -> Unit) {
-        val cap = capabilities.get(command.control, command.zone)
+        val cap = capabilities.get(command.control, command.areaId)
         val integral = command.control in setOf(Control.READING_LIGHT, Control.AMBIENT_BRIGHTNESS, Control.SMART_GLASS, Control.SEAT_MEMORY)
         val numericValid = command.value.isFinite() &&
             (!integral || command.value % 1.0 == 0.0 && command.value >= Int.MIN_VALUE && command.value <= Int.MAX_VALUE) &&
@@ -96,7 +97,9 @@ class PleosVehicleAdapter(
             onUpdate(CommandUpdate(command, Confirmation.BLOCKED, message = "Trusted parked signal required")); return
         }
         val epoch = generation
-        val key = command.control to command.zone
+        // Capture the separately capability-checked getter object before any async callback.
+        val originalReadSeat = readSeatAreas(command.control, command.areaId)
+        val key = command.control to command.areaId
         val token = (requests[key] ?: 0L) + 1
         requests[key] = token
         fun current() = active(epoch) && requests[key] == token
@@ -108,10 +111,11 @@ class PleosVehicleAdapter(
             else if (abs(value - command.value) <= cap.tolerance) Confirmation.OBSERVED
             else Confirmation.OBSERVED_MISMATCH, value,
             if (value != null && abs(value - command.value) > cap.tolerance) "Observed value differs from requested target" else null))
-        fun seat(): SeatArea? = seatAreas(command.control, command.zone).also {
+        fun seat(): SeatArea? = seatAreas(command.control, command.areaId).also {
             if (it == null) emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Seat area unavailable"))
         }
         when (command.control) {
+            Control.CURRENT_TEMPERATURE -> emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Measured temperature is read-only"))
             Control.TARGET_TEMPERATURE -> {
                 val area = seat() ?: return
                 vehicle.getHVAC().setHvacTemperature(area, command.value.toFloat(), temperatureUnit,
@@ -126,8 +130,9 @@ class PleosVehicleAdapter(
                     { _ -> guarded {
                         emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
                         // readable comes from checkReadingLightStateCapabilities, independently of switch capability.
-                        if (cap.readable) vehicle.getLight().getCurrentReadingLightState(area,
+                        if (cap.readable && originalReadSeat != null) vehicle.getLight().getCurrentReadingLightState(originalReadSeat,
                             { observed(it?.let(lightState)?.let { state -> if (state) 1.0 else 0.0 }) }, ::failed)
+                        else if (cap.readable) emit(CommandUpdate(command, Confirmation.SENT_UNVERIFIED, message = "Getter area unavailable"))
                     } }, ::failed)
             }
             Control.AMBIENT_BRIGHTNESS -> {
@@ -139,7 +144,7 @@ class PleosVehicleAdapter(
                     } }, ::failed)
             }
             Control.SMART_GLASS -> {
-                val area = windowAreas[command.zone]
+                val area = windowAreas(command.areaId)
                 if (area == null) { emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Window area unavailable")); return }
                 vehicle.getWindow().setSmartGlassLevel(area, command.value.toInt(),
                     { _, _ -> guarded {

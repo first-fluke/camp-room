@@ -149,39 +149,39 @@ fun CampTheme(content: @Composable () -> Unit) {
             titleMedium =
                 TextStyle(
                     fontFamily = CampDesign.Font,
-                    fontSize = 20.sp,
+                    fontSize = 22.sp,
                     lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             titleSmall =
                 TextStyle(
                     fontFamily = CampDesign.Font,
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             bodyLarge =
-                TextStyle(fontFamily = CampDesign.Font, fontSize = 18.sp, lineHeight = 26.sp),
+                TextStyle(fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
             bodyMedium =
-                TextStyle(fontFamily = CampDesign.Font, fontSize = 16.sp, lineHeight = 24.sp),
+                TextStyle(fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
             bodySmall =
-                TextStyle(fontFamily = CampDesign.Font, fontSize = 14.sp, lineHeight = 20.sp),
+                TextStyle(fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
             labelLarge =
                 TextStyle(
                     fontFamily = CampDesign.Font,
-                    fontSize = 18.sp,
-                    lineHeight = 24.sp,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             labelMedium =
                 TextStyle(
                     fontFamily = CampDesign.Font,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             labelSmall =
-                TextStyle(fontFamily = CampDesign.Font, fontSize = 12.sp, lineHeight = 18.sp),
+                TextStyle(fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
         )
     CompositionLocalProvider(LocalCampColors provides colors) {
         MaterialTheme(
@@ -193,6 +193,8 @@ fun CampTheme(content: @Composable () -> Unit) {
                     onPrimaryContainer = colors.ink,
                     secondary = colors.muted,
                     onSecondary = colors.paper,
+                    secondaryContainer = colors.sage,
+                    onSecondaryContainer = colors.ink,
                     background = colors.canvas,
                     onBackground = colors.ink,
                     surface = colors.paper,

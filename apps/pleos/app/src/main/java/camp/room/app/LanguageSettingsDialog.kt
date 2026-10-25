@@ -2,11 +2,12 @@
 
 package camp.room.app
 
+import camp.room.app.icons.CampIcons
+
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,9 +38,9 @@ fun LanguageSettingsDialog(onClose: () -> Unit) {
             shape = RoundedCornerShape(14.dp),
             color = CampPalette.Paper,
         ) {
-            Column(Modifier.padding(27.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
+            Column(Modifier.verticalScroll(rememberScrollState()).padding(27.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.Language, null, tint = CampPalette.Muted)
+                    Icon(CampIcons.Globe, null, tint = CampPalette.Muted)
                     Text(
                         tr(R.string.language_settings),
                         fontSize = 22.sp,
@@ -49,12 +50,12 @@ fun LanguageSettingsDialog(onClose: () -> Unit) {
                         overflow = TextOverflow.Ellipsis,
                     )
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Outlined.Close, tr(R.string.language_close))
+                        Icon(CampIcons.Close, tr(R.string.language_close))
                     }
                 }
                 Text(
                     tr(R.string.language_settings_description),
-                    fontSize = 14.sp,
+                    fontSize = 22.sp,
                     color = CampPalette.Muted,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -83,7 +84,7 @@ fun LanguageSettingsDialog(onClose: () -> Unit) {
                             ) {
                                 Text(
                                     tr(label),
-                                    fontSize = 16.sp,
+                                    fontSize = 22.sp,
                                     modifier = Modifier.weight(1f),
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,

@@ -5,9 +5,9 @@ import kotlin.math.round
 
 enum class MotionState { PARKED, MOVING, UNKNOWN }
 enum class Zone { FRONT, REAR }
-enum class Control { TARGET_TEMPERATURE, READING_LIGHT, AMBIENT_BRIGHTNESS, SMART_GLASS, SEAT_MEMORY, CHARGE_PERCENT }
+enum class Control { CURRENT_TEMPERATURE, TARGET_TEMPERATURE, READING_LIGHT, AMBIENT_BRIGHTNESS, SMART_GLASS, SEAT_MEMORY, CHARGE_PERCENT }
 enum class Confirmation { OBSERVED, OBSERVED_MISMATCH, ACKNOWLEDGED, SENT_UNVERIFIED, FAILED, BLOCKED }
-data class Command(val control: Control, val zone: Zone, val value: Double)
+data class Command(val control: Control, val zone: Zone, val value: Double, val areaId: String)
 data class CommandUpdate(val command: Command, val confirmation: Confirmation,
     val observed: Double? = null, val message: String? = null)
 /** readable is the getter's separately checked capability, not the setter AccessType. */
@@ -27,7 +27,7 @@ data class Capability(val readable: Boolean, val writable: Boolean,
     }
 }
 /** Populate from actual check*Capabilities + permissions, area, temperature increment. */
-fun interface CapabilityRegistry { fun get(control: Control, zone: Zone): Capability? }
+fun interface CapabilityRegistry { fun get(control: Control, areaId: String): Capability? }
 /** Must come from trusted host motion state; brake/cruise mode is insufficient. */
 fun interface MotionProvider { fun current(): MotionState }
 interface VehiclePort : AutoCloseable {

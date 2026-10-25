@@ -1,9 +1,12 @@
 @file:OptIn(
+    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
     androidx.compose.ui.ExperimentalComposeUiApi::class,
     androidx.compose.material3.ExperimentalMaterial3Api::class,
 )
 
 package camp.room.app
+
+import camp.room.app.icons.CampIcons
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -11,8 +14,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,31 +49,31 @@ val campScenes =
             "load",
             camp.room.app.R.string.camp_unpack,
             camp.room.app.R.string.camp_ease_into_your_arrival,
-            Icons.Outlined.Inventory2,
+            CampIcons.Artwork.Package,
         ),
         CampScene(
             "together",
             camp.room.app.R.string.camp_relax_together,
             camp.room.app.R.string.camp_comfort_for_everyone,
-            Icons.Outlined.WbSunny,
+            CampIcons.Artwork.Sun,
         ),
         CampScene(
             "split",
             camp.room.app.R.string.camp_read_and_rest,
             camp.room.app.R.string.camp_reading_in_front_resting_in_the_rear,
-            Icons.Outlined.MenuBook,
+            CampIcons.Artwork.BookOpen,
         ),
         CampScene(
             "sleep",
             camp.room.app.R.string.camp_prepare_for_sleep,
             camp.room.app.R.string.camp_a_quieter_end_to_the_day,
-            Icons.Outlined.Bedtime,
+            CampIcons.Artwork.MoonStars,
         ),
         CampScene(
             "departure",
             camp.room.app.R.string.camp_prepare_to_leave,
             camp.room.app.R.string.camp_ready_for_the_next_journey,
-            Icons.Outlined.DirectionsCar,
+            CampIcons.Vehicle,
         ),
     )
 
@@ -91,23 +92,23 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
         },
     )
     CampSurface(Modifier.fillMaxWidth()) {
-        Row(
+        FlowRow(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             VehicleStatus(
-                Icons.Outlined.BatteryChargingFull,
+                CampIcons.BatteryCharging,
                 tr(camp.room.app.R.string.camp_current_battery),
                 "${number(vehicle.soc)}%",
             )
             VehicleStatus(
-                Icons.Outlined.Thermostat,
-                tr(camp.room.app.R.string.camp_measured_cabin_temperature),
+                CampIcons.Thermometer,
+                tr(R.string.cabin_layout_front_temperature),
                 "${number(vehicle.measuredTemperature)}°C",
             )
             VehicleStatus(
-                Icons.Outlined.DoorFront,
+                CampIcons.Door,
                 tr(camp.room.app.R.string.camp_doors),
                 when (vehicle.doorsClosed) {
                     true -> tr(camp.room.app.R.string.camp_all_closed)
@@ -116,7 +117,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                 },
             )
             VehicleStatus(
-                Icons.Outlined.Air,
+                CampIcons.Wind,
                 tr(camp.room.app.R.string.camp_windows),
                 when (vehicle.windowsClosed) {
                     true -> tr(camp.room.app.R.string.camp_all_closed)
@@ -130,7 +131,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         camp.room.app.R.string.camp_observed,
                         vehicle.updatedAt.take(16).replace('T', ' '),
                     ),
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = CampPalette.Muted,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -146,7 +147,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             else -> tr(camp.room.app.R.string.camp_unknown)
                         },
                     ),
-                    fontSize = 12.sp,
+                    fontSize = 22.sp,
                     color = CampPalette.Muted,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -168,111 +169,113 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             }
     }
     CampSurface(Modifier.fillMaxWidth()) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 tr(camp.room.app.R.string.camp_a_little_more_just_for_you),
-                fontSize = 18.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.weight(1f))
             Text(
                 tr(camp.room.app.R.string.camp_only_settings_you_explicitly_apply_will_run),
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp)) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    tr(camp.room.app.R.string.camp_target_cabin_temperature),
-                    fontSize = 12.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Row(
-                    Modifier.fillMaxWidth().padding(top = 17.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    OutlinedIconButton(
-                        onClick = {
-                            vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) - 1)
-                        },
-                        enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) > 16,
-                        modifier = Modifier.size(CampDesign.IconTarget),
-                    ) {
-                        Icon(
-                            Icons.Outlined.Remove,
-                            tr(camp.room.app.R.string.camp_lower_target_temperature),
-                            Modifier.size(16.dp),
-                        )
-                    }
+        BoxWithConstraints {
+            val controlWidth = if (maxWidth > 900.dp) (maxWidth - 60.dp) / 3 else maxWidth
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                Column(Modifier.width(controlWidth)) {
                     Text(
-                        "${number(vehicle.targetTemperature)}°C",
-                        fontSize = 31.sp,
-                        fontWeight = FontWeight.Light,
+                        tr(camp.room.app.R.string.camp_target_cabin_temperature),
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    OutlinedIconButton(
-                        onClick = {
-                            vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) + 1)
-                        },
-                        enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) < 30,
-                        modifier = Modifier.size(CampDesign.IconTarget),
+                    Row(
+                        Modifier.fillMaxWidth().padding(top = 17.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(
-                            Icons.Outlined.Add,
-                            tr(camp.room.app.R.string.camp_raise_target_temperature),
-                            Modifier.size(16.dp),
+                        OutlinedIconButton(
+                            onClick = {
+                                vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) - 1)
+                            },
+                            enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) > 16,
+                            modifier = Modifier.size(CampDesign.IconTarget),
+                        ) {
+                            Icon(
+                                CampIcons.Minus,
+                                tr(camp.room.app.R.string.camp_lower_target_temperature),
+                                Modifier.size(24.dp),
+                            )
+                        }
+                        Text(
+                            "${number(vehicle.targetTemperature)}°C",
+                            fontSize = 31.sp,
+                            fontWeight = FontWeight.Light,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
                         )
+                        OutlinedIconButton(
+                            onClick = {
+                                vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) + 1)
+                            },
+                            enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) < 30,
+                            modifier = Modifier.size(CampDesign.IconTarget),
+                        ) {
+                            Icon(
+                                CampIcons.Plus,
+                                tr(camp.room.app.R.string.camp_raise_target_temperature),
+                                Modifier.size(24.dp),
+                            )
+                        }
                     }
+                    Text(
+                        tr(camp.room.app.R.string.camp_measured_temperature_and_target_are_different),
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
+                        modifier = Modifier.padding(top = 9.dp),
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
-                Text(
-                    tr(camp.room.app.R.string.camp_measured_temperature_and_target_are_different),
-                    fontSize = 12.sp,
-                    color = CampPalette.Muted,
-                    modifier = Modifier.padding(top = 9.dp),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+                ZoneControls(
+                    tr(R.string.cabin_layout_front_targets),
+                    "front",
+                    vehicle.front,
+                    s.busy,
+                    vm,
+                    Modifier.width(controlWidth),
+                )
+                ZoneControls(
+                    tr(R.string.cabin_layout_rear_targets),
+                    "rear",
+                    vehicle.rear,
+                    s.busy,
+                    vm,
+                    Modifier.width(controlWidth),
                 )
             }
-            ZoneControls(
-                tr(camp.room.app.R.string.camp_front_seats),
-                "front",
-                vehicle.front,
-                s.busy,
-                vm,
-                Modifier.weight(1f),
-            )
-            ZoneControls(
-                tr(camp.room.app.R.string.camp_rear_seats),
-                "rear",
-                vehicle.rear,
-                s.busy,
-                vm,
-                Modifier.weight(1f),
-            )
         }
     }
     if (s.commands.isNotEmpty())
         CampSurface(Modifier.fillMaxWidth().testTag("scene-results")) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    if (s.commandStatus == "completed") Icons.Outlined.CheckCircle
-                    else Icons.Outlined.ErrorOutline,
+                    if (s.commandStatus == "completed") CampIcons.CheckCircle
+                    else CampIcons.WarningCircle,
                     null,
-                    Modifier.size(21.dp),
+                    Modifier.size(24.dp),
                     tint = CampPalette.Muted,
                 )
                 Text(
                     tr(camp.room.app.R.string.camp_cabin_setting_results),
-                    fontSize = 18.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -295,8 +298,8 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             )
                     )
                     Text(
-                        controlLabel(result.control),
-                        fontSize = 12.sp,
+                        controlLabel(result.control) + if (result.areaId.isNotBlank()) "\n" + cabinTargetLabel(result.areaId) else "",
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.width(140.dp).padding(start = 8.dp),
                         maxLines = 3,
@@ -304,7 +307,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     )
                     Text(
                         result.message,
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.weight(1f),
                         maxLines = 3,
@@ -316,7 +319,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             "acknowledged" -> tr(camp.room.app.R.string.camp_command_accepted)
                             else -> tr(camp.room.app.R.string.camp_state_needs_checking)
                         },
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
@@ -335,7 +338,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         camp.room.app.R.string
                             .camp_command_acceptance_and_observed_state_are_different_170
                     ),
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -344,11 +347,11 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
     if (s.sceneId == "departure")
         CampSurface(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Outlined.CheckCircle, null, tint = CampPalette.Muted)
+                Icon(CampIcons.CheckCircle, null, tint = CampPalette.Muted)
                 Column(Modifier.weight(1f).padding(horizontal = 15.dp)) {
                     Text(
                         tr(camp.room.app.R.string.camp_travel_light_into_the_next_chapter),
-                        fontSize = 18.sp,
+                        fontSize = 22.sp,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -357,7 +360,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             camp.room.app.R.string.camp_check_doors_windows_and_battery_at_then,
                             number(vehicle.soc),
                         ),
-                        fontSize = 12.sp,
+                        fontSize = 22.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 7.dp),
                         maxLines = 3,
@@ -366,7 +369,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                 }
                 CampSecondary(
                     tr(camp.room.app.R.string.camp_view_travel_plan),
-                    Icons.Outlined.ArrowForward,
+                    CampIcons.ChevronRight,
                     onClick = { vm.tab(1) },
                 )
             }
@@ -384,14 +387,14 @@ private fun VehicleStatus(
         Column(Modifier.padding(start = 10.dp)) {
             Text(
                 label,
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 value,
-                fontSize = 18.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(top = 5.dp),
                 maxLines = 3,
@@ -414,33 +417,33 @@ private fun ZoneControls(
     Column(modifier) {
         Text(
             tr(camp.room.app.R.string.camp_zone, label),
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Medium,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-        Row(Modifier.fillMaxWidth().height(40.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().heightIn(min = CampDesign.IconTarget), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 if (value.reading == null)
                     tr(camp.room.app.R.string.camp_reading_light_check_needed)
                 else tr(camp.room.app.R.string.camp_reading_light),
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
+                modifier = Modifier.weight(1f),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.weight(1f))
             Switch(
                 checked = value.reading == true,
                 onCheckedChange = { vm.control("readingLight", it, zone) },
                 enabled = !busy && value.reading != null,
-                modifier = Modifier.height(28.dp),
+                modifier = Modifier.sizeIn(minWidth = CampDesign.IconTarget, minHeight = CampDesign.IconTarget),
             )
         }
         Row(Modifier.fillMaxWidth()) {
             Text(
                 tr(camp.room.app.R.string.camp_shade),
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -449,7 +452,7 @@ private fun ZoneControls(
             Text(
                 if (value.blind == null) tr(camp.room.app.R.string.camp_check_needed)
                 else "${blind.toInt()}%",
-                fontSize = 12.sp,
+                fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -462,7 +465,7 @@ private fun ZoneControls(
             valueRange = 0f..100f,
             steps = 9,
             enabled = !busy && value.blind != null,
-            modifier = Modifier.fillMaxWidth().height(30.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = CampDesign.IconTarget),
         )
     }
 }
@@ -472,7 +475,7 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     CampSurface(modifier) {
         Text(
             "MOMENTS IN YOUR ROOM",
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             letterSpacing = 1.4.sp,
             color = CampPalette.Muted,
             maxLines = 3,
@@ -480,7 +483,7 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
         )
         Text(
             tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need),
-            fontSize = 20.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -489,6 +492,7 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
             val selected = scene.id == s.sceneId
             Surface(
                 onClick = { vm.scene(scene.id) },
+                enabled = !s.busy,
                 color = if (selected) CampPalette.Sage else CampPalette.Paper,
                 shape = RoundedCornerShape(8.dp),
                 border =
@@ -510,19 +514,19 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(scene.icon, null, Modifier.size(23.dp), tint = CampPalette.Muted)
+                        Icon(scene.icon, null, Modifier.size(24.dp), tint = CampPalette.Muted)
                     }
                     Column(Modifier.weight(1f).padding(start = 12.dp)) {
                         Text(
                             scene.name,
-                            fontSize = 14.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
                         Text(
                             scene.sub,
-                            fontSize = 12.sp,
+                            fontSize = 22.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 3.dp),
                             maxLines = 3,
@@ -547,22 +551,22 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                 else ->
                     tr(camp.room.app.R.string.camp_soft_lighting_and_a_comfortable_temperature_for)
             },
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
-            lineHeight = 17.sp,
+            lineHeight = 28.sp,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
         CampPrimary(
             tr(camp.room.app.R.string.camp_apply_these_cabin_settings),
-            Icons.Outlined.Check,
+            CampIcons.Check,
             busy = s.busy,
             modifier = Modifier.fillMaxWidth().testTag("apply-scene"),
             onClick = vm::applyScene,
         )
         Text(
             tr(camp.room.app.R.string.camp_after_supported_commands_run_the_simulator_state),
-            fontSize = 12.sp,
+            fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -572,235 +576,122 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
 
 @Composable
 private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
-    Surface(
-        modifier = modifier.height(566.dp),
-        color = CampPalette.Sage,
-        shape = RoundedCornerShape(11.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, CampPalette.Line),
-    ) {
-        Box(Modifier.fillMaxSize()) {
-            Column(Modifier.padding(25.dp)) {
-                Text(
-                    "MY LITTLE RETREAT",
-                    fontSize = 12.sp,
-                    letterSpacing = 1.5.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    if (vehicle.sceneId == "split")
-                        tr(camp.room.app.R.string.camp_different_moments_shared_comfortably)
-                    else if (vehicle.sceneId == "sleep")
-                        tr(camp.room.app.R.string.camp_a_softer_landing_at_the_end_of)
-                    else tr(camp.room.app.R.string.camp_a_little_room_for_today_s_rest),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(top = 8.dp),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
+    CampSurface(modifier.testTag("cabin-control-layout")) {
+        Text(tr(R.string.cabin_layout_title), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+        Text(
+            if (vehicle.layoutSource == "demo_synthetic") tr(R.string.cabin_layout_demo_short)
+            else tr(R.string.cabin_layout_model_unknown_short),
+            fontSize = 22.sp, color = CampPalette.Muted,
+        )
+        if (vehicle.controlAreas.isEmpty()) {
+            Text(tr(R.string.cabin_layout_unknown), fontSize = 22.sp, color = CampPalette.Muted)
+        } else {
+            // Spatial headings sort presentation only. Exact ordered SDK members/IDs stay untouched.
+            val sections = vehicle.controlAreas.groupBy { group ->
+                val member = group.area.members.singleOrNull()
+                Regex("ROW_([123])_(LEFT|CENTER|RIGHT)").matchEntire(member.orEmpty())?.groupValues?.get(1)
+                    ?: if (group.area.kind == "demo") "demo" else "groups"
             }
-            Canvas(
-                Modifier.fillMaxWidth().height(440.dp).align(Alignment.Center).padding(top = 35.dp)
-            ) {
-                val scale = size.height / 440f
-                val carW = 185f * scale
-                val carH = 389f * scale
-                val left = size.width / 2 - carW / 2
-                val top = (size.height - carH) / 2 + 5f
-                fun rect(color: Color, x: Float, y: Float, w: Float, h: Float, r: Float = 8f) {
-                    drawRoundRect(
-                        color,
-                        Offset(left + x * scale, top + y * scale),
-                        Size(w * scale, h * scale),
-                        CornerRadius(r * scale),
-                    )
+            for (section in sections.keys.sorted()) {
+                if (section != "demo") Text(
+                    if (section == "groups") tr(R.string.cabin_layout_linked_groups)
+                    else tr(R.string.cabin_layout_row_heading, section),
+                    fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                )
+                BoxWithConstraints {
+                    val cardWidth = if (maxWidth > 760.dp) (maxWidth - 16.dp) / 2 else maxWidth
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        val cards = sections.getValue(section).groupBy { it.area.id }.values.sortedBy {
+                            when (it.first().area.members.singleOrNull()?.substringAfterLast('_')) { "LEFT" -> 0; "CENTER" -> 1; "RIGHT" -> 2; else -> 3 }
+                        }
+                        for (controls in cards) {
+                            val area = controls.first().area
+                            Surface(
+                                modifier = Modifier.width(cardWidth).testTag("cabin-area-${area.id}"),
+                                color = CampPalette.Sage, shape = RoundedCornerShape(8.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, CampPalette.Line),
+                            ) {
+                                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text(cabinAreaLabel(area), fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
+                                    for (group in controls) {
+                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            Text(cabinFeatureLabel(group.feature), modifier = Modifier.weight(1f), fontSize = 22.sp)
+                                            val value = group.observed
+                                            Text(
+                                                when {
+                                                    value == null -> tr(R.string.cabin_layout_value_unknown_short)
+                                                    group.feature == "readingLight" -> when (value) { 1.0 -> tr(R.string.cabin_layout_on); 0.0 -> tr(R.string.cabin_layout_off); else -> tr(R.string.cabin_layout_value_unknown_short) }
+                                                    group.feature in listOf("targetTemperature", "cabinTemperature") -> "${number(value)}°C"
+                                                    else -> "${number(value)}%"
+                                                },
+                                                fontSize = 22.sp, fontWeight = FontWeight.Medium,
+                                            )
+                                        }
+                                        if (!group.writable || !group.readable) Text(
+                                            when {
+                                                group.readable -> tr(R.string.cabin_layout_read_only)
+                                                group.writable -> tr(R.string.cabin_layout_write_only)
+                                                else -> tr(R.string.cabin_layout_access_unknown)
+                                            },
+                                            fontSize = 22.sp, color = CampPalette.Muted,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-                rect(Color(0xFF8F9F80), -5f, 0f, 195f, 389f, 60f)
-                rect(Color(0xFFB6C5A6), 2f, 7f, 181f, 375f, 57f)
-                rect(Color(0xFF52705D), 15f, 26f, 155f, 62f, 24f)
-                rect(Color(0xFF9DAC90), 18f, 94f, 149f, 23f, 6f)
-                drawCircle(
-                    Color(0xFF6D825E),
-                    10f * scale,
-                    Offset(left + 49f * scale, top + 106f * scale),
-                    style = Stroke(3f * scale),
-                )
-                rect(Color(0xFF617B5F), 84f, 99f, 37f, 12f, 3f)
-                rect(
-                    if (vehicle.front.reading == true) Color(0xFFE1D5A0) else Color(0xFFBAC8A8),
-                    14f,
-                    127f,
-                    157f,
-                    124f,
-                    8f,
-                )
-                rect(Color(0xFF94A688), 26f, 140f, 46f, 65f, 13f)
-                rect(Color(0xFF94A688), 112f, 140f, 46f, 65f, 13f)
-                rect(Color(0xFFB8C8A6), 34f, 135f, 30f, 12f, 5f)
-                rect(Color(0xFFB8C8A6), 120f, 135f, 30f, 12f, 5f)
-                rect(Color(0xFF9DAD8D), 84f, 147f, 17f, 51f, 5f)
-                rect(
-                    if (vehicle.rear.reading == true) Color(0xFFD7D29E) else Color(0xFF9FAF93),
-                    14f,
-                    260f,
-                    157f,
-                    88f,
-                    8f,
-                )
-                rect(Color(0xFF8F9F80), 26f, 271f, 133f, 34f, 9f)
-                rect(Color(0xFFB2C2A3), 30f, 266f, 58f, 10f, 4f)
-                rect(Color(0xFFB2C2A3), 97f, 266f, 58f, 10f, 4f)
-                rect(Color(0xFF607E64), 27f, 356f, 131f, 18f, 10f)
-                rect(Color(0xFF8F9F80), -19f, 104f, 15f, 30f, 5f)
-                rect(Color(0xFF8F9F80), 189f, 104f, 15f, 30f, 5f)
-                drawLine(
-                    Color(0xFF9EB18B),
-                    Offset(left - 67f * scale, top + 174f * scale),
-                    Offset(left + 15f * scale, top + 174f * scale),
-                    1.2f,
-                )
-                drawLine(
-                    Color(0xFF9EB18B),
-                    Offset(left + 170f * scale, top + 300f * scale),
-                    Offset(left + 243f * scale, top + 300f * scale),
-                    1.2f,
-                )
-            }
-            Column(
-                Modifier.align(Alignment.Center).offset(y = 26.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(Modifier.height(60.dp))
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_front,
-                        when (vehicle.front.reading) {
-                            true -> tr(camp.room.app.R.string.camp_reading)
-                            false -> tr(camp.room.app.R.string.camp_resting)
-                            null -> tr(camp.room.app.R.string.camp_check_needed)
-                        },
-                    ),
-                    fontSize = 12.sp,
-                    color = Color(0xFF193F33),
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_light_shade,
-                        vehicle.front.ambient?.let { "${it}%" }
-                            ?: tr(camp.room.app.R.string.camp_check_needed),
-                        vehicle.front.blind?.let { "${it}%" }
-                            ?: tr(camp.room.app.R.string.camp_check_needed),
-                    ),
-                    fontSize = 12.sp,
-                    color = Color(0xFF43543B),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(72.dp))
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_rear,
-                        when (vehicle.rear.reading) {
-                            true -> tr(camp.room.app.R.string.camp_relax_together)
-                            false -> tr(camp.room.app.R.string.camp_resting)
-                            null -> tr(camp.room.app.R.string.camp_check_needed)
-                        },
-                    ),
-                    fontSize = 12.sp,
-                    color = Color(0xFF193F33),
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_light_shade,
-                        vehicle.rear.ambient?.let { "${it}%" }
-                            ?: tr(camp.room.app.R.string.camp_check_needed),
-                        vehicle.rear.blind?.let { "${it}%" }
-                            ?: tr(camp.room.app.R.string.camp_check_needed),
-                    ),
-                    fontSize = 12.sp,
-                    color = Color(0xFF43543B),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Column(
-                Modifier.align(Alignment.CenterStart)
-                    .widthIn(max = 125.dp)
-                    .padding(start = 19.dp)
-                    .offset(y = (-45).dp)
-            ) {
-                Icon(Icons.Outlined.Lightbulb, null, Modifier.size(19.dp), tint = CampPalette.Muted)
-                Text(
-                    tr(camp.room.app.R.string.camp_a_light_to_focus_by),
-                    fontSize = 12.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    when (vehicle.front.reading) {
-                        true -> tr(camp.room.app.R.string.camp_reading_light_on)
-                        false -> tr(camp.room.app.R.string.camp_reading_light_off)
-                        null -> tr(camp.room.app.R.string.camp_state_needs_checking)
-                    },
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Column(
-                Modifier.align(Alignment.CenterEnd)
-                    .widthIn(max = 125.dp)
-                    .padding(end = 19.dp)
-                    .offset(y = 105.dp)
-            ) {
-                Icon(Icons.Outlined.Air, null, Modifier.size(20.dp), tint = CampPalette.Muted)
-                Text(
-                    tr(camp.room.app.R.string.camp_a_comfortable_temperature),
-                    fontSize = 12.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    tr(camp.room.app.R.string.camp_target_c, number(vehicle.targetTemperature)),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Row(
-                Modifier.align(Alignment.BottomCenter).padding(bottom = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    Icons.Outlined.CheckCircle,
-                    null,
-                    Modifier.size(14.dp),
-                    tint = CampPalette.Muted,
-                )
-                Text(
-                    if (vehicle.mode == "demo")
-                        tr(camp.room.app.R.string.camp_demo_simulator_observations)
-                    else tr(camp.room.app.R.string.camp_pleos_vehicle_observations),
-                    fontSize = 12.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
+        if (vehicle.unknownFeatures.isNotEmpty()) {
+            Text(tr(R.string.cabin_layout_unconfirmed_features), fontSize = 22.sp, fontWeight = FontWeight.Medium)
+            vehicle.unknownFeatures.forEach { Text(cabinFeatureLabel(it), fontSize = 22.sp, color = CampPalette.Muted) }
+        }
     }
+}
+
+@Composable
+private fun cabinFeatureLabel(feature: String): String = when (feature) {
+    "cabinTemperature" -> tr(R.string.camp_measured_cabin_temperature)
+    "targetTemperature" -> tr(R.string.camp_target_cabin_temperature)
+    "readingLight" -> tr(R.string.camp_reading_light)
+    "ambientBrightness" -> tr(R.string.camp_ambient_brightness)
+    "blindLevel" -> tr(R.string.camp_shade)
+    else -> feature
+}
+
+@Composable
+private fun cabinAreaLabel(area: CabinArea): String {
+    if (area.members.isEmpty()) return tr(R.string.cabin_layout_unspecified)
+    if (area.kind == "demo") return if (area.members.contains("DEMO_FRONT_ZONE")) tr(R.string.cabin_layout_demo_front) else tr(R.string.cabin_layout_demo_rear)
+    val labels = mutableListOf<String>()
+    for (member in area.members) {
+        val match = Regex("ROW_([123])_(LEFT|CENTER|RIGHT)").matchEntire(member)
+        labels += if (match == null) when (member) {
+            "FRONT_WINDSHIELD" -> tr(R.string.cabin_layout_front_windshield)
+            "REAR_WINDSHIELD" -> tr(R.string.cabin_layout_rear_windshield)
+            "ROOF_TOP_1" -> tr(R.string.cabin_layout_roof_1)
+            "ROOF_TOP_2" -> tr(R.string.cabin_layout_roof_2)
+            else -> tr(R.string.cabin_layout_unspecified)
+        } else {
+            val side = when (match.groupValues[2]) {
+                "LEFT" -> tr(R.string.cabin_layout_left)
+                "CENTER" -> tr(R.string.cabin_layout_center)
+                else -> tr(R.string.cabin_layout_right)
+            }
+            tr(R.string.cabin_layout_row_position, match.groupValues[1], side)
+        }
+    }
+    return labels.joinToString(" · ")
+}
+
+@Composable
+private fun cabinTargetLabel(targetId: String): String {
+    val descriptor = targetId.substringBefore('|').split(':', limit = 2)
+    if (descriptor.size != 2) return tr(R.string.cabin_layout_unspecified)
+    val members = if (descriptor[0] == "demo") listOf("DEMO_${descriptor[1].uppercase()}_ZONE")
+        else descriptor[1].takeUnless { it == "<unspecified>" }?.split('+') ?: emptyList()
+    return cabinAreaLabel(CabinArea(descriptor[0], members))
 }
 
 fun controlLabel(value: String): String {
@@ -933,17 +824,20 @@ fun CampLandscape(id: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun ProductArtwork(id: String, modifier: Modifier = Modifier) {
+    // Category illustrations are deliberately not presented as exact product photography.
     val icon =
         when {
-            id.contains("lantern") || id.contains("light") -> Icons.Outlined.Light
-            id.contains("sleep") || id.contains("blanket") -> Icons.Outlined.Bedtime
-            id.contains("chair") -> Icons.Outlined.Weekend
-            else -> Icons.Outlined.Backpack
+            id.contains("sleep") || id.contains("blanket") -> CampIcons.Artwork.Bed
+            id.contains("coffee") -> CampIcons.Artwork.Coffee
+            id.contains("lantern") || id.contains("light") -> CampIcons.Artwork.Flashlight
+            id.contains("chair") -> CampIcons.Artwork.Armchair
+            else -> CampIcons.Artwork.Backpack
         }
-    Box(
-        modifier.background(if (id.contains("sleep")) Color(0xFFE4E9D8) else Color(0xFFEDECDD)),
+    BoxWithConstraints(
+        modifier.background(CampPalette.Sage),
         contentAlignment = Alignment.Center,
     ) {
+        val glyphSize = (minOf(maxWidth, maxHeight) * .5f).coerceIn(24.dp, 56.dp)
         Canvas(Modifier.fillMaxSize()) {
             drawOval(
                 Color(0xFF747954).copy(alpha = .12f),
@@ -954,8 +848,8 @@ fun ProductArtwork(id: String, modifier: Modifier = Modifier) {
         Icon(
             icon,
             null,
-            Modifier.size(65.dp),
-            tint = if (id.contains("sleep")) Color(0xFF8D9F74) else Color(0xFFAE9670),
+            Modifier.size(glyphSize),
+            tint = CampPalette.Forest,
         )
     }
 }
