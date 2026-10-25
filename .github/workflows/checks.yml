@@ -2,13 +2,33 @@ name: Camp Room checks
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact main commit to verify
+        type: string
+        required: true
+      runner_label:
+        description: Unique camp-room-manual- prefix for three single-job runners
+        type: string
+        required: true
 permissions:
   contents: read
 jobs:
   backend:
-    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      (github.repository == 'first-fluke/camp-room' &&
+       github.ref == 'refs/heads/main' &&
+       github.sha == inputs.expected_sha &&
+       startsWith(inputs.runner_label, 'camp-room-manual-'))
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && format('{0}-backend', inputs.runner_label) || 'ubuntu-latest' }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -19,9 +39,19 @@ jobs:
       - run: .venv/bin/python apps/api/scripts/export_openapi.py --check
       - run: python apps/pleos/verify_contracts.py
   native:
-    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      (github.repository == 'first-fluke/camp-room' &&
+       github.ref == 'refs/heads/main' &&
+       github.sha == inputs.expected_sha &&
+       startsWith(inputs.runner_label, 'camp-room-manual-'))
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && format('{0}-native', inputs.runner_label) || 'ubuntu-latest' }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -30,13 +60,23 @@ jobs:
       - run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
       - run: bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:assemblePleosDebug
   admin:
-    runs-on: ubuntu-latest
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      (github.repository == 'first-fluke/camp-room' &&
+       github.ref == 'refs/heads/main' &&
+       github.sha == inputs.expected_sha &&
+       startsWith(inputs.runner_label, 'camp-room-manual-'))
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && format('{0}-admin', inputs.runner_label) || 'ubuntu-latest' }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
+          cache: ${{ github.event_name != 'workflow_dispatch' && 'npm' || '' }}
       - run: npm ci
       - run: npm --workspace admin run typecheck
       - run: npm --workspace admin test
