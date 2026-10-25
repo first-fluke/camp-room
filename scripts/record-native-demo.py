@@ -100,6 +100,7 @@ def find_node(*, tag: str | None = None, text: str | None = None, contains: str 
         except (RuntimeError, ET.ParseError, subprocess.TimeoutExpired):
             pause(1)
             continue
+        parents = {child: parent for parent in document.iter() for child in parent}
         for node in document.iter("node"):
             identity = node.attrib.get("resource-id", "")
             label = node.attrib.get("text", "")
@@ -107,7 +108,21 @@ def find_node(*, tag: str | None = None, text: str | None = None, contains: str 
             matches = ((tag is not None and (identity == tag or identity.endswith(":id/" + tag)))
                        or (text is not None and (label == text or description == text))
                        or (contains is not None and (contains in label or contains in description)))
-            if matches and bounds(node) and node.attrib.get("enabled", "true") == "true":
+            rectangle = bounds(node)
+            if matches and rectangle and node.attrib.get("enabled", "true") == "true":
+                # Compose may expose bounds beyond a scroll viewport. Tap only its visible area.
+                visible = list(rectangle)
+                parent = parents.get(node)
+                while parent is not None:
+                    clip = bounds(parent)
+                    if clip:
+                        visible = [max(visible[0], clip[0]), max(visible[1], clip[1]),
+                                   min(visible[2], clip[2]), min(visible[3], clip[3])]
+                    parent = parents.get(parent)
+                if (visible[2] - visible[0] < min(48, rectangle[2] - rectangle[0])
+                        or visible[3] - visible[1] < min(48, rectangle[3] - rectangle[1])):
+                    continue
+                node.set("bounds", f"[{visible[0]},{visible[1]}][{visible[2]},{visible[3]}]")
                 return node
         pause(0.5)
     raise AssertionError(f"Native UI element missing: tag={tag}, text={text}, contains={contains}")
