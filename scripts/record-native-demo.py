@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+from datetime import datetime, timezone
 import os
 import re
 import shutil
@@ -258,6 +259,9 @@ def run():
     check("Recording operates only on explicit demo data", bootstrap["mode"] == "demo")
     check("Actual Android device booted", adb("shell", "getprop", "sys.boot_completed") == "1")
     check("Native demo APK installed", APP in adb("shell", "pm", "list", "packages", APP))
+    apk_sha256 = installed_apk_sha256()
+    source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    started_at_utc = datetime.now(timezone.utc).isoformat()
     for item in bootstrap["cart"]["items"]:
         api(f"/cart/items/{item['productId']}", "DELETE")
     site = next(s for s in bootstrap["campsites"] if s["id"] == "byeolbit")
@@ -413,7 +417,7 @@ def run():
     metadata = json.loads(result.stdout.strip().splitlines()[-1])
     (OUT / "demo-metadata.json").write_text(json.dumps({"capture": "Android Emulator host display capture" if CAPTURE_BACKEND == "emulator" else "Android adb screenrecord", "applicationId": APP, "video": metadata}, ensure_ascii=False, indent=2))
     check("Final MP4 is 1920×1080", metadata["streams"][0]["width"] == 1920 and metadata["streams"][0]["height"] == 1080)
-    report = {"status": "passed", "platform": "Android 35 native Kotlin/Jetpack Compose", "applicationId": APP, "captureBackend": CAPTURE_BACKEND, "preflightEvidence": preflight_evidence, "checks": CHECKS, "video": str(rendered.relative_to(ROOT)), "videoDurationSeconds": float(metadata["format"]["duration"]), "limitations": ["Emulated vehicle and demo booking/payment", "Actual SDK artifact compilation is recorded separately", "External campground/weather provider keys are not configured; source data in this recording is explicitly demo"]}
+    report = {"status": "passed", "platform": "Android 35 native Kotlin/Jetpack Compose", "applicationId": APP, "captureBackend": CAPTURE_BACKEND, "apkSha256": apk_sha256, "nativeSourceCommit": source_commit, "startedAtUtc": started_at_utc, "verifiedAtUtc": datetime.now(timezone.utc).isoformat(), "preflightEvidence": preflight_evidence, "checks": CHECKS, "video": str(rendered.relative_to(ROOT)), "videoSha256": hashlib.sha256(rendered.read_bytes()).hexdigest(), "videoDurationSeconds": float(metadata["format"]["duration"]), "limitations": ["Emulated vehicle and demo booking/payment", "Actual SDK artifact compilation is recorded separately", "External campground/weather provider keys are not configured; source data in this recording is explicitly demo"]}
     (QA / "native-results.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
 
