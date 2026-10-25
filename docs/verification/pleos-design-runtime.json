@@ -1,0 +1,1809 @@
+{
+  "schema_version": 1,
+  "status": "READY_FOR_ROOT_PROMOTION",
+  "prepared_at_utc": "2026-10-25T09:55:44.457083+00:00",
+  "intended_repository_paths": [
+    "docs/verification/pleos-design-runtime.md",
+    "docs/verification/pleos-design-runtime.json"
+  ],
+  "source_commit": "fded228938a8c4a171aad7b179329e08be87bc8d",
+  "source_tree_hash": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+  "native_build_evidence": {
+    "commit": "fded228938a8c4a171aad7b179329e08be87bc8d",
+    "omaSession": "20261025-060338",
+    "observabilityRun": "038f7478-d281-4ab7-9309-104a1c1944d6",
+    "designRun": "bdb4832d-bd75-4008-9f09-0aef9f9a78ce",
+    "tests": {
+      "app": {
+        "suites": [
+          {
+            "name": "camp.room.app.CabinTopologyTest",
+            "tests": 1,
+            "failures": 0,
+            "errors": 0
+          },
+          {
+            "name": "camp.room.app.CampInteractionStateTest",
+            "tests": 4,
+            "failures": 0,
+            "errors": 0
+          },
+          {
+            "name": "camp.room.app.CampUxCallbackEpochTest",
+            "tests": 2,
+            "failures": 0,
+            "errors": 0
+          },
+          {
+            "name": "camp.room.app.CampUxStateTest",
+            "tests": 3,
+            "failures": 0,
+            "errors": 0
+          },
+          {
+            "name": "camp.room.app.observability.TelemetryPrivacyTest",
+            "tests": 4,
+            "failures": 0,
+            "errors": 0
+          }
+        ],
+        "tests": 14,
+        "failures": 0,
+        "errors": 0
+      },
+      "apiClient": {
+        "suites": [
+          {
+            "name": "camp.room.generated.GeneratedKtorContractTest",
+            "tests": 3,
+            "failures": 0,
+            "errors": 0
+          }
+        ],
+        "tests": 3,
+        "failures": 0,
+        "errors": 0
+      }
+    },
+    "apks": {
+      "demo": {
+        "path": "apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk",
+        "bytes": 24568796,
+        "sha256": "d22706f8007b0ee34b4b8bf9e8fea75885fb290c4c4898eec2ac66ebb3abf480",
+        "apiBaseUrl": "http://127.0.0.1:8000/api/v1"
+      },
+      "pleos": {
+        "path": "apps/pleos/app/build/outputs/apk/pleos/debug/app-pleos-debug.apk",
+        "bytes": 41699861,
+        "sha256": "41107800628567eac641ea7aa9102b6c0526d9aadf4cd39d437d3417ad87c4e5",
+        "apiBaseUrl": "https://api.example.invalid/api/v1"
+      }
+    }
+  },
+  "native_build_evidence_path": "artifacts/qa/verification-c1/native-build-evidence.json",
+  "native_build_evidence_sha256": "417e04b9f83eba9b4850bff249ab5ed27a05d5ae3319a82c387d5b03c7df50c9",
+  "verification_summary": {
+    "app_unit": {
+      "passed": 14,
+      "failed": 0,
+      "errors": 0,
+      "source": "native-build-evidence.json"
+    },
+    "generated_ktor_client": {
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "source": "native-build-evidence.json"
+    },
+    "api": {
+      "passed": 33,
+      "warnings": 1,
+      "exit_code": 0,
+      "source": "artifacts/qa/verification-c1/c1-oma-api-local.log"
+    },
+    "turso": {
+      "status": "passed",
+      "passed": 20,
+      "total": 20,
+      "verified_at": "2026-10-25T09:37:50.961063+00:00",
+      "source": "artifacts/qa/turso-results.json",
+      "commerce_mode": "unpaid demo"
+    },
+    "admin_unit": {
+      "passed": 5,
+      "failed": 0,
+      "typecheck_exit_code": 0,
+      "source": "artifacts/qa/verification-c1/c1-oma-admin.log"
+    },
+    "admin_e2e": {
+      "status": "passed",
+      "passed": 27,
+      "total": 27,
+      "source": "artifacts/qa/admin-integration.json",
+      "scope": "Authenticated admin BFF/API and actual Turso persistence; not native Android UI E2E."
+    },
+    "native_demo_runtime": {
+      "passed": 25,
+      "total": 25,
+      "status": "passed",
+      "source": "artifacts/qa/native-results.json",
+      "verified_at_utc": "2026-10-25T10:18:31.705362+00:00",
+      "scope": "Native demo only; UI input, persistence, process recreation, local telemetry and controlled fatal exception."
+    }
+  },
+  "completed_oma_runs": [
+    {
+      "run_id": "038f7478-d281-4ab7-9309-104a1c1944d6",
+      "task_id": "native-observability",
+      "session_id": "20261025-060338",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T09:35:09.375Z",
+      "run_before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            "bash",
+            "apps/pleos/gradlew",
+            "-p",
+            "apps/pleos",
+            ":app:testDemoDebugUnitTest"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "native-observability-check1",
+          "startedAt": "2026-10-25T09:29:49.839Z",
+          "finishedAt": "2026-10-25T09:31:07.256Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "337b58480cf00256e5cefcbb822ce251326786c782ec36e64a1cb040b3cadc1d",
+      "receipt_relative_to_oma_project": "agent-runs/038f7478-d281-4ab7-9309-104a1c1944d6.json",
+      "unresolved": []
+    },
+    {
+      "run_id": "bdb4832d-bd75-4008-9f09-0aef9f9a78ce",
+      "task_id": "pleos-design-alignment",
+      "session_id": "20261025-060338",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T09:35:10.103Z",
+      "run_before": "4f74abf8685902b9f6f15930a70792062b24d438901602c539d7e061e5e4764a",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            "bash",
+            "apps/pleos/gradlew",
+            "-p",
+            "apps/pleos",
+            ":app:assembleDemoDebug"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "pleos-design-alignment-check1",
+          "startedAt": "2026-10-25T09:31:38.157Z",
+          "finishedAt": "2026-10-25T09:31:57.452Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "50d07996e37dec0e4e689af9d6739600c4ec9b49c692639a420bf9bf8c7c6011",
+      "receipt_relative_to_oma_project": "agent-runs/bdb4832d-bd75-4008-9f09-0aef9f9a78ce.json",
+      "unresolved": []
+    },
+    {
+      "run_id": "000e197d-bf54-487e-854c-3ef0eaa65709",
+      "task_id": "documentation-humanize",
+      "session_id": "20261025-060338",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T09:34:51.012Z",
+      "run_before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "documentation-humanize-check1",
+          "startedAt": "2026-10-25T09:32:51.068Z",
+          "finishedAt": "2026-10-25T09:32:51.223Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "518794695f8b0a44e4484f7532f012b10145df6971f68c74363d9f2b88cbb759",
+      "receipt_relative_to_oma_project": "agent-runs/000e197d-bf54-487e-854c-3ef0eaa65709.json",
+      "unresolved": []
+    },
+    {
+      "run_id": "3cde5740-7be2-4459-8e8b-91bb8c163851",
+      "task_id": "turso-admin-api",
+      "session_id": "20261025-052351",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T09:40:23.354Z",
+      "run_before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            ".venv/bin/python",
+            "-m",
+            "pytest",
+            "apps/api/tests",
+            "-q"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "api-full",
+          "startedAt": "2026-10-25T09:36:38.392Z",
+          "finishedAt": "2026-10-25T09:36:41.428Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        },
+        {
+          "command": [
+            ".venv/bin/python",
+            "apps/api/scripts/verify_turso.py",
+            "--run-remote"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "actual-turso",
+          "startedAt": "2026-10-25T09:37:50.574Z",
+          "finishedAt": "2026-10-25T09:38:39.072Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "aace8a2404bc112225ea29cd9898227aee265cdbefc976469a274f13af494837",
+      "receipt_relative_to_oma_project": "agent-runs/3cde5740-7be2-4459-8e8b-91bb8c163851.json",
+      "unresolved": []
+    },
+    {
+      "run_id": "50871b63-70b9-4ef8-baf6-f941a63c03c5",
+      "task_id": "admin-web",
+      "session_id": "20261025-052351",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T09:37:45.231Z",
+      "run_before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            "npm",
+            "--workspace",
+            "admin",
+            "run",
+            "typecheck"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "admin-types",
+          "startedAt": "2026-10-25T09:37:06.501Z",
+          "finishedAt": "2026-10-25T09:37:07.410Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        },
+        {
+          "command": [
+            "npm",
+            "--workspace",
+            "admin",
+            "run",
+            "test"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "admin-tests",
+          "startedAt": "2026-10-25T09:37:07.478Z",
+          "finishedAt": "2026-10-25T09:37:07.782Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "1260c5050f88f2b8b04c571716000685456d00db49901a4a76c84780f494eab8",
+      "receipt_relative_to_oma_project": "agent-runs/50871b63-70b9-4ef8-baf6-f941a63c03c5.json",
+      "unresolved": []
+    },
+    {
+      "run_id": "1d6c2986-a5a7-426b-aa04-df4a59bd171b",
+      "task_id": "ops-qa",
+      "session_id": "20261025-052351",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T09:44:34.061Z",
+      "run_before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            "python",
+            "scripts/verify-admin.py"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "admin-e2e",
+          "startedAt": "2026-10-25T09:42:48.920Z",
+          "finishedAt": "2026-10-25T09:43:13.785Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "c37273dba3a8e1736e9ae8f49c19e58160824b9d7363ad3623b3a6fb585a466c",
+      "receipt_relative_to_oma_project": "agent-runs/1d6c2986-a5a7-426b-aa04-df4a59bd171b.json",
+      "unresolved": []
+    },
+    {
+      "run_id": "b8a5d5c1-f4c4-4b69-87a5-825c25998425",
+      "task_id": "integration-final",
+      "session_id": "20261025-060338",
+      "status": "completed",
+      "exit_code": 0,
+      "finished_at_utc": "2026-10-25T10:22:29.754Z",
+      "run_before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "run_after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+      "checks": [
+        {
+          "command": [
+            "python",
+            "scripts/record-native-demo.py"
+          ],
+          "cwd": "/root/workspace/camp-room",
+          "checkId": "integration-final-check1",
+          "startedAt": "2026-10-25T10:00:59.064Z",
+          "finishedAt": "2026-10-25T10:18:31.741Z",
+          "exitCode": 0,
+          "before": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834",
+          "after": "513bde28da83b11c04c1fdd3d240302d2fd24169e880257433fcc13164ada834"
+        }
+      ],
+      "receipt_sha256": "3043f01d39694a387c67046efca6b1d9a7273e5b946322a1c0ca9ba75e046d58",
+      "receipt_relative_to_oma_project": "agent-runs/b8a5d5c1-f4c4-4b69-87a5-825c25998425.json",
+      "unresolved": []
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "artifacts/qa/verification-c1/native-build-evidence.json",
+      "sha256": "417e04b9f83eba9b4850bff249ab5ed27a05d5ae3319a82c387d5b03c7df50c9",
+      "bytes": 1888
+    },
+    {
+      "path": "artifacts/qa/verification-c1/c1-oma-api-local.log",
+      "sha256": "560b59fdcd482ab49e03139d8676a2957bde61b996450f3228783af797359c41",
+      "bytes": 1021
+    },
+    {
+      "path": "artifacts/qa/verification-c1/c1-oma-admin.log",
+      "sha256": "cf8a945761a293b20d0a9a1ea854e090ca921e72f20d56ae17999509542fc7f4",
+      "bytes": 1668
+    },
+    {
+      "path": "artifacts/qa/verification-c1/c1-pleos-client.log",
+      "sha256": "37a063e8f7f17542710955c840c5259fc124d3b757dad63651b13c12f1d8818d",
+      "bytes": 4581
+    },
+    {
+      "path": "artifacts/qa/turso-results.json",
+      "sha256": "5b150075e77968ded065d30ccdab6cc652f40d9a40d349ecd481e25d214266d8",
+      "bytes": 3416
+    },
+    {
+      "path": "artifacts/qa/admin-integration.json",
+      "sha256": "c7fb00e3cd4ce1f409d55e60c6f9e5ce1d0df994091f2b021d14de911877ac73",
+      "bytes": 3092
+    },
+    {
+      "path": "artifacts/qa/native-results.json",
+      "sha256": "66f0520147d4f3d386a17da22c8a8d283a7d457c8a7ee039379b191a86c3e7ee",
+      "bytes": 3904
+    },
+    {
+      "path": "artifacts/qa/native-telemetry.json",
+      "sha256": "709df80336d1b89ec77706820bee1753c99d06df12c03a36798b7b50f7918632",
+      "bytes": 509
+    },
+    {
+      "path": "artifacts/qa/native-video-visual-c1.json",
+      "sha256": "5657a074d7beea895aa10983ff9f987c15edb928f4e9c8a05dd78982e8febf07",
+      "bytes": 7785
+    },
+    {
+      "path": "artifacts/demo/demo-metadata.json",
+      "sha256": "7c8284299967e7e1528539f736a4d403e8b9233f64e6aac3325e43354a0e2e05",
+      "bytes": 390
+    },
+    {
+      "path": "artifacts/qa/design-c1/native-trip-from-video-130s.json",
+      "sha256": "acb33470b2b3e7148af137939a31cb9157d07e40f0bc8bb27e0b2038396d7556",
+      "bytes": 1247
+    }
+  ],
+  "apk_delivery_notes": {
+    "all_debug": true,
+    "demo_api_reverse": "adb reverse tcp:8000 tcp:8000",
+    "demo_requires_host_api": true,
+    "pleos_api_url_is_placeholder": true,
+    "pleos_sdk_runtime_on_real_vehicle_verified": false,
+    "payments_and_fulfillment": "Demo order storage only; no real payment/sale/delivery claim."
+  },
+  "ui_validation": {
+    "status": "REVIEWED_WITH_SCOPE_LIMITS",
+    "accepted_visual_evidence": [
+      {
+        "id": "native-cabin-portrait-confirmed",
+        "files": [
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-portrait-confirmed.png",
+            "sha256": "6103714d59f8e2e5f25e82e7db64861748168828844d7221ba0c676abf12ec73",
+            "bytes": 144960,
+            "host_png_width_px": 1280,
+            "host_png_height_px": 800
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-portrait-confirmed.json",
+            "sha256": "d484d0b4756646f64a3ab8281b5b5030f2cdcb92bbdb2636e2689ec070f3d15b",
+            "bytes": 12994
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-portrait-confirmed.xml",
+            "sha256": "ef48399c4106ffdfa821ef81285d475b1db45e15ba2046fbf38e92f0d7aacfd3",
+            "bytes": 29739
+          }
+        ],
+        "accepted_by_root": true,
+        "visual_reviewers": [
+          "/root",
+          "/root/camp_sol_ultra"
+        ],
+        "document_author_viewed_png": false,
+        "guest_display_px": {
+          "width": 800,
+          "height": 1280
+        },
+        "letterbox_note": "Portrait guest800x1280 is letterboxed into host1280x800 PNG; black exterior is not app UI.",
+        "observed": [
+          "two synthetic demo control zones",
+          "scene choices wrap",
+          "three bottom navigation items"
+        ],
+        "action_execution_confirmed": false,
+        "apply_button_visible_in_this_frame": false,
+        "note": "Apply button lies below this viewport; full-button access is evidenced only by portrait-action.",
+        "independent_native_review": "completed",
+        "blocking_visual_defects_observed": false,
+        "visual_scope": "Visible viewport only: no blocking clipping, overlap, contrast or unreachable-control defect observed. Normal scrolling viewport clipping is not a defect.",
+        "contrast_ratio_measurement_claimed": false,
+        "full_accessibility_or_oem_multiwindow_certification_claimed": false
+      },
+      {
+        "id": "native-cabin-portrait-action",
+        "files": [
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-portrait-action.png",
+            "sha256": "8a82b4b2ce52b76c69c3c0a452f34be275637d0dcf1f8c6b5eb050a0290f871d",
+            "bytes": 127832,
+            "host_png_width_px": 1280,
+            "host_png_height_px": 800
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-portrait-action.json",
+            "sha256": "3e307d69a57fc9d3704e0f6fd9d1672128e670f7931aa30b2735c523173c6ddd",
+            "bytes": 11723
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-portrait-action.xml",
+            "sha256": "7eb9a6c4f360c7fec47c88b42a751055f0c97b1c183e8b479f3d641fd2938d3e",
+            "bytes": 28687
+          }
+        ],
+        "accepted_by_root": true,
+        "visual_reviewers": [
+          "/root",
+          "/root/camp_sol_ultra"
+        ],
+        "document_author_viewed_png": false,
+        "guest_display_px": {
+          "width": 800,
+          "height": 1280
+        },
+        "letterbox_note": "Portrait guest800x1280 is letterboxed into host1280x800 PNG; black exterior is not app UI.",
+        "observed": [
+          "full Apply button visible after reveal"
+        ],
+        "action_execution_confirmed": false,
+        "apply_button_visible_in_this_frame": true,
+        "independent_native_review": "completed",
+        "blocking_visual_defects_observed": false,
+        "visual_scope": "Visible viewport only: no blocking clipping, overlap, contrast or unreachable-control defect observed. Normal scrolling viewport clipping is not a defect.",
+        "contrast_ratio_measurement_claimed": false,
+        "full_accessibility_or_oem_multiwindow_certification_claimed": false
+      },
+      {
+        "id": "native-landscape-after-wait",
+        "files": [
+          {
+            "path": "artifacts/qa/design-c1/native-landscape-after-wait.png",
+            "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8",
+            "bytes": 172825,
+            "host_png_width_px": 1280,
+            "host_png_height_px": 800
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-landscape-after-wait.json",
+            "sha256": "e0cdf0d2ef8e9e238aa6d007040b0df56cb310d7a9d163d95c3c06193aa0a463",
+            "bytes": 11498
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-landscape-after-wait.xml",
+            "sha256": "2bbfbd997006c4dc0bc9d5c72bc205e314a02d960f464912537514562c0c9948",
+            "bytes": 29622
+          }
+        ],
+        "accepted_by_root": true,
+        "visual_reviewers": [
+          "/root",
+          "/root/camp_sol_ultra"
+        ],
+        "document_author_viewed_png": false,
+        "guest_display_px": null,
+        "letterbox_note": null,
+        "observed": [
+          "normal Discover screen"
+        ],
+        "action_execution_confirmed": false,
+        "independent_native_review": "completed",
+        "blocking_visual_defects_observed": false,
+        "visual_scope": "Visible viewport only: no blocking clipping, overlap, contrast or unreachable-control defect observed. Normal scrolling viewport clipping is not a defect.",
+        "contrast_ratio_measurement_claimed": false,
+        "full_accessibility_or_oem_multiwindow_certification_claimed": false
+      },
+      {
+        "id": "native-cabin-narrow-font130",
+        "files": [
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-narrow-font130.png",
+            "sha256": "b4e8b7d239b717fe9d05a61aa1a72b5d02b07275c7d38c17ec00a037405e5a11",
+            "bytes": 97751,
+            "host_png_width_px": 1280,
+            "host_png_height_px": 800
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-narrow-font130.json",
+            "sha256": "7c902de37d8a33283edd0d5d2b4971b69d990f2ebb829d0ff66a7cd053275c6a",
+            "bytes": 7019
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-narrow-font130.xml",
+            "sha256": "37272299550fef1f0f1dfa1cde8f813e9c24f5cb4f5eb74ed11a3824f567d240",
+            "bytes": 18433
+          }
+        ],
+        "accepted_by_root": true,
+        "visual_reviewers": [
+          "/root",
+          "/root/camp_sol_ultra"
+        ],
+        "independent_native_review": "completed",
+        "document_author_viewed_png": false,
+        "guest_display_px": {
+          "width": 640,
+          "height": 800
+        },
+        "font_scale": 1.3,
+        "observed": [
+          "stacked upper/lower panels",
+          "toolbar wraps"
+        ],
+        "action_execution_confirmed": false,
+        "blocking_visual_defects_observed": false,
+        "visual_scope": "Visible viewport only: no blocking clipping, overlap, contrast or unreachable-control defect observed. Normal scrolling viewport clipping is not a defect.",
+        "contrast_ratio_measurement_claimed": false,
+        "full_accessibility_or_oem_multiwindow_certification_claimed": false
+      },
+      {
+        "id": "native-cabin-narrow-font130-action",
+        "files": [
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-narrow-font130-action.png",
+            "sha256": "fc955c5677c17444a06592293a8f75a501cf824843a5b921f86f9e42a6c9907f",
+            "bytes": 102369,
+            "host_png_width_px": 1280,
+            "host_png_height_px": 800
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-narrow-font130-action.json",
+            "sha256": "b16eb34326d6d587a169bfb95c5e82b0cfb8a6a020560b9f7b969e1c11ee4ffe",
+            "bytes": 5965
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-narrow-font130-action.xml",
+            "sha256": "70d8de6fd214035a1950092faa399774dea5b3bf5dfc8a5a7126fd060503b4f4",
+            "bytes": 18218
+          }
+        ],
+        "accepted_by_root": true,
+        "visual_reviewers": [
+          "/root",
+          "/root/camp_sol_ultra"
+        ],
+        "independent_native_review": "completed",
+        "document_author_viewed_png": false,
+        "guest_display_px": {
+          "width": 640,
+          "height": 800
+        },
+        "font_scale": 1.3,
+        "observed": [
+          "full Apply button visible after reveal"
+        ],
+        "action_execution_confirmed": false,
+        "blocking_visual_defects_observed": false,
+        "visual_scope": "Visible viewport only: no blocking clipping, overlap, contrast or unreachable-control defect observed. Normal scrolling viewport clipping is not a defect.",
+        "contrast_ratio_measurement_claimed": false,
+        "full_accessibility_or_oem_multiwindow_certification_claimed": false
+      },
+      {
+        "id": "native-cabin-landscape-confirmed",
+        "files": [
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-landscape-confirmed.png",
+            "sha256": "1e8c2a5ad4a04ca6a05ad053a177d5fcb0aa12f81d23f6c3b2abcc9c3f738754",
+            "bytes": 157318,
+            "host_png_width_px": 1280,
+            "host_png_height_px": 800
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-landscape-confirmed.json",
+            "sha256": "547fc849927fac97743dfb17eb25de9d092956e13031dff841b3f7c7a07f1226",
+            "bytes": 10005
+          },
+          {
+            "path": "artifacts/qa/design-c1/native-cabin-landscape-confirmed.xml",
+            "sha256": "0b85cc3ec1883774eaa406a0df0abd7a2a86fb0fc43cd3f86a8b1a458970d45c",
+            "bytes": 24525
+          }
+        ],
+        "accepted_by_root": true,
+        "visual_reviewers": [
+          "/root",
+          "/root/camp_sol_ultra"
+        ],
+        "independent_native_review": "completed",
+        "document_author_viewed_png": false,
+        "guest_display_px": {
+          "width": 1280,
+          "height": 800
+        },
+        "font_scale": 1.0,
+        "observed": [
+          "manual temperature, reading light, blind and Apply button visible at the captured scroll position"
+        ],
+        "action_execution_confirmed": false,
+        "blocking_visual_defects_observed": false,
+        "visual_scope": "Visible viewport only: no blocking clipping, overlap, contrast or unreachable-control defect observed. Normal scrolling viewport clipping is not a defect.",
+        "contrast_ratio_measurement_claimed": false,
+        "full_accessibility_or_oem_multiwindow_certification_claimed": false
+      }
+    ],
+    "observations": [
+      {
+        "scope": "portrait Apply button",
+        "source": "root-reported actual UI hierarchy after reveal",
+        "bounds": "[463,749][759,829]",
+        "enabled": true,
+        "claim": "Visible/access-revealed and enabled; not command-completion evidence."
+      },
+      {
+        "scope": "narrow Apply button",
+        "source": "root-reported actual UI hierarchy after reveal",
+        "bounds": "[41,302][599,366]",
+        "enabled": true,
+        "claim": "Visible/access-revealed and enabled; not command-completion evidence."
+      }
+    ],
+    "planned_or_in_progress_conditions": [
+      {
+        "width_px": 800,
+        "height_px": 1280,
+        "font_scale": null
+      },
+      {
+        "width_px": 640,
+        "height_px": 800,
+        "font_scale": 1.3
+      }
+    ],
+    "scope": "Emulator display/window resizing; not physical OEM split-screen certification.",
+    "invalid_initial_evidence": {
+      "directory": "artifacts/qa/design-c1/",
+      "files": [
+        {
+          "path": "artifacts/qa/design-c1/native-landscape-initial.png",
+          "sha256": "55084bf67c3c43c838c3099cb57aab93c1d64993792783e6f6ef7a36f0a3a158",
+          "bytes": 36256,
+          "host_png_width_px": 1280,
+          "host_png_height_px": 800,
+          "reason": "Root excluded as initial Quickstep/SystemUI ANR evidence."
+        },
+        {
+          "path": "artifacts/qa/design-c1/native-landscape-loaded.png",
+          "sha256": "c6090a57c8ce8966fbd608c6022f93da11d6b6516c84307d34ca8100a2ff1854",
+          "bytes": 155601,
+          "host_png_width_px": 1280,
+          "host_png_height_px": 800,
+          "reason": "Root excluded as initial Quickstep/SystemUI ANR evidence."
+        },
+        {
+          "path": "artifacts/qa/design-c1/native-landscape-ready.png",
+          "sha256": "4a746615107b1dff9b56b4d8539c80e1c024d22ecbc4be24848378a2e308df5c",
+          "bytes": 154464,
+          "host_png_width_px": 1280,
+          "host_png_height_px": 800,
+          "reason": "Root excluded as initial Quickstep/SystemUI ANR evidence."
+        },
+        {
+          "path": "artifacts/qa/design-c1/native-cabin-landscape.png",
+          "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8",
+          "bytes": 172825,
+          "host_png_width_px": 1280,
+          "host_png_height_px": 800,
+          "reason": "Stale host capture; identical PNG hash to accepted Discover capture, not cabin evidence."
+        }
+      ],
+      "originals_preserved": true
+    },
+    "narrow_font130": {
+      "status": "root_and_native_independent_visual_review_completed; action execution remains unverified",
+      "guest_display_px": {
+        "width": 640,
+        "height": 800
+      },
+      "font_scale": 1.3,
+      "evidence_ids": [
+        "native-cabin-narrow-font130",
+        "native-cabin-narrow-font130-action"
+      ],
+      "accepted_as_final_evidence": true,
+      "full_apply_button_bounds": "[41,302][599,366]",
+      "enabled": true,
+      "action_execution_confirmed": false
+    },
+    "final_runtime_flow_confirmed": true,
+    "independent_visual_review": {
+      "status": "completed",
+      "reviewers": [
+        "/root",
+        "/root/camp_sol_ultra"
+      ],
+      "accepted_frame_count": 6,
+      "blocking_visible_defects_observed": false,
+      "normal_viewport_clipping_distinguished": true,
+      "source": "root relayed completed camp_sol_ultra independent actual-PNG review",
+      "physical_mm_or_full_accessibility_or_oem_multiwindow_claimed": false
+    },
+    "runtime_scope": "Demo API and simulated vehicle/navigation/commerce only.",
+    "fresh_recorder_stills": [
+      {
+        "path": "artifacts/qa/native-english.png",
+        "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8",
+        "bytes": 172825,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-dark.png",
+        "sha256": "002756f3b2f03b7507ccc8e9c8647f5b3465643c84f9c10c0f6e20605c340690",
+        "bytes": 167160,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-discover.png",
+        "sha256": "48f6d12a407a37c2625e5411ae22a13bfb65a51f56339af5f523b5517d9edc16",
+        "bytes": 168696,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-campsite-detail.png",
+        "sha256": "1e4341fa718ab83c7103258447e5bb7f8b7ddb43759486dfb174b6fea54d2c85",
+        "bytes": 161784,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-cabin.png",
+        "sha256": "6b1a695cf551e158c3fb688a06f7a456567152d1faa1b18d6db3c81f4f9918fc",
+        "bytes": 164536,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-command-preview.png",
+        "sha256": "8d63d294b8be7cb29b2b2749440e4945a2989929cc47d4245f34bb5995c58635",
+        "bytes": 156332,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-home-delivery.png",
+        "sha256": "823b1a3be4a243659a5c1e5803f78c731bcb5777c4c264744546594d93888d69",
+        "bytes": 173215,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-checkout.png",
+        "sha256": "6d19ac30004c174b33da4f1fc04884d3f62825288b43c09d13f9c3a3a366fbe6",
+        "bytes": 188460,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-order.png",
+        "sha256": "d80c811cad5cb9e65355ce951192a5412dd4b03692dbf916fbd338cc6c7754c0",
+        "bytes": 137545,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      }
+    ],
+    "trip_video_frame": {
+      "path": "artifacts/qa/design-c1/native-trip-from-video-130s.png",
+      "sha256": "00dcaa035a9448c0457a3ff33261715c025aa56671e34795d5c861e02cccadf0",
+      "source_time_seconds": 130.0,
+      "visual_reviewers": [
+        "root",
+        "camp_sol_ultra"
+      ]
+    },
+    "final_video_sampled_frames": [
+      {
+        "path": "artifacts/qa/design-c1/final-video-043s.png",
+        "sha256": "987e8e15e10cfbd6cbb9d07e2681d21137fda21c1811e1b7480416db834cb93d",
+        "bytes": 473348,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 43
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-073s.png",
+        "sha256": "fd6452ddc0b13bf3029ac38ec1b5f5cf7e16872e7f2f4be72183daf5783dd9ec",
+        "bytes": 323486,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 73
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-156s.png",
+        "sha256": "0af82b05064f93e403d8a7f44f0003f2c5769bb344dd0a5c20528d47435b6eba",
+        "bytes": 468168,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 156
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-172s.png",
+        "sha256": "e6d47b0110c88229240b816ed9d088deca6d3afb8a45c021b6b3a74ad132268e",
+        "bytes": 396415,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 172
+      }
+    ],
+    "final_frame_observations": "Korean captions render without tofu, lower caption area and upper three-times speed disclosure are separate from the app; intended app states visible; no system dialog or blocking overlay in sampled frames. Sampling is not a claim of per-frame inspection.",
+    "excluded_visual_evidence": [
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-initial.png",
+        "reason": "Quickstep ANR",
+        "sha256": "55084bf67c3c43c838c3099cb57aab93c1d64993792783e6f6ef7a36f0a3a158"
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-loaded.png",
+        "reason": "Quickstep ANR",
+        "sha256": "c6090a57c8ce8966fbd608c6022f93da11d6b6516c84307d34ca8100a2ff1854"
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-ready.png",
+        "reason": "System UI ANR",
+        "sha256": "4a746615107b1dff9b56b4d8539c80e1c024d22ecbc4be24848378a2e308df5c"
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-landscape.png",
+        "reason": "Stale Discover frame; XML Cabin alone is not visual evidence",
+        "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8"
+      },
+      {
+        "path": "artifacts/qa/native-trip.png",
+        "reason": "Premature Discover/busy still; actual raw t130 frame is retained instead",
+        "sha256": "1985d746c1ea9194a55607ea34607a06442b0e6a148c24e2fd262b5cc4342a14"
+      }
+    ],
+    "excluded_historical_preflight": "artifacts/qa/native-preflight-evidence.json",
+    "fresh_preflight_source": {
+      "path": "artifacts/qa/native-results.json",
+      "conditions": [
+        "English",
+        "Korean",
+        "night mode"
+      ],
+      "all_passed": true,
+      "prior_apk_preflight_reused": false
+    }
+  },
+  "recording": {
+    "status": "completed_verified",
+    "original": {
+      "path": "artifacts/demo/Camp_Room_Native_Raw.webm",
+      "sha256": "8395d5749134b91939b66d4690d3a2497f7be0d0a18a827501fd1e290050e29d",
+      "width": 1280,
+      "height": 800,
+      "fps": 12,
+      "duration_seconds": 511.999
+    },
+    "deliverable": {
+      "path": "artifacts/demo/Camp_Room_Demo.mp4",
+      "sha256": "b65b6ee22d163a099ae6fbeb96489ea9c800105c3c877a470f77e92518e05eb5",
+      "bytes": 3559110,
+      "codec": "h264",
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "duration_seconds": 173.666667
+    },
+    "editing_conditions": {
+      "playback_rate": 3,
+      "end_hold_seconds": 3,
+      "korean_subtitles": true,
+      "visible_speed_disclosure": true
+    },
+    "metadata": {
+      "capture": "Android Emulator host display capture",
+      "applicationId": "camp.room.app.demo",
+      "video": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1920,
+            "height": 1080
+          }
+        ],
+        "format": {
+          "duration": "173.666667",
+          "size": "3559110"
+        },
+        "sourceDurationSeconds": 511.999,
+        "playbackRate": 3
+      }
+    },
+    "final_video_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "pix_fmt": "yuv420p",
+          "avg_frame_rate": "30/1"
+        }
+      ],
+      "format": {
+        "duration": "173.666667",
+        "size": "3559110"
+      }
+    },
+    "sampled_final_frames": [
+      {
+        "path": "artifacts/qa/design-c1/final-video-043s.png",
+        "sha256": "987e8e15e10cfbd6cbb9d07e2681d21137fda21c1811e1b7480416db834cb93d",
+        "bytes": 473348,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 43
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-073s.png",
+        "sha256": "fd6452ddc0b13bf3029ac38ec1b5f5cf7e16872e7f2f4be72183daf5783dd9ec",
+        "bytes": 323486,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 73
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-156s.png",
+        "sha256": "0af82b05064f93e403d8a7f44f0003f2c5769bb344dd0a5c20528d47435b6eba",
+        "bytes": 468168,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 156
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-172s.png",
+        "sha256": "e6d47b0110c88229240b816ed9d088deca6d3afb8a45c021b6b3a74ad132268e",
+        "bytes": 396415,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 172
+      }
+    ],
+    "sampling_is_not_per_frame_inspection": true,
+    "demo_asr_or_real_vehicle_verification_claimed": false
+  },
+  "c2_ci": {
+    "status": "reported_separately_from_frozen_source_document",
+    "owner": "root",
+    "commit": null,
+    "run_id": null,
+    "url": null,
+    "conclusion": null,
+    "recorded_separately_as": "root-owned release evidence",
+    "runtime_document_does_not_claim_ci_success": true,
+    "evidence_url": "https://github.com/first-fluke/camp-room/releases/download/v1.0.0-demo.2/Camp_Room_CI.json"
+  },
+  "limitations": {
+    "blanket_pleos_compliance_claimed": false,
+    "physical_vehicle_model_or_trim_geometry_integrated": false,
+    "physical_text_5mm_3mm_measured": false,
+    "android_rendered_18px_measured": false,
+    "all_screen_4_5_contrast_verified": false,
+    "input_to_first_feedback_250ms_measured": false,
+    "physical_oem_split_screen_certified": false,
+    "real_car_ux_and_vehicle_motion_verified": false,
+    "v4_terminal_state_recovered": false,
+    "whole_project_complete_claimed": false
+  },
+  "frozen_c1_documents_from_completed_receipt": {
+    "docs/DESIGN_SYSTEM.md": "b2acb9cb0b0f92eda6830516d391e34fb65eb85bae870ede6ad7d42d404fcb8f",
+    "docs/verification/pleos-design-assets.json": "f9f9f817970603ca8f02923b7f6fa0b67e6357b02c7574b07e7dfefacfcc21db",
+    "docs/verification/pleos-design-audit.md": "0cb7608b9e70e752bdf812787f96750aad597db6c4ce1ffdf73a43fdcbd638c7",
+    "docs/verification/pleos-design-audit.json": "7fed5fba4c0e253499970533ffed46a7ce0b38ea7b78d05791b9419987c6958d"
+  },
+  "frozen_c1_documents_modified_by_this_task": false,
+  "humanize_review": {
+    "status": "completed",
+    "completed_at_utc": "2026-10-25T10:27:44.060847+00:00",
+    "skill": "im-not-ai humanize-korean v2.3-codex",
+    "documents": [
+      {
+        "name": "pleos-design-runtime.md",
+        "run_id": "2026-10-25-001-09c1",
+        "genre": "report",
+        "route": "light",
+        "route_source": "prepare_monolith_input.py route_hint",
+        "independent_role": "monolith",
+        "independent_reviewer": "/root/pleos_docs_current_review",
+        "input_sha256": "16413abe4ca146d8266a36ed2e56849123e91a6787d346d9b48f3e93d90d6632",
+        "reviewed_body_sha256": "bb68e1da83514128aecc048dee5af3e6adf5f3dea8614b5702df83d6edd17a44",
+        "final_artifact_sha256": "a045d42af53e94c978874df7ab8a15ec489fa9b9e4074e93f155ae023fb05944",
+        "gate": {
+          "genre": "report",
+          "change_rate": {
+            "rate": 0.0002,
+            "scope": "전문",
+            "verdict": "OK"
+          },
+          "s1_targets": [],
+          "antithesis": {
+            "before": 0,
+            "after": 0,
+            "verdict": "스킵 (원문 대구 < 5)"
+          },
+          "golden": [],
+          "sentence_touch": {
+            "rate": 0.0305,
+            "touched": 4,
+            "total": 131
+          },
+          "numbers_dropped": [],
+          "modality": {
+            "lost_pairs": [],
+            "uncertain_pairs": [],
+            "counts": {
+              "deontic": {
+                "before": 1,
+                "after": 1
+              },
+              "hedge": {
+                "before": 0,
+                "after": 0
+              }
+            },
+            "verdict": "OK"
+          },
+          "gate": {
+            "verdict": "OK — 수렴",
+            "exit_code": 0
+          }
+        },
+        "gate_exit": 0,
+        "finding_count": 4,
+        "finding_rule": "C-11",
+        "reviewer_grade": "B",
+        "reviewer_self_check_passed": 6,
+        "reviewer_self_check_total": 6,
+        "code_urls_and_fences_preserved": true
+      },
+      {
+        "name": "README-table-addition.md",
+        "run_id": "2026-10-25-002-7d5e",
+        "genre": "report",
+        "route": "light",
+        "route_source": "prepare_monolith_input.py route_hint",
+        "independent_role": "monolith",
+        "independent_reviewer": "/root/pleos_docs_current_review",
+        "input_sha256": "950cfb780ef70c0c139c8091fa99b980e0c965b1604055cd38e84f4460db078a",
+        "reviewed_body_sha256": "950cfb780ef70c0c139c8091fa99b980e0c965b1604055cd38e84f4460db078a",
+        "final_artifact_sha256": "72fd87ce5a35c9f97cc55232846f00c83b387531ce9f24bad2f9040a3b7f3e92",
+        "gate": {
+          "genre": "report",
+          "change_rate": {
+            "rate": 0.0,
+            "scope": "전문",
+            "verdict": "OK"
+          },
+          "s1_targets": [],
+          "antithesis": {
+            "before": 0,
+            "after": 0,
+            "verdict": "스킵 (원문 대구 < 5)"
+          },
+          "golden": [],
+          "sentence_touch": {
+            "rate": 0.0,
+            "touched": 0,
+            "total": 1
+          },
+          "numbers_dropped": [],
+          "modality": {
+            "lost_pairs": [],
+            "uncertain_pairs": [],
+            "counts": {
+              "deontic": {
+                "before": 0,
+                "after": 0
+              },
+              "hedge": {
+                "before": 0,
+                "after": 0
+              }
+            },
+            "verdict": "OK"
+          },
+          "gate": {
+            "verdict": "OK — 수렴",
+            "exit_code": 0
+          }
+        },
+        "gate_exit": 0,
+        "finding_count": 0,
+        "finding_rule": null,
+        "reviewer_grade": "B",
+        "reviewer_self_check_passed": 6,
+        "reviewer_self_check_total": 6,
+        "code_urls_and_fences_preserved": true
+      },
+      {
+        "name": "release-bundle-paragraph.md",
+        "run_id": "2026-10-25-003-0351",
+        "genre": "report",
+        "route": "light",
+        "route_source": "prepare_monolith_input.py route_hint",
+        "independent_role": "monolith",
+        "independent_reviewer": "/root/pleos_docs_current_review",
+        "input_sha256": "e4db247bf29ff6807085ed91be285519c5cfbb88ff29c856908184ac65d7f0a2",
+        "reviewed_body_sha256": "e4db247bf29ff6807085ed91be285519c5cfbb88ff29c856908184ac65d7f0a2",
+        "final_artifact_sha256": "9cf6c3bb21bf524b9a5a19e79f69aafce1a5aec2bebe4e95b9bcb78da1080c97",
+        "gate": {
+          "genre": "report",
+          "change_rate": {
+            "rate": 0.0,
+            "scope": "전문",
+            "verdict": "OK"
+          },
+          "s1_targets": [],
+          "antithesis": {
+            "before": 0,
+            "after": 0,
+            "verdict": "스킵 (원문 대구 < 5)"
+          },
+          "golden": [],
+          "sentence_touch": {
+            "rate": 0.0,
+            "touched": 0,
+            "total": 2
+          },
+          "numbers_dropped": [],
+          "modality": {
+            "lost_pairs": [],
+            "uncertain_pairs": [],
+            "counts": {
+              "deontic": {
+                "before": 0,
+                "after": 0
+              },
+              "hedge": {
+                "before": 1,
+                "after": 1
+              }
+            },
+            "verdict": "OK"
+          },
+          "gate": {
+            "verdict": "OK — 수렴",
+            "exit_code": 0
+          }
+        },
+        "gate_exit": 0,
+        "finding_count": 0,
+        "finding_rule": null,
+        "reviewer_grade": "B",
+        "reviewer_self_check_passed": 6,
+        "reviewer_self_check_total": 6,
+        "code_urls_and_fences_preserved": true
+      }
+    ],
+    "composition": {
+      "method": "Insert separately reviewed and passing release paragraph after the two main introduction paragraphs; no other editorial change.",
+      "main_reviewed_body_sha256": "bb68e1da83514128aecc048dee5af3e6adf5f3dea8614b5702df83d6edd17a44",
+      "release_paragraph_sha256": "e4db247bf29ff6807085ed91be285519c5cfbb88ff29c856908184ac65d7f0a2",
+      "composed_runtime_document_sha256": "a643823f7caebd4a058f2d5b2d514580bdac773a1f25e8f6be84c2fb9ef72159",
+      "readme_row_sha256": "950cfb780ef70c0c139c8091fa99b980e0c965b1604055cd38e84f4460db078a",
+      "separate_composed_gate_claimed": false,
+      "reviewed_fragments_preserved_exactly": true
+    },
+    "review_summary_published_in_product_markdown": false
+  },
+  "authoring_actions": {
+    "evidence_files_read": true,
+    "tests_rerun": false,
+    "build_or_jvm_run": false,
+    "ui_or_browser_tools_run": false,
+    "oma_checks_run": false,
+    "repository_files_written": false
+  },
+  "updated_at_utc": "2026-10-25T10:27:44.060847+00:00",
+  "official_compose_examples": {
+    "status": "official sample code confirmed by root; packaged design-system runtime not found within stated public scope",
+    "official_design_guide_figma_and_component_spec_available": true,
+    "api_controls": {
+      "url": "https://github.com/Pleos-Playground/pleos-sample-vehicle-app/blob/959981d960ec71144accb27af5ae5d341e72a644/app/src/main/java/ai/pleos/playground/sample/vehicle/ui/screen/ApiControls.kt",
+      "blob_sha": "aed35bd874f1440f56d4f452d730353253292c70",
+      "observed_material3_components": [
+        "ExposedDropdownMenuBox",
+        "DropdownMenuItem"
+      ]
+    },
+    "theme": {
+      "url": "https://github.com/Pleos-Playground/pleos-sample-vehicle-app/blob/959981d960ec71144accb27af5ae5d341e72a644/app/src/main/java/ai/pleos/playground/sample/vehicle/ui/theme/Theme.kt",
+      "blob_sha": "8098db95814f31b87e3e67d33cba58afc614ab9d"
+    },
+    "version_catalog": {
+      "filename": "libs.versions.toml",
+      "blob_sha": "8125bf4a231ba1179a3f3ebbab482dc48e468276"
+    },
+    "read_method": "root directly read via gh api; no additional investigation by documentation agent",
+    "public_distribution_search_scope": {
+      "official_org_public_repositories": 5,
+      "nexus_coordinates": 14,
+      "nexus_versions": 36
+    },
+    "blanket_absence_of_official_implementation_claimed": false,
+    "sample_is_full_design_compliance_guarantee": false,
+    "limitation": "Public scope only; official tutorial does not establish full UI design compliance.",
+    "commit": "959981d960ec71144accb27af5ae5d341e72a644"
+  },
+  "native_runtime_result": {
+    "status": "passed",
+    "platform": "Android 35 native Kotlin/Jetpack Compose",
+    "applicationId": "camp.room.app.demo",
+    "captureBackend": "emulator",
+    "apkSha256": "d22706f8007b0ee34b4b8bf9e8fea75885fb290c4c4898eec2ac66ebb3abf480",
+    "nativeSourceCommit": "fded228938a8c4a171aad7b179329e08be87bc8d",
+    "startedAtUtc": "2026-10-25T10:01:03.354055+00:00",
+    "verifiedAtUtc": "2026-10-25T10:18:31.705362+00:00",
+    "preflightEvidence": null,
+    "checks": [
+      {
+        "name": "Recording operates only on explicit demo data",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Actual Android device booted",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native demo APK installed",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "English app language renders native UI",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Korean app language renders native UI",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native app remains usable in system night mode",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native filters return matching campsite cards",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native save persists selected trip",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native navigation action reaches backend demo intent",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native cabin scene applies distinct front and rear states",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Command preview does not apply vehicle changes",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native cart additions persist with server prices",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native demo checkout creates exactly one persisted order",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Order delivery campsite matches the trip",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Order uses campsite delivery and no real payment",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Successful checkout clears the cart",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Real native screen recording exists",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "State persists across Android process recreation",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Actual native analytics, API and SDK events are persisted",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Saved trip, navigation, scene and checkout analytics are recorded",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Native event attributes obey the privacy allowlist",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Demo checkout analytics preserve runtime and order provenance",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Actual Android fatal exception is persisted locally",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Crash records omit message, cause and thread data",
+        "status": "passed",
+        "detail": ""
+      },
+      {
+        "name": "Final MP4 is 1920×1080",
+        "status": "passed",
+        "detail": ""
+      }
+    ],
+    "video": "artifacts/demo/Camp_Room_Demo.mp4",
+    "videoSha256": "b65b6ee22d163a099ae6fbeb96489ea9c800105c3c877a470f77e92518e05eb5",
+    "videoDurationSeconds": 173.666667,
+    "limitations": [
+      "Emulated vehicle and demo booking/payment",
+      "Actual SDK artifact compilation is recorded separately",
+      "External campground/weather provider keys are not configured; source data in this recording is explicitly demo"
+    ]
+  },
+  "native_telemetry_result": {
+    "status": "passed",
+    "events": [
+      "camp_action_completed",
+      "camp_api_completed",
+      "camp_app_started",
+      "camp_cloud_state",
+      "camp_failure",
+      "camp_screen_viewed",
+      "camp_sdk_completed"
+    ],
+    "actions": [
+      "add_product",
+      "apply_scene",
+      "checkout",
+      "load",
+      "navigation",
+      "quote",
+      "save_trip",
+      "search"
+    ],
+    "controlledCrashObserved": true,
+    "cloudDelivery": "Not inferred from local records; requires provider configuration and dashboard evidence"
+  },
+  "root_visual_review_proof": {
+    "schemaVersion": 1,
+    "checkedAt": "2026-10-25T10:22:19.568744+00:00",
+    "status": "passed_with_scope_limits",
+    "nativeSourceCommit": "fded228938a8c4a171aad7b179329e08be87bc8d",
+    "apkSha256": "d22706f8007b0ee34b4b8bf9e8fea75885fb290c4c4898eec2ac66ebb3abf480",
+    "video": {
+      "path": "artifacts/demo/Camp_Room_Demo.mp4",
+      "sha256": "b65b6ee22d163a099ae6fbeb96489ea9c800105c3c877a470f77e92518e05eb5",
+      "bytes": 3559110,
+      "reviewers": [
+        "root",
+        "camp_sol_ultra"
+      ]
+    },
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1920,
+          "height": 1080,
+          "pix_fmt": "yuv420p",
+          "avg_frame_rate": "30/1"
+        }
+      ],
+      "format": {
+        "duration": "173.666667",
+        "size": "3559110"
+      }
+    },
+    "rawVideoSha256": "8395d5749134b91939b66d4690d3a2497f7be0d0a18a827501fd1e290050e29d",
+    "playbackRate": 3,
+    "endHoldSeconds": 3,
+    "sampledFinalVideoFrames": [
+      {
+        "path": "artifacts/qa/design-c1/final-video-043s.png",
+        "sha256": "987e8e15e10cfbd6cbb9d07e2681d21137fda21c1811e1b7480416db834cb93d",
+        "bytes": 473348,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 43
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-073s.png",
+        "sha256": "fd6452ddc0b13bf3029ac38ec1b5f5cf7e16872e7f2f4be72183daf5783dd9ec",
+        "bytes": 323486,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 73
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-156s.png",
+        "sha256": "0af82b05064f93e403d8a7f44f0003f2c5769bb344dd0a5c20528d47435b6eba",
+        "bytes": 468168,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 156
+      },
+      {
+        "path": "artifacts/qa/design-c1/final-video-172s.png",
+        "sha256": "e6d47b0110c88229240b816ed9d088deca6d3afb8a45c021b6b3a74ad132268e",
+        "bytes": 396415,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ],
+        "timeSeconds": 172
+      }
+    ],
+    "finalFrameObservations": "Korean captions render without tofu, lower caption area and upper three-times speed disclosure are separate from the app; intended app states visible; no system dialog or blocking overlay in sampled frames. Sampling is not a claim of per-frame inspection.",
+    "acceptedManualCaptures": [
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-after-wait.png",
+        "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8",
+        "bytes": 172825,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-portrait-confirmed.png",
+        "sha256": "6103714d59f8e2e5f25e82e7db64861748168828844d7221ba0c676abf12ec73",
+        "bytes": 144960,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-portrait-action.png",
+        "sha256": "8a82b4b2ce52b76c69c3c0a452f34be275637d0dcf1f8c6b5eb050a0290f871d",
+        "bytes": 127832,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-narrow-font130.png",
+        "sha256": "b4e8b7d239b717fe9d05a61aa1a72b5d02b07275c7d38c17ec00a037405e5a11",
+        "bytes": 97751,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-narrow-font130-action.png",
+        "sha256": "fc955c5677c17444a06592293a8f75a501cf824843a5b921f86f9e42a6c9907f",
+        "bytes": 102369,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-landscape-confirmed.png",
+        "sha256": "1e8c2a5ad4a04ca6a05ad053a177d5fcb0aa12f81d23f6c3b2abcc9c3f738754",
+        "bytes": 157318,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      }
+    ],
+    "acceptedRecorderStills": [
+      {
+        "path": "artifacts/qa/native-english.png",
+        "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8",
+        "bytes": 172825,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-dark.png",
+        "sha256": "002756f3b2f03b7507ccc8e9c8647f5b3465643c84f9c10c0f6e20605c340690",
+        "bytes": 167160,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-discover.png",
+        "sha256": "48f6d12a407a37c2625e5411ae22a13bfb65a51f56339af5f523b5517d9edc16",
+        "bytes": 168696,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-campsite-detail.png",
+        "sha256": "1e4341fa718ab83c7103258447e5bb7f8b7ddb43759486dfb174b6fea54d2c85",
+        "bytes": 161784,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-cabin.png",
+        "sha256": "6b1a695cf551e158c3fb688a06f7a456567152d1faa1b18d6db3c81f4f9918fc",
+        "bytes": 164536,
+        "reviewers": [
+          "root",
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-command-preview.png",
+        "sha256": "8d63d294b8be7cb29b2b2749440e4945a2989929cc47d4245f34bb5995c58635",
+        "bytes": 156332,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-home-delivery.png",
+        "sha256": "823b1a3be4a243659a5c1e5803f78c731bcb5777c4c264744546594d93888d69",
+        "bytes": 173215,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-checkout.png",
+        "sha256": "6d19ac30004c174b33da4f1fc04884d3f62825288b43c09d13f9c3a3a366fbe6",
+        "bytes": 188460,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      },
+      {
+        "path": "artifacts/qa/native-order.png",
+        "sha256": "d80c811cad5cb9e65355ce951192a5412dd4b03692dbf916fbd338cc6c7754c0",
+        "bytes": 137545,
+        "reviewers": [
+          "camp_sol_ultra"
+        ]
+      }
+    ],
+    "tripFrameProof": "artifacts/qa/design-c1/native-trip-from-video-130s.json",
+    "excludedVisualEvidence": [
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-initial.png",
+        "reason": "Quickstep ANR",
+        "sha256": "55084bf67c3c43c838c3099cb57aab93c1d64993792783e6f6ef7a36f0a3a158"
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-loaded.png",
+        "reason": "Quickstep ANR",
+        "sha256": "c6090a57c8ce8966fbd608c6022f93da11d6b6516c84307d34ca8100a2ff1854"
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-landscape-ready.png",
+        "reason": "System UI ANR",
+        "sha256": "4a746615107b1dff9b56b4d8539c80e1c024d22ecbc4be24848378a2e308df5c"
+      },
+      {
+        "path": "artifacts/qa/design-c1/native-cabin-landscape.png",
+        "reason": "Stale Discover frame; XML Cabin alone is not visual evidence",
+        "sha256": "af5e772946197a50e5b7d012c2f0de925083158c3ac9252ad6a959f1f4ae9fa8"
+      },
+      {
+        "path": "artifacts/qa/native-trip.png",
+        "reason": "Premature Discover/busy still; actual raw t130 frame is retained instead",
+        "sha256": "1985d746c1ea9194a55607ea34607a06442b0e6a148c24e2fd262b5cc4342a14"
+      }
+    ],
+    "unreusedHistoricalPreflight": "artifacts/qa/native-preflight-evidence.json",
+    "limits": [
+      "Vehicle/navigation/booking/checkout in the recording are explicit demo simulations.",
+      "Local telemetry and controlled native crash verified; cloud delivery not inferred.",
+      "Manual sizes are emulator display/window resizing, not OEM multiwindow certification.",
+      "Physical text dimensions, all-screen numeric contrast, input-to-frame latency, actual vehicle and model-specific geometry remain separate validation scopes."
+    ]
+  },
+  "trip_replacement_proof": {
+    "createdAt": "2026-10-25T10:15:20.173735+00:00",
+    "nativeSourceCommit": "fded228938a8c4a171aad7b179329e08be87bc8d",
+    "sourceVideo": "artifacts/demo/Camp_Room_Native_Raw.webm",
+    "sourceVideoSha256": "8395d5749134b91939b66d4690d3a2497f7be0d0a18a827501fd1e290050e29d",
+    "sourceTimeSeconds": 130.0,
+    "frame": "artifacts/qa/design-c1/native-trip-from-video-130s.png",
+    "frameSha256": "00dcaa035a9448c0457a3ff33261715c025aa56671e34795d5c861e02cccadf0",
+    "visualReviewers": [
+      "root",
+      "camp_sol_ultra"
+    ],
+    "observed": "Actual Korean My camping with saved trip, demo weather, route and navigation-start UI",
+    "rawVideoProbe": {
+      "programs": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 800,
+          "r_frame_rate": "12/1"
+        },
+        {
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "511.999000"
+      }
+    },
+    "excludedPrematureStill": {
+      "path": "artifacts/qa/native-trip.png",
+      "sha256": "1985d746c1ea9194a55607ea34607a06442b0e6a148c24e2fd262b5cc4342a14",
+      "reason": "Shows earlier Discover/busy frame, not Trip; no Trip visual pass inferred from it"
+    },
+    "wholeRunStatus": "Still running final persistence/telemetry/render checks at frame-proof creation"
+  },
+  "owned_emulator_shutdown": {
+    "proof": {
+      "at": "2026-10-25T10:18:25.441086+00:00",
+      "pid": 41033,
+      "verifiedStartTicks": "3077830",
+      "methods": [
+        {
+          "method": "owned-adb-emu-kill",
+          "exitCode": 0
+        }
+      ],
+      "terminationConfirmed": true,
+      "filesOrAvdRemoved": false,
+      "memoryCurrentBytes": 4126498816
+    },
+    "proof_sha256": "07cdd76c12380572a001c00a084dcabff24c22a434346c5633244365050a76a6",
+    "source_path": "/workspace/scratch/ba5b9bcb89cd/work/emulator-c1-shutdown.json"
+  },
+  "workflow_scope": "Seven named v3/v5 tasks completed on C1. Historical v4 terminal state is unchanged; new C2 documents are not claimed to be part of C1 receipts.",
+  "release_evidence_bundle": {
+    "url": "https://github.com/first-fluke/camp-room/releases/download/v1.0.0-demo.2/Camp_Room_Verification.zip",
+    "layout": "Extracted bundle preserves the repository-relative paths cited by the runtime document.",
+    "publication_owner": "root",
+    "url_availability_checked_by_documentation_agent": false
+  }
+}

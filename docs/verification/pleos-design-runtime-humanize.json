@@ -1,0 +1,267 @@
+{
+  "status": "PASS",
+  "completed_at_utc": "2026-10-25T10:27:44.060847+00:00",
+  "skill_gate_count": 3,
+  "skill_gate_exit_codes": [
+    0,
+    0,
+    0
+  ],
+  "independent_review_completed": true,
+  "review_records": [
+    {
+      "name": "pleos-design-runtime.md",
+      "run_id": "2026-10-25-001-09c1",
+      "genre": "report",
+      "route": "light",
+      "route_source": "prepare_monolith_input.py route_hint",
+      "independent_role": "monolith",
+      "independent_reviewer": "/root/pleos_docs_current_review",
+      "input_sha256": "16413abe4ca146d8266a36ed2e56849123e91a6787d346d9b48f3e93d90d6632",
+      "reviewed_body_sha256": "bb68e1da83514128aecc048dee5af3e6adf5f3dea8614b5702df83d6edd17a44",
+      "final_artifact_sha256": "a045d42af53e94c978874df7ab8a15ec489fa9b9e4074e93f155ae023fb05944",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0002,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0305,
+          "touched": 4,
+          "total": 131
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 1,
+              "after": 1
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      },
+      "gate_exit": 0,
+      "finding_count": 4,
+      "finding_rule": "C-11",
+      "reviewer_grade": "B",
+      "reviewer_self_check_passed": 6,
+      "reviewer_self_check_total": 6,
+      "code_urls_and_fences_preserved": true
+    },
+    {
+      "name": "README-table-addition.md",
+      "run_id": "2026-10-25-002-7d5e",
+      "genre": "report",
+      "route": "light",
+      "route_source": "prepare_monolith_input.py route_hint",
+      "independent_role": "monolith",
+      "independent_reviewer": "/root/pleos_docs_current_review",
+      "input_sha256": "950cfb780ef70c0c139c8091fa99b980e0c965b1604055cd38e84f4460db078a",
+      "reviewed_body_sha256": "950cfb780ef70c0c139c8091fa99b980e0c965b1604055cd38e84f4460db078a",
+      "final_artifact_sha256": "72fd87ce5a35c9f97cc55232846f00c83b387531ce9f24bad2f9040a3b7f3e92",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0,
+          "touched": 0,
+          "total": 1
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 0,
+              "after": 0
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      },
+      "gate_exit": 0,
+      "finding_count": 0,
+      "finding_rule": null,
+      "reviewer_grade": "B",
+      "reviewer_self_check_passed": 6,
+      "reviewer_self_check_total": 6,
+      "code_urls_and_fences_preserved": true
+    },
+    {
+      "name": "release-bundle-paragraph.md",
+      "run_id": "2026-10-25-003-0351",
+      "genre": "report",
+      "route": "light",
+      "route_source": "prepare_monolith_input.py route_hint",
+      "independent_role": "monolith",
+      "independent_reviewer": "/root/pleos_docs_current_review",
+      "input_sha256": "e4db247bf29ff6807085ed91be285519c5cfbb88ff29c856908184ac65d7f0a2",
+      "reviewed_body_sha256": "e4db247bf29ff6807085ed91be285519c5cfbb88ff29c856908184ac65d7f0a2",
+      "final_artifact_sha256": "9cf6c3bb21bf524b9a5a19e79f69aafce1a5aec2bebe4e95b9bcb78da1080c97",
+      "gate": {
+        "genre": "report",
+        "change_rate": {
+          "rate": 0.0,
+          "scope": "전문",
+          "verdict": "OK"
+        },
+        "s1_targets": [],
+        "antithesis": {
+          "before": 0,
+          "after": 0,
+          "verdict": "스킵 (원문 대구 < 5)"
+        },
+        "golden": [],
+        "sentence_touch": {
+          "rate": 0.0,
+          "touched": 0,
+          "total": 2
+        },
+        "numbers_dropped": [],
+        "modality": {
+          "lost_pairs": [],
+          "uncertain_pairs": [],
+          "counts": {
+            "deontic": {
+              "before": 0,
+              "after": 0
+            },
+            "hedge": {
+              "before": 1,
+              "after": 1
+            }
+          },
+          "verdict": "OK"
+        },
+        "gate": {
+          "verdict": "OK — 수렴",
+          "exit_code": 0
+        }
+      },
+      "gate_exit": 0,
+      "finding_count": 0,
+      "finding_rule": null,
+      "reviewer_grade": "B",
+      "reviewer_self_check_passed": 6,
+      "reviewer_self_check_total": 6,
+      "code_urls_and_fences_preserved": true
+    }
+  ],
+  "composition_fragments_exact": true,
+  "composition_code_urls_and_fences_preserved": true,
+  "first_two_input_contracts_unchanged": true,
+  "local_links_checked_for_promotion": 11,
+  "local_links": [
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "pleos-design-audit.md"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/verification-c1/native-build-evidence.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/turso-results.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/admin-integration.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/native-results.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/native-telemetry.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/design-c1/native-trip-from-video-130s.png"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/qa/design-c1/native-trip-from-video-130s.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "../../artifacts/demo/demo-metadata.json"
+    },
+    {
+      "document": "docs/verification/pleos-design-runtime.md",
+      "target": "pleos-design-runtime.json"
+    },
+    {
+      "document": "README.md",
+      "target": "docs/verification/pleos-design-runtime.md"
+    }
+  ],
+  "broken_local_links": [],
+  "outputs": [
+    {
+      "path": "/workspace/scratch/ba5b9bcb89cd/work/pleos-design-c2-review/pleos-design-runtime.md",
+      "sha256": "a643823f7caebd4a058f2d5b2d514580bdac773a1f25e8f6be84c2fb9ef72159",
+      "bytes": 13446
+    },
+    {
+      "path": "/workspace/scratch/ba5b9bcb89cd/work/pleos-design-c2-review/pleos-design-runtime.json",
+      "sha256": "c4b4103cc4573665e0441386a05d516aef53c4ae23b0caf7c6bc624a63111773",
+      "bytes": 64135
+    },
+    {
+      "path": "/workspace/scratch/ba5b9bcb89cd/work/pleos-design-c2-review/README-table-addition.md",
+      "sha256": "950cfb780ef70c0c139c8091fa99b980e0c965b1604055cd38e84f4460db078a",
+      "bytes": 139
+    },
+    {
+      "path": "/workspace/scratch/ba5b9bcb89cd/work/pleos-design-c2-review/release-bundle-paragraph.md",
+      "sha256": "e4db247bf29ff6807085ed91be285519c5cfbb88ff29c856908184ac65d7f0a2",
+      "bytes": 248
+    }
+  ],
+  "repo_files_written": false,
+  "C1_documents_or_bound_reports_written": false,
+  "new_source_or_runtime_checks_executed": false,
+  "ci_result_bound_or_conclusion_fabricated": false
+}

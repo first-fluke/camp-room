@@ -13,6 +13,7 @@
 | [독립 DB 검토](docs/database/SCHEMA_REVIEW.md) | 3NF 검토, 제약조건과 트랜잭션 검증 |
 | [실행 안내](docs/USAGE.ko.md) | 앱, API, 관리자, 워커 실행 및 검증 명령 |
 | [Pleos 디자인 적용](docs/DESIGN_SYSTEM.md) | 테마·글꼴·공통 컴포넌트와 검증 범위 |
+| [새 디자인·앱 실행 검증](docs/verification/pleos-design-runtime.md) | C1 APK·화면·시연·로컬 관측성 검사 결과 |
 | [앱 진단과 분석](docs/OBSERVABILITY.md) | 로컬 로그, Sentry·PostHog 설정과 수집 범위 |
 | [인증과 비밀값](docs/AUTH.ko.md) | 관리자 세션, 서버 인증, 현재 프로필 범위 |
 | [외부 데이터](docs/INTEGRATIONS.md) | 공급자 어댑터, 환경변수, 연결 상태 |
