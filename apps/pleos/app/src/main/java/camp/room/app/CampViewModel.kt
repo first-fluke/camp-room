@@ -156,7 +156,13 @@ constructor(
                 throw e
             } catch (e: Exception) {
                 telemetry.failure(e,Dimensions(action=action,durationMs=(System.nanoTime()-began)/1_000_000))
-                mutable.update { it.copy(error = if (e is CampUserMessageException) e.message.orEmpty() else CampText.get(R.string.camp_we_couldn_t_complete_the_request)) }
+                mutable.update {
+                    it.copy(error = when (e) {
+                        is CampUserMessageException -> e.message.orEmpty()
+                        is CampRequestFailure -> e.localizedMessage()
+                        else -> CampText.get(R.string.camp_we_couldn_t_complete_the_request)
+                    })
+                }
             } finally {
                 currentCoroutineContext()[Job]?.let(actionJobs::complete)
                 mutable.update { it.copy(busy = false, loading = false) }

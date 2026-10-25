@@ -399,41 +399,50 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
             fontWeight = FontWeight.Medium,
         )
         data.products.forEach { product ->
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                ProductArtwork(product.id, Modifier.size(51.dp))
-                Column(Modifier.weight(1f).padding(start = 12.dp)) {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    ProductArtwork(product.id, Modifier.size(51.dp))
                     Text(
                         product.name,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        won(product.price),
-                        fontSize = 22.sp,
-                        color = CampPalette.Muted,
-                        modifier = Modifier.padding(top = 4.dp),
+                        modifier = Modifier.weight(1f).padding(start = 12.dp),
                     )
                 }
-                FilledTonalIconButton(
-                    colors =
-                        IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = CampPalette.Sage,
-                            contentColor = CampPalette.Forest,
-                            disabledContainerColor = CampPalette.Canvas,
-                            disabledContentColor = CampPalette.Muted,
-                        ),
-                    onClick = { vm.addProduct(product.id) },
-                    enabled = !s.busy && product.stock > 0,
-                    modifier =
-                        Modifier.size(CampDesign.IconTarget)
-                            .testTag("cart-product-add-${product.id}"),
-                    shape = RoundedCornerShape(6.dp),
+                FlowRow(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Icon(
-                        CampIcons.Plus,
-                        tr(camp.room.app.R.string.camp_add_another, product.name),
-                        Modifier.size(24.dp),
-                    )
+                    Text(won(product.price), fontSize = 22.sp, color = CampPalette.Muted)
+                    if (product.stock <= 0)
+                        CampSecondary(
+                            tr(R.string.camp_out_of_stock),
+                            enabled = false,
+                            modifier = Modifier.testTag("cart-product-add-${product.id}"),
+                            onClick = {},
+                        )
+                    else FilledTonalIconButton(
+                        colors =
+                            IconButtonDefaults.filledTonalIconButtonColors(
+                                containerColor = CampPalette.Sage,
+                                contentColor = CampPalette.Forest,
+                                disabledContainerColor = CampPalette.Canvas,
+                                disabledContentColor = CampPalette.Muted,
+                            ),
+                        onClick = { vm.addProduct(product.id) },
+                        enabled = !s.busy && product.stock > 0,
+                        modifier =
+                            Modifier.size(CampDesign.IconTarget)
+                                .testTag("cart-product-add-${product.id}"),
+                        shape = RoundedCornerShape(6.dp),
+                    ) {
+                        Icon(
+                            CampIcons.Plus,
+                            tr(camp.room.app.R.string.camp_add_another, product.name),
+                            Modifier.size(24.dp),
+                        )
+                    }
                 }
             }
         }

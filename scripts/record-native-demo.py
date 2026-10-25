@@ -153,6 +153,11 @@ def caption(title: str, text: str, hold=2.5):
 
 
 def screenshot(name: str):
+    # Wait for the visible accessibility window before capturing a software-rendered guest.
+    # A successful input event alone does not mean the next Compose frame is displayed.
+    document = hierarchy()
+    if not any(node.attrib.get("text") or node.attrib.get("content-desc") for node in document.iter("node")):
+        raise RuntimeError("No visible UI content; refusing a blank screenshot")
     destination = QA / f"native-{name}.png"
     if CAPTURE_BACKEND == "emulator":
         # Host capture avoids PNG/AVC encoding inside an unaccelerated guest.

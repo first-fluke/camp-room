@@ -30,7 +30,7 @@ class CampRepository @Inject constructor(private val api:DefaultApi,private val 
     private suspend fun <T> checked(response:HttpResponse<T>):T {
         if(!response.success) {
             val detail=runCatching { val value=JSONObject(response.response.bodyAsText()).opt("detail"); if(value is String)value else "" }.getOrDefault("")
-            throw IllegalStateException(detail.ifBlank { CampText.get(R.string.camp_we_couldn_t_complete_the_request)+" (HTTP ${response.status})" })
+            throw CampRequestFailure.fromResponse(response.status, detail)
         }
         return response.body()
     }
@@ -69,7 +69,8 @@ class CampRepository @Inject constructor(private val api:DefaultApi,private val 
     suspend fun quote(details:DeliveryDetails):Quote {
         val request=CheckoutInput(destination=if(details.destination=="home")CheckoutInput.Destination.HOME else CheckoutInput.Destination.CAMPSITE,
             recipientName=details.recipientName,address=details.address,siteReference=details.siteReference,campsiteId=details.campsiteId,checkIn=details.checkIn,checkOut=details.checkOut)
-        return Quote.parse(objectOf(call(ApiOperation.QUOTE_CHECKOUT) { api.quoteCheckout(request) }))
+        val quote = Quote.parse(objectOf(call(ApiOperation.QUOTE_CHECKOUT) { api.quoteCheckout(request) }))
+        return quote.copy(reason = if (quote.reason.isBlank()) "" else CampRequestFailure.localizedReason(quote.reason))
     }
     suspend fun order(details:DeliveryDetails,idempotencyKey:String):Order {
         val request=OrderInput(destination=if(details.destination=="home")OrderInput.Destination.HOME else OrderInput.Destination.CAMPSITE,

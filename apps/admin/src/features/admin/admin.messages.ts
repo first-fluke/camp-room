@@ -1,6 +1,12 @@
 export const adminMessages = {
   "en": {
     "brand_name": "Camp Room",
+    "provider_vehicle_services": "Vehicle · Navigation · Orders",
+    "provider_status_ready": "Connected",
+    "provider_status_credentials": "Credentials required",
+    "provider_status_fallback": "Using fallback data",
+    "provider_status_unavailable": "Unavailable",
+    "provider_status_unknown": "Status unavailable",
     "admin_001": "Pending",
     "admin_002": "Packing",
     "admin_003": "Ready to receive",
@@ -133,6 +139,12 @@ export const adminMessages = {
   },
   "ko": {
     "brand_name": "캠프룸",
+    "provider_vehicle_services": "차량 · 길안내 · 주문",
+    "provider_status_ready": "연결됨",
+    "provider_status_credentials": "인증 정보 필요",
+    "provider_status_fallback": "대체 데이터 사용 중",
+    "provider_status_unavailable": "조회 불가",
+    "provider_status_unknown": "상태 확인 필요",
     "admin_001": "접수 대기",
     "admin_002": "준비 중",
     "admin_003": "수령 준비",

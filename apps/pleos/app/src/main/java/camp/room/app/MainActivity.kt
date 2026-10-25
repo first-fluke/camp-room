@@ -378,7 +378,7 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             Icon(CampIcons.Artwork.TreeEvergreen, null, Modifier.size(29.dp), tint = Color(0xFFC7D4B7))
-            Text("camp room", fontSize = 24.sp, color = CampPalette.OnSidebar,
+            Text(tr(R.string.camp_brand_name), fontSize = 24.sp, color = CampPalette.OnSidebar,
                 fontWeight = FontWeight.SemiBold, letterSpacing = (-1).sp)
         }
         Spacer(Modifier.height(12.dp))
@@ -430,7 +430,7 @@ private fun CampTopbar(
         Text(
             if (wide)
                 tr(camp.room.app.R.string.camp_my_little_outdoors, CampNav.entries[state.tab].label)
-            else "camp room",
+            else tr(R.string.camp_brand_name),
             fontSize = 22.sp,
             color = if (wide) CampPalette.Muted else CampPalette.Forest,
             fontWeight = if (wide) FontWeight.Normal else FontWeight.SemiBold,
@@ -581,8 +581,6 @@ fun CampError(text: String, onClose: () -> Unit) {
                 color = CampPalette.Danger,
                 fontSize = 22.sp,
                 modifier = Modifier.weight(1f).padding(horizontal = 9.dp),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
             )
             IconButton(onClick = onClose, modifier = Modifier.size(CampDesign.IconTarget)) {
                 Icon(
