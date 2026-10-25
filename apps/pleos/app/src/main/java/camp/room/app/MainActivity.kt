@@ -226,6 +226,7 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
                     if (state.loading)
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(
+                                Modifier.widthIn(max = 640.dp).verticalScroll(rememberScrollState()).padding(24.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                             ) {
@@ -233,20 +234,17 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
                                 Text(
                                     tr(camp.room.app.R.string.camp_getting_your_next_escape_ready),
                                     fontSize = 22.sp,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
                                     tr(camp.room.app.R.string.camp_loading_campsites_and_your_trip),
                                     color = CampPalette.Muted,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                         }
                     else if (state.data == null)
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Column(Modifier.widthIn(max = 640.dp).verticalScroll(rememberScrollState()).padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
                                     CampIcons.CloudSlash,
                                     null,
@@ -257,15 +255,11 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
                                 Text(
                                     tr(camp.room.app.R.string.camp_we_couldn_t_load_your_trip),
                                     fontSize = 22.sp,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
                                     state.error,
                                     color = CampPalette.Muted,
                                     modifier = Modifier.padding(18.dp),
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 CampPrimary(
                                     tr(camp.room.app.R.string.camp_connect_again),
@@ -306,16 +300,7 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
                                 )
-                                Text(
-                                    tr(
-                                        camp.room.app.R.string
-                                            .camp_a_little_room_between_you_and_nature
-                                    ),
-                                    fontSize = 22.sp,
-                                    color = CampPalette.Muted,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+
                                 Text(
                                     if (BuildConfig.IS_DEMO)
                                         tr(
@@ -389,38 +374,14 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
     Column(
         Modifier.width(264.dp).fillMaxHeight().background(CampPalette.Deep)
             .verticalScroll(rememberScrollState()).padding(21.dp),
-        verticalArrangement = Arrangement.spacedBy(13.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
             Icon(CampIcons.Artwork.TreeEvergreen, null, Modifier.size(29.dp), tint = Color(0xFFC7D4B7))
-            Column(Modifier.padding(start = 9.dp)) {
-                Text(
-                    "camp room",
-                    fontSize = 24.sp,
-                    color = CampPalette.OnSidebar,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = (-1).sp,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    tr(camp.room.app.R.string.camp_a_little_room_between_you_and_nature_017),
-                    fontSize = 22.sp,
-                    color = Color(0xFFA6B8A2),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            Text("camp room", fontSize = 24.sp, color = CampPalette.OnSidebar,
+                fontWeight = FontWeight.SemiBold, letterSpacing = (-1).sp)
         }
-        Spacer(Modifier.height(27.dp))
-        Text(
-            "YOUR CAMPING COMPANION",
-            fontSize = 22.sp,
-            color = Color(0xFF9CB09A),
-            letterSpacing = 1.sp,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
+        Spacer(Modifier.height(12.dp))
         CampNav.entries.forEach { nav ->
             val active = state.tab == nav.index
             Surface(
@@ -429,85 +390,25 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth().testTag(nav.tag),
             ) {
-                Row(
-                    Modifier.padding(horizontal = 13.dp, vertical = 16.dp),
+                Row(Modifier.padding(horizontal = 13.dp, vertical = 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        if (active) nav.selectedIcon else nav.icon,
-                        nav.label,
-                        Modifier.size(28.dp),
-                        tint = if (active) CampPalette.Forest else Color(0xFFA6BBA4),
-                    )
-                    Column(Modifier.padding(start = 12.dp).weight(1f)) {
-                        Text(
-                            nav.label,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = if (active) CampPalette.Ink else CampPalette.OnSidebar,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            nav.subtitle,
-                            fontSize = 22.sp,
-                            color = if (active) CampPalette.Muted else Color(0xFF9CB298),
-                            modifier = Modifier.padding(top = 3.dp),
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(if (active) nav.selectedIcon else nav.icon, nav.label, Modifier.size(28.dp),
+                        tint = if (active) CampPalette.Forest else Color(0xFFA6BBA4))
+                    Text(nav.label, modifier = Modifier.weight(1f), fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (active) CampPalette.Ink else CampPalette.OnSidebar)
                 }
             }
         }
-        Spacer(Modifier.height(16.dp))
-        Icon(CampIcons.Artwork.Mountains, null, Modifier.size(43.dp), tint = Color(0xFF9EB494))
-        Text(
-            tr(camp.room.app.R.string.camp_a_little_closer_na_little_more_naturally),
-            fontSize = 22.sp,
-            lineHeight = 28.sp,
-            color = Color(0xFFB3C4A8),
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Spacer(Modifier.height(17.dp))
+        Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = Color(0xFF426049))
-        Row(Modifier.padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(6.dp).background(Color(0xFFB0C68C), CircleShape))
-            Column(Modifier.padding(start = 7.dp).weight(1f)) {
-                Text(
-                    if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_vehicle_connected)
-                    else tr(camp.room.app.R.string.camp_pleos_vehicle_status),
-                    fontSize = 22.sp,
-                    color = Color(0xFFD2DDC8),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_pleos_simulator)
-                    else tr(camp.room.app.R.string.camp_pleos_local_sdk),
-                    fontSize = 22.sp,
-                    color = Color(0xFF92AC8E),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Text(
-                "${number(state.data?.vehicle?.soc)}%",
-                fontSize = 22.sp,
-                color = Color(0xFFD2DDC8),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
         Text(
-            if (BuildConfig.IS_DEMO) "NATIVE ANDROID · DEMO" else "NATIVE ANDROID · PLEOS",
-            fontSize = 22.sp,
-            color = Color(0xFF8FA88A),
-            letterSpacing = 1.sp,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
+            if (BuildConfig.IS_DEMO) tr(R.string.camp_demo_vehicle_connected)
+            else tr(R.string.camp_pleos_vehicle_status),
+            fontSize = 22.sp, color = Color(0xFFD2DDC8),
         )
+        Text("${number(state.data?.vehicle?.soc)}%", fontSize = 24.sp, color = Color(0xFFD2DDC8))
     }
 }
 
@@ -616,7 +517,7 @@ fun CampPrimary(
             )
         else if (icon != null) Icon(icon, null, Modifier.size(24.dp))
         if (busy || icon != null) Spacer(Modifier.width(8.dp))
-        Text(text, fontSize = 22.sp, fontWeight = FontWeight.Medium, maxLines = 2)
+        Text(text, fontSize = 22.sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -643,7 +544,7 @@ fun CampSecondary(
             Icon(icon, null, Modifier.size(24.dp))
             Spacer(Modifier.width(7.dp))
         }
-        Text(text, fontSize = 22.sp, maxLines = 2)
+        Text(text, fontSize = 22.sp)
     }
 }
 
@@ -699,39 +600,11 @@ fun CampError(text: String, onClose: () -> Unit) {
 fun SectionTitle(
     title: String,
     subtitle: String = "",
-    eyebrow: String = "",
     action: (@Composable () -> Unit)? = null,
 ) {
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            if (eyebrow.isNotBlank())
-                Text(
-                    eyebrow,
-                    fontSize = 22.sp,
-                    letterSpacing = 1.5.sp,
-                    color = CampPalette.Muted,
-                    modifier = Modifier.padding(bottom = 7.dp),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            Text(
-                title,
-                fontSize = if (eyebrow.isNotBlank()) 28.sp else 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = (-.7).sp,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (subtitle.isNotBlank())
-                Text(
-                    subtitle,
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    modifier = Modifier.padding(top = 7.dp),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-        }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(title, fontSize = 28.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-.7).sp)
+        if (subtitle.isNotBlank()) Text(subtitle, fontSize = 22.sp, color = CampPalette.Muted)
         action?.invoke()
     }
 }

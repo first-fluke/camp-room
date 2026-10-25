@@ -83,7 +83,6 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
     SectionTitle(
         tr(camp.room.app.R.string.camp_a_little_room_of_our_own_inside),
         tr(camp.room.app.R.string.camp_let_reading_and_resting_happen_comfortably_side),
-        "MAKE ROOM FOR REST",
         action = {
             CampPill(
                 if (vehicle.mode == "demo") tr(camp.room.app.R.string.camp_simulator_connected)
@@ -156,7 +155,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
         }
     }
     BoxWithConstraints {
-        val wide = maxWidth > 720.dp
+        val wide = maxWidth > 960.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale
         if (wide)
             Row(horizontalArrangement = Arrangement.spacedBy(23.dp)) {
                 CabinDiagram(vehicle, Modifier.weight(1.18f))
@@ -186,7 +185,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             )
         }
         BoxWithConstraints {
-            val controlWidth = if (maxWidth > 900.dp) (maxWidth - 60.dp) / 3 else maxWidth
+            val controlWidth = if (maxWidth > 1100.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale) (maxWidth - 60.dp) / 3 else maxWidth
             FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 Column(Modifier.width(controlWidth)) {
                     Text(
@@ -265,7 +264,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
     }
     if (s.commands.isNotEmpty())
         CampSurface(Modifier.fillMaxWidth().testTag("scene-results")) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(
                     if (s.commandStatus == "completed") CampIcons.CheckCircle
                     else CampIcons.WarningCircle,
@@ -277,10 +276,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     tr(camp.room.app.R.string.camp_cabin_setting_results),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.weight(1f))
                 CampPill(
                     if (s.commandStatus == "completed")
                         tr(camp.room.app.R.string.camp_items_checked)
@@ -288,7 +284,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                 )
             }
             s.commands.forEach { result ->
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
                         Modifier.size(5.dp)
                             .background(
@@ -301,17 +297,13 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         controlLabel(result.control) + if (result.areaId.isNotBlank()) "\n" + cabinTargetLabel(result.areaId) else "",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Medium,
-                        modifier = Modifier.width(140.dp).padding(start = 8.dp),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
                         result.message,
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
                         when (result.confirmation) {
@@ -321,8 +313,6 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         },
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 HorizontalDivider(color = CampPalette.Line)
@@ -340,15 +330,13 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     ),
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
             )
         }
     if (s.sceneId == "departure")
         CampSurface(Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(CampIcons.CheckCircle, null, tint = CampPalette.Muted)
-                Column(Modifier.weight(1f).padding(horizontal = 15.dp)) {
+                Column(Modifier.fillMaxWidth()) {
                     Text(
                         tr(camp.room.app.R.string.camp_travel_light_into_the_next_chapter),
                         fontSize = 22.sp,
@@ -473,14 +461,7 @@ private fun ZoneControls(
 @Composable
 private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     CampSurface(modifier) {
-        Text(
-            "MOMENTS IN YOUR ROOM",
-            fontSize = 22.sp,
-            letterSpacing = 1.4.sp,
-            color = CampPalette.Muted,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
+
         Text(
             tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need),
             fontSize = 22.sp,

@@ -22,6 +22,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
+
+/** Only app-authored, localized validation text may be displayed verbatim. */
+private class CampUserMessageException(message: String) : IllegalArgumentException(message)
+
+@OptIn(ExperimentalContracts::class)
+private inline fun requireUserInput(condition: Boolean, message: () -> String) {
+    contract { returns() implies condition }
+    if (!condition) throw CampUserMessageException(message())
+}
 
 data class CampUiState(
     val loading: Boolean = true,
@@ -145,7 +156,7 @@ constructor(
                 throw e
             } catch (e: Exception) {
                 telemetry.failure(e,Dimensions(action=action,durationMs=(System.nanoTime()-began)/1_000_000))
-                mutable.update { it.copy(error = if(e is java.io.IOException || e is io.ktor.serialization.ContentConvertException || e is kotlinx.serialization.SerializationException) CampText.get(R.string.camp_we_couldn_t_complete_the_request) else e.message ?: CampText.get(R.string.camp_we_couldn_t_complete_the_request)) }
+                mutable.update { it.copy(error = if (e is CampUserMessageException) e.message.orEmpty() else CampText.get(R.string.camp_we_couldn_t_complete_the_request)) }
             } finally {
                 currentCoroutineContext()[Job]?.let(actionJobs::complete)
                 mutable.update { it.copy(busy = false, loading = false) }
@@ -179,7 +190,7 @@ constructor(
         try {
             bridge.start()
         } catch (error: Exception) {
-            mutable.update { it.copy(error = camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_start_the_vehicle_connection, error.message.orEmpty())) }
+            mutable.update { it.copy(error = camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_start_the_vehicle_connection, "").trim()) }
         }
         if (foregroundVehicleJob?.isActive == true) return
         foregroundVehicleJob =
@@ -323,7 +334,7 @@ constructor(
         val s = mutable.value
         val start = runCatching { LocalDate.parse(s.checkIn) }.getOrNull()
         val end = runCatching { LocalDate.parse(s.checkOut) }.getOrNull()
-        require(start != null && end != null && end > start) { camp.room.app.CampText.get(camp.room.app.R.string.camp_choose_a_check_out_date_after_check) }
+        requireUserInput(start != null && end != null && end > start) { camp.room.app.CampText.get(camp.room.app.R.string.camp_choose_a_check_out_date_after_check) }
         val params =
             mutableMapOf(
                 "checkIn" to s.checkIn,
@@ -464,9 +475,9 @@ constructor(
 
     fun quote() = launchAction(Action.QUOTE) {
         val s = mutable.value
-        require(s.recipient.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_the_recipient_s_name) }
-        if (s.destination == "home") require(s.address.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_your_home_delivery_address) }
-        else require(s.siteReference.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_a_pitch_or_reservation_reference) }
+        requireUserInput(s.recipient.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_the_recipient_s_name) }
+        if (s.destination == "home") requireUserInput(s.address.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_your_home_delivery_address) }
+        else requireUserInput(s.siteReference.isNotBlank()) { camp.room.app.CampText.get(camp.room.app.R.string.camp_enter_a_pitch_or_reservation_reference) }
         val requested = quoteInput(s)
         if (quotedInput != requested) orderKey = null
         quotedInput = null
@@ -480,7 +491,7 @@ constructor(
 
     fun checkout() = launchAction(Action.CHECKOUT) {
         val requested = quoteInput(mutable.value)
-        require(mutable.value.quote?.eligible == true && quotedInput == requested) { camp.room.app.CampText.get(camp.room.app.R.string.camp_check_delivery_availability_first) }
+        requireUserInput(mutable.value.quote?.eligible == true && quotedInput == requested) { camp.room.app.CampText.get(camp.room.app.R.string.camp_check_delivery_availability_first) }
         val key = orderKey ?: UUID.randomUUID().toString().also { orderKey = it }
         val order = repository.order(requested.delivery,key)
         refresh()
@@ -526,7 +537,7 @@ constructor(
         val result = AssistMessages.result("location", sdk(SdkOperation.LOCATION) { bridge.location() })
         val latitude = result.nullNumber("latitude")
         val longitude = result.nullNumber("longitude")
-        require(
+        requireUserInput(
             result.text("status") == "available" &&
                 latitude != null &&
                 longitude != null &&
@@ -556,7 +567,7 @@ constructor(
     }
 
     fun arrivalWatch() = launchAction(Action.ARRIVAL_WATCH) {
-        val site = mutable.value.tripSite ?: error(camp.room.app.CampText.get(camp.room.app.R.string.camp_save_a_campsite_to_my_trip_first))
+        val site = mutable.value.tripSite ?: throw CampUserMessageException(camp.room.app.CampText.get(camp.room.app.R.string.camp_save_a_campsite_to_my_trip_first))
         val result = AssistMessages.result("arrival", sdk(SdkOperation.ARRIVAL_WATCH) { bridge.arrivalWatch(site) })
         mutable.update {
             it.copy(
@@ -569,7 +580,7 @@ constructor(
 
     fun speakBriefing() = launchAction(Action.BRIEFING) {
         val s = mutable.value
-        val site = s.tripSite ?: error(camp.room.app.CampText.get(camp.room.app.R.string.camp_save_a_campsite_to_my_trip_first))
+        val site = s.tripSite ?: throw CampUserMessageException(camp.room.app.CampText.get(camp.room.app.R.string.camp_save_a_campsite_to_my_trip_first))
         val weather = s.weather ?: s.data?.weather
         val weatherText =
             if (weather?.status == "available")

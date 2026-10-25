@@ -9,3 +9,37 @@
 .locale-controls{display:flex;align-items:center;gap:3px;padding:3px;border:1px solid var(--line);border-radius:6px;background:#f4f6ec}.locale-controls button{font-size:9px;padding:4px 7px;color:#91a17c;border-radius:4px;white-space:nowrap}.locale-controls button.selected{background:var(--paper);color:var(--forest);box-shadow:0 1px 3px #28462612}.login-card{position:relative}.login-card>.locale-controls{position:absolute;right:0;top:-38px}.provider-refresh-button{display:flex;align-items:center;gap:7px;white-space:nowrap;font-size:9px}.admin-topbar .locale-controls button{font-size:8px}.admin-topbar>div>.locale-controls{gap:2px}.admin-topbar .locale-controls{padding:2px}@media(max-width:570px){.admin-topbar .locale-controls button{font-size:9px}.admin-topbar>div{gap:10px}.admin-topbar .avatar{display:none}.provider-refresh-button{font-size:8px;padding:8px}.admin-topbar .locale-controls button{padding:4px 6px}}
 
 .brand>span{white-space:nowrap}.admin-sidebar .brand{font-size:24px}
+
+
+/* Locale-aware wrapping */
+html:lang(ko) body{word-break:keep-all;overflow-wrap:break-word}
+html:lang(ko) :is(h1,h2,h3,p,button,label,strong,small,span){word-break:keep-all}
+h1,h2,h3{text-wrap:balance}
+p{text-wrap:pretty}
+.admin-sidebar nav{margin-top:40px}
+.admin-sidebar nav>button>span{min-width:0;white-space:nowrap}
+.admin-sidebar nav>button>svg{flex-shrink:0}
+.page-heading>div,.section-heading>div,.overview-actions>button>span{min-width:0}
+.section-heading{flex-wrap:wrap}
+.section-heading>div{flex:1 1 240px}
+.provider-refresh-button{flex-shrink:0}
+.admin-topbar{height:auto;min-height:79px;gap:16px;flex-wrap:wrap;padding-block:12px}
+.admin-topbar>div{flex-wrap:wrap;gap:12px}
+.provider-card>p,.record-list strong,.order-summary strong{overflow-wrap:break-word}
+.provider-card footer{flex-wrap:wrap}
+.overview-actions>button>svg{flex-shrink:0}
+.order-lines>div>span{min-width:0}
+.order-lines>div>strong{white-space:nowrap;flex-shrink:0}
+.login-landscape h1{margin-top:0;max-width:14ch}
+.page-heading h1{margin-top:0}
+@media(max-width:800px){.admin-topbar{min-height:68px}}
+@media(max-width:570px){
+  .admin-sidebar nav{margin-top:20px}
+  .admin-sidebar nav>button{min-width:0;flex-direction:column;gap:5px}
+  .admin-sidebar nav>button>span{font-size:12px;white-space:nowrap}
+  .admin-topbar{min-height:57px}
+  .section-heading>div{flex-basis:100%}
+  .section-heading .provider-refresh-button{font-size:12px;padding:10px 12px}
+  .order-summary>div{flex-wrap:wrap;gap:4px 16px}
+  .order-summary strong{min-width:0;flex:1 1 180px}
+}

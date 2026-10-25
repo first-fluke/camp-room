@@ -37,7 +37,6 @@ fun DiscoverScreen(s: CampUiState, vm: CampViewModel, onNearby: () -> Unit) {
     SectionTitle(
         tr(camp.room.app.R.string.camp_where_will_you_unwind_this_weekend),
         tr(camp.room.app.R.string.camp_find_a_place_that_calls_to_you),
-        "FIND YOUR NEXT ESCAPE",
         action = {
             CampSecondary(
                 tr(camp.room.app.R.string.camp_near_me),
@@ -204,12 +203,12 @@ fun DiscoverScreen(s: CampUiState, vm: CampViewModel, onNearby: () -> Unit) {
             }
         }
     Surface(color = CampPalette.Sage, shape = RoundedCornerShape(10.dp)) {
-        Row(
+        Column(
             Modifier.fillMaxWidth().padding(21.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Icon(CampIcons.Compass, null, tint = CampPalette.Muted)
-            Column(Modifier.weight(1f).padding(horizontal = 13.dp)) {
+            Column(Modifier.fillMaxWidth()) {
                 Text(
                     tr(camp.room.app.R.string.camp_found_your_place_let_the_rest_of),
                     fontSize = 22.sp,
@@ -277,7 +276,7 @@ private fun RegionSelector(
                     else CampRegions.label(region),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(start = 7.dp),
+                    modifier = Modifier.weight(1f).padding(start = 7.dp),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -337,7 +336,7 @@ private fun GuestSelector(guests: Int, onChange: (Int) -> Unit, modifier: Modifi
                     guestCount(guests),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(start = 7.dp),
+                    modifier = Modifier.weight(1f).padding(start = 7.dp),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -406,7 +405,7 @@ private fun DateSelector(
                 displayDate(date),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(start = 7.dp),
+                modifier = Modifier.weight(1f).padding(start = 7.dp),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -467,22 +466,10 @@ private fun CampsiteCard(
                         else CampPalette.Forest,
                     )
                 }
-                Text(
-                    "CAMP ROOM COLLECTION",
-                    fontSize = 22.sp,
-                    letterSpacing = 1.4.sp,
-                    color = CampPalette.OnSidebar,
-                    modifier =
-                        Modifier.align(Alignment.BottomStart)
-                            .padding(15.dp)
-                            .background(CampPalette.Deep, RoundedCornerShape(4.dp))
-                            .padding(horizontal = 8.dp, vertical = 5.dp),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
+
             }
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(
                         CampIcons.MapPin,
                         null,
@@ -502,7 +489,6 @@ private fun CampsiteCard(
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Spacer(Modifier.weight(1f))
                     Text(
                         if (site.sourceMode == "demo") tr(camp.room.app.R.string.camp_demo)
                         else tr(camp.room.app.R.string.camp_connected_data),
@@ -521,8 +507,7 @@ private fun CampsiteCard(
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
+
                     )
                     Icon(
                         CampIcons.ArrowUpRight,
@@ -531,12 +516,12 @@ private fun CampsiteCard(
                         tint = CampPalette.Muted,
                     )
                 }
-                Text(site.description, fontSize = 22.sp, color = CampPalette.Muted, maxLines = 1)
+                Text(site.description, fontSize = 22.sp, color = CampPalette.Muted)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     site.facilities.take(3).forEach { CampPill(facilityName(it)) }
                 }
                 HorizontalDivider(color = CampPalette.Line)
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         won(site.price),
                         fontSize = 22.sp,
@@ -552,7 +537,6 @@ private fun CampsiteCard(
                             maxLines = 3,
                             overflow = TextOverflow.Ellipsis,
                         )
-                    Spacer(Modifier.weight(1f))
                     TextButton(onClick = onClick, contentPadding = PaddingValues(0.dp)) {
                         Text(
                             tr(camp.room.app.R.string.camp_view_details),
@@ -588,7 +572,6 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
     SectionTitle(
         tr(camp.room.app.R.string.camp_getting_ready_one_little_step_at_a),
         tr(camp.room.app.R.string.camp_your_place_your_journey_and_your_last),
-        "YOUR UPCOMING ESCAPE",
         action = {
             CampSecondary(
                 tr(camp.room.app.R.string.camp_change_place_or_dates),
@@ -618,75 +601,23 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
         shape = RoundedCornerShape(11.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, CampPalette.Line),
     ) {
-        Row(Modifier.fillMaxWidth().heightIn(min = 195.dp)) {
-            Box(Modifier.width(260.dp).height(210.dp)) {
-                CampLandscape(site.id, Modifier.fillMaxSize())
-                Text(
-                    "OUR NEXT CAMP",
-                    fontSize = 22.sp,
-                    letterSpacing = 1.5.sp,
-                    color = CampPalette.OnSidebar,
-                    modifier = Modifier.align(Alignment.BottomStart).padding(22.dp)
-                        .background(CampPalette.Deep, RoundedCornerShape(4.dp))
-                        .padding(horizontal = 8.dp, vertical = 5.dp),
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-            Column(
-                Modifier.weight(1f).padding(26.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                Text(
-                    tr(camp.room.app.R.string.camp_my_upcoming_trip),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    site.name,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    site.address,
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    IconLabel(
-                        CampIcons.Calendar,
-                        "${displayDate(trip.checkIn)} — ${displayDate(trip.checkOut)}",
-                    )
-                    IconLabel(CampIcons.Users, guestCount(trip.guests))
+        BoxWithConstraints(Modifier.fillMaxWidth().testTag("trip-summary")) {
+            if (maxWidth > 820.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale) {
+                Row(Modifier.fillMaxWidth()) {
+                    CampLandscape(site.id, Modifier.width(240.dp).height(240.dp))
+                    TripSiteSummary(site, trip, Modifier.weight(1f))
                 }
-                HorizontalDivider(color = CampPalette.Line)
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_check_in_check_out_trip_saved,
-                        site.checkInTime,
-                        site.checkOutTime,
-                    ),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
+            } else {
+                Column {
+                    CampLandscape(site.id, Modifier.fillMaxWidth().height(150.dp))
+                    TripSiteSummary(site, trip, Modifier.fillMaxWidth())
+                }
             }
         }
     }
     CampSurface(Modifier.fillMaxWidth()) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Column(Modifier.weight(1f)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(Modifier.fillMaxWidth()) {
                 Text(
                     tr(camp.room.app.R.string.camp_a_little_closer_to_your_journey),
                     fontSize = 22.sp,
@@ -703,6 +634,8 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
             CampSecondary(
                 tr(camp.room.app.R.string.camp_arrival_alert),
                 CampIcons.BellRinging,
@@ -717,6 +650,8 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
                 modifier = Modifier.testTag("speak-briefing"),
                 onClick = onSpeak,
             )
+
+            }
         }
         if (s.arrivalMessage.isNotBlank())
             Text(
@@ -736,7 +671,7 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
             )
     }
     BoxWithConstraints {
-        if (maxWidth > 690.dp)
+        if (maxWidth > 1000.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale)
             Row(horizontalArrangement = Arrangement.spacedBy(22.dp)) {
                 WeatherCard(s.weather ?: data.weather, Modifier.weight(1f))
                 RouteCard(s, vm, Modifier.weight(1f))
@@ -748,8 +683,8 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
             }
     }
     CampSurface(Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(Modifier.fillMaxWidth()) {
                 Text(
                     tr(camp.room.app.R.string.camp_a_few_promises_for_a_peaceful_stay),
                     fontSize = 22.sp,
@@ -768,17 +703,20 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
                     )
                 }
             }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+
             CampSecondary(
                 tr(camp.room.app.R.string.camp_set_up_our_cabin),
                 CampIcons.ChevronRight,
                 onClick = { vm.tab(2) },
             )
+
+            }
         }
     }
     SectionTitle(
         tr(camp.room.app.R.string.camp_a_few_things_worth_bringing_along),
         tr(camp.room.app.R.string.camp_thoughtful_essentials_for_the_facilities_and_weather),
-        "READY FOR THE OUTDOORS",
         action = {
             TextButton(onClick = { vm.cart(true) }) {
                 Text(
@@ -802,12 +740,12 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
                 overflow = TextOverflow.Ellipsis,
             )
             data.orders.take(3).forEach { order ->
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     CampPill(tr(camp.room.app.R.string.camp_demo_order_confirmed))
                     Text(
                         order.id,
                         fontSize = 22.sp,
-                        modifier = Modifier.weight(1f).padding(horizontal = 13.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -822,7 +760,7 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
                         won(order.total),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = 20.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -834,7 +772,7 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
 @Composable
 private fun WeatherCard(weather: Weather, modifier: Modifier) {
     CampSurface(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(
                 CampIcons.Sun,
                 null,
@@ -848,7 +786,6 @@ private fun WeatherCard(weather: Weather, modifier: Modifier) {
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.weight(1f))
             CampPill(
                 if (weather.demo) tr(camp.room.app.R.string.camp_demo_forecast)
                 else tr(camp.room.app.R.string.camp_weather_forecast)
@@ -868,7 +805,7 @@ private fun WeatherCard(weather: Weather, modifier: Modifier) {
         else {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(CampIcons.Artwork.Sun, null, Modifier.size(65.dp), tint = CampPalette.Warm)
-                Column(Modifier.padding(start = 22.dp)) {
+                Column(Modifier.weight(1f).padding(start = 22.dp)) {
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
                             "${number(weather.low)}°",
@@ -890,13 +827,12 @@ private fun WeatherCard(weather: Weather, modifier: Modifier) {
                         weather.summary,
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
+
                     )
                 }
             }
             HorizontalDivider(color = CampPalette.Line)
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 weather.forecast.take(5).forEachIndexed { index, f ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -949,7 +885,7 @@ private fun WeatherCard(weather: Weather, modifier: Modifier) {
 private fun RouteCard(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     val route = s.route
     CampSurface(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(
                 CampIcons.NavigationArrow,
                 null,
@@ -963,7 +899,6 @@ private fun RouteCard(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
-            Spacer(Modifier.weight(1f))
             CampPill(
                 if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_route)
                 else tr(camp.room.app.R.string.camp_pleos_route)
@@ -1021,7 +956,7 @@ private fun RouteCard(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Metric(tr(camp.room.app.R.string.camp_distance), "${number(route?.distance)}", "km")
             Metric(
                 tr(camp.room.app.R.string.camp_estimated_time),
@@ -1097,7 +1032,7 @@ private fun IconLabel(icon: androidx.compose.ui.graphics.vector.ImageVector, tex
         Text(
             text,
             fontSize = 22.sp,
-            modifier = Modifier.padding(start = 7.dp),
+            modifier = Modifier.weight(1f).padding(start = 7.dp),
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
@@ -1144,12 +1079,12 @@ private fun ProductGrid(products: List<Product>, busy: Boolean, onAdd: (String) 
                                         fontSize = 22.sp,
                                         color = CampPalette.Muted,
                                         minLines = 2,
-                                        maxLines = 3,
-                                        overflow = TextOverflow.Ellipsis,
+
                                     )
-                                    Row(
+                                    FlowRow(
                                         Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalArrangement = Arrangement.spacedBy(8.dp),
                                     ) {
                                         Text(
                                             won(product.price),
@@ -1158,8 +1093,14 @@ private fun ProductGrid(products: List<Product>, busy: Boolean, onAdd: (String) 
                                             maxLines = 3,
                                             overflow = TextOverflow.Ellipsis,
                                         )
-                                        Spacer(Modifier.weight(1f))
-                                        FilledTonalIconButton(
+                                        if (product.stock <= 0)
+                                            CampSecondary(
+                                                tr(R.string.camp_out_of_stock),
+                                                enabled = false,
+                                                modifier = Modifier.testTag("product-add-${product.id}"),
+                                                onClick = {},
+                                            )
+                                        else FilledTonalIconButton(
                                             colors =
                                                 IconButtonDefaults.filledTonalIconButtonColors(
                                                     containerColor = CampPalette.Sage,
@@ -1170,7 +1111,7 @@ private fun ProductGrid(products: List<Product>, busy: Boolean, onAdd: (String) 
                                             onClick = { onAdd(product.id) },
                                             enabled = !busy && product.stock > 0,
                                             modifier =
-                                                Modifier.size(34.dp)
+                                                Modifier.size(CampDesign.IconTarget)
                                                     .testTag("product-add-${product.id}"),
                                             shape = RoundedCornerShape(6.dp),
                                         ) {
@@ -1190,4 +1131,52 @@ private fun ProductGrid(products: List<Product>, busy: Boolean, onAdd: (String) 
             }
         }
     }
+}
+
+@Composable
+private fun TripSiteSummary(site: Campsite, trip: Trip, modifier: Modifier) {
+            Column(
+                modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    tr(camp.room.app.R.string.camp_my_upcoming_trip),
+                    fontSize = 22.sp,
+                    color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    site.name,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    site.address,
+                    fontSize = 22.sp,
+                    color = CampPalette.Muted,
+
+                )
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconLabel(
+                        CampIcons.Calendar,
+                        "${displayDate(trip.checkIn)} — ${displayDate(trip.checkOut)}",
+                    )
+                    IconLabel(CampIcons.Users, guestCount(trip.guests))
+                }
+                HorizontalDivider(color = CampPalette.Line)
+                Text(
+                    tr(
+                        camp.room.app.R.string.camp_check_in_check_out_trip_saved,
+                        site.checkInTime,
+                        site.checkOutTime,
+                    ),
+                    fontSize = 22.sp,
+                    color = CampPalette.Muted,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
 }

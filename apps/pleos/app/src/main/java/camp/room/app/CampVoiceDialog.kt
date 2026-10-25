@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -39,21 +38,14 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
             shape = RoundedCornerShape(14.dp),
             color = CampPalette.Paper,
         ) {
-            Column(
-                Modifier.heightIn(max = 550.dp)
-                    .verticalScroll(rememberScrollState())
-                    .padding(27.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.heightIn(max = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * .9f).dp)) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(CampIcons.Microphone, null, tint = CampPalette.Muted)
                     Text(
                         tr(camp.room.app.R.string.camp_a_little_rest_with_a_few_words),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     IconButton(onClick = { vm.voice(false) }) {
                         Icon(
@@ -62,12 +54,16 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                         )
                     }
                 }
+                HorizontalDivider(color = CampPalette.Line)
+                Column(
+                    Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+
                 Text(
                     tr(camp.room.app.R.string.camp_speak_or_type_a_phrase_we_ll),
                     fontSize = 22.sp,
                     color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 CampPrimary(
                     if (state.busy) tr(camp.room.app.R.string.camp_checking_your_voice)
@@ -84,8 +80,6 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                         Text(
                             tr(camp.room.app.R.string.camp_recognized_text_type_instead),
                             fontSize = 22.sp,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
                         )
                     },
                     modifier = Modifier.fillMaxWidth().testTag("voice-transcript"),
@@ -101,8 +95,6 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                     },
                     fontSize = 22.sp,
                     color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
@@ -118,8 +110,6 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                                     Text(
                                         example,
                                         fontSize = 22.sp,
-                                        maxLines = 3,
-                                        overflow = TextOverflow.Ellipsis,
                                     )
                                 },
                             )
@@ -138,8 +128,6 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                             state.voicePreview,
                             fontSize = 22.sp,
                             color = CampPalette.Forest,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
                         )
                         if (state.previewTab != null)
                             CampPrimary(
@@ -154,9 +142,8 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                     tr(camp.room.app.R.string.camp_run_vehicle_settings_and_navigation_with_their),
                     fontSize = 22.sp,
                     color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
                 )
+                }
             }
         }
     }

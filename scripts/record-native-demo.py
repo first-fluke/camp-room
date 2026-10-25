@@ -27,8 +27,8 @@ ADB = os.environ.get("ADB_PATH") or shutil.which("adb") or str(SDK / "platform-t
 SERIAL = os.environ.get("ANDROID_SERIAL", "emulator-5554")
 APP = "camp.room.app.demo"
 API = os.environ.get("CAMP_API_URL", "http://127.0.0.1:8000/api/v1").rstrip("/")
-OUT = ROOT / "artifacts/demo"
-QA = ROOT / "artifacts/qa"
+OUT = ROOT / os.environ.get("CAMP_DEMO_OUTPUT_DIR", "artifacts/demo")
+QA = ROOT / os.environ.get("CAMP_DEMO_QA_DIR", "artifacts/qa")
 CHECKS: list[dict] = []
 CAPTIONS: list[dict] = []
 START = 0.0
@@ -317,12 +317,12 @@ def run():
         raw = OUT / "Camp_Room_Native_Raw.mp4"
         recorder = subprocess.Popen([ADB, "-s", SERIAL, "shell", "screenrecord", "--bit-rate", "6M", "--time-limit", "0", "/sdcard/camp-room-native.mp4"], stdout=recorder_log, stderr=subprocess.STDOUT)
     try:
-        caption("CAMP ROOM · KOTLIN + JETPACK COMPOSE", "캠핑장을 찾는 순간부터 내 차에서 쉬는 시간까지.", 3.5)
+        caption("캠프룸", "캠핑장을 찾는 순간부터 내 차에서 쉬는 시간까지.", 3.5)
         tap(text="전국 모든 지역")
         tap(text="강원")
         tap(text="샤워실")
         tap(tag="search-campsites")
-        caption("01  FIND YOUR PLACE", "지역과 시설, 숙박 일정으로 캠핑장을 고릅니다.", 3)
+        caption("01  캠핑장 찾기", "지역과 시설, 숙박 일정으로 캠핑장을 고릅니다.", 3)
         document = hierarchy()
         visible_cards = [n for n in document.iter("node") if n.attrib.get("resource-id", "").startswith("campsite-card-")]
         check("Native filters return matching campsite cards", bool(visible_cards))
@@ -333,7 +333,8 @@ def run():
         tap(tag="save-trip")
         poll(lambda: api("/trip")["campsiteId"] == site["id"])
         check("Native save persists selected trip", api("/trip")["campsiteId"] == site["id"])
-        caption("02  MY CAMPING", "선택한 장소의 날씨와 이동 계획이 내 캠핑으로 이어집니다.", 4)
+        caption("02  내 캠핑", "선택한 장소의 날씨와 이동 계획이 내 캠핑으로 이어집니다.", 4)
+        find_node(tag="trip-summary", timeout=90)
         screenshot("trip")
         reveal("start-navigation")
         tap(tag="start-navigation")
@@ -341,7 +342,7 @@ def run():
         check("Native navigation action reaches backend demo intent", api("/trip")["navigationStarted"])
         caption("날씨와 차량 상태를 함께", "예보와 실내 온도를 구분하고, 배터리와 예상 이동 정보를 살펴봅니다.", 3)
         tap(tag="nav-cabin")
-        caption("03  YOUR ROOM, YOUR WAY", "앞좌석은 독서, 뒷좌석은 휴식. 구역마다 다른 환경을 만듭니다.", 4)
+        caption("03  차박 공간 설정", "앞쪽은 독서, 뒤쪽은 휴식. 구역마다 다른 환경을 만듭니다.", 4)
         tap(tag="scene-split")
         reveal("apply-scene")
         tap(tag="apply-scene")
@@ -361,14 +362,14 @@ def run():
         tap(tag="voice-preview-open")
         tap(tag="nav-trip")
         reveal("product-add-sleeping-bag")
-        caption("04  PACK FOR THIS TRIP", "캠핑 조건에 맞는 준비물을 같은 앱에서 장바구니에 담습니다.", 3)
+        caption("04  캠핑 준비물", "캠핑 조건에 맞는 준비물을 같은 앱에서 장바구니에 담습니다.", 3)
         tap(tag="product-add-sleeping-bag")
         reveal("product-add-camp-lantern")
         tap(tag="product-add-camp-lantern")
         poll(lambda: len(api("/cart")["items"]) == 2)
         check("Native cart additions persist with server prices", api("/cart")["subtotal"] == 118000)
         tap(tag="cart-open")
-        caption("05  HOME OR CAMPSITE", "집에서 미리 받거나, 체류할 캠핑장으로 배송지를 선택합니다.", 3)
+        caption("05  배송지 선택", "집에서 미리 받거나, 체류할 캠핑장으로 배송지를 선택합니다.", 3)
         tap(tag="delivery-home")
         find_node(tag="delivery-address")
         screenshot("home-delivery")
@@ -392,7 +393,7 @@ def run():
         screenshot("order")
         reveal("order-back-trip")
         tap(tag="order-back-trip")
-        caption("CAMP ROOM", "자연과 나 사이, 작은 방. 실제 Android 앱 화면을 녹화했습니다.", 4)
+        caption("캠프룸", "자연과 나 사이, 작은 방. 실제 Android 앱 화면을 녹화했습니다.", 4)
         write_subtitles()
     finally:
         if CAPTURE_BACKEND == "emulator":

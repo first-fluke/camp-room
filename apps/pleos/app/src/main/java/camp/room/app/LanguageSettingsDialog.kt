@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -38,27 +37,27 @@ fun LanguageSettingsDialog(onClose: () -> Unit) {
             shape = RoundedCornerShape(14.dp),
             color = CampPalette.Paper,
         ) {
-            Column(Modifier.verticalScroll(rememberScrollState()).padding(27.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.heightIn(max = (androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp * .9f).dp)) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(CampIcons.Globe, null, tint = CampPalette.Muted)
                     Text(
                         tr(R.string.language_settings),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f).padding(start = 10.dp),
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     IconButton(onClick = onClose) {
                         Icon(CampIcons.Close, tr(R.string.language_close))
                     }
                 }
+                HorizontalDivider(color = CampPalette.Line)
+                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp)) {
+
                 Text(
                     tr(R.string.language_settings_description),
                     fontSize = 22.sp,
                     color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 listOf(
                         "system" to R.string.language_system,
@@ -86,13 +85,12 @@ fun LanguageSettingsDialog(onClose: () -> Unit) {
                                     tr(label),
                                     fontSize = 22.sp,
                                     modifier = Modifier.weight(1f),
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
                                 )
                                 RadioButton(selected = selected == value, onClick = null)
                             }
                         }
                     }
+                }
             }
         }
     }

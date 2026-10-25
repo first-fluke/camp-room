@@ -3,11 +3,11 @@
     <string name="camp_location" formatted="false">"위치"</string>
     <string name="camp_speech_recognition" formatted="false">"음성 인식"</string>
     <string name="camp_voice_guidance" formatted="false">"음성 안내"</string>
-    <string name="camp_getting_your_next_escape_ready" formatted="false">"다음 쉼을 준비하고 있어요"</string>
+    <string name="camp_getting_your_next_escape_ready" formatted="false">"캠핑을 준비하고 있어요"</string>
     <string name="camp_loading_campsites_and_your_trip" formatted="false">"캠핑장과 여행 정보를 불러옵니다."</string>
     <string name="camp_we_couldn_t_load_your_trip" formatted="false">"여행 정보를 불러오지 못했어요"</string>
-    <string name="camp_connect_again" formatted="false">"다시 연결하기"</string>
-    <string name="camp_a_little_room_between_you_and_nature" formatted="false">"  자연과 나 사이, 작은 방."</string>
+    <string name="camp_connect_again" formatted="false">"다시 연결"</string>
+    <string name="camp_a_little_room_between_you_and_nature" formatted="false">"자연과 나 사이, 작은 방."</string>
     <string name="camp_demo_data_no_real_reservations_or_payments" formatted="false">"데모 데이터 · 실제 예약/결제 없음"</string>
     <string name="camp_pleos_vehicle_integration_check_external_data_sources" formatted="false">"Pleos 차량 연동 · 외부 데이터 출처 확인"</string>
     <string name="camp_discover" formatted="false">"찾기"</string>
@@ -17,12 +17,12 @@
     <string name="camp_cabin" formatted="false">"차박"</string>
     <string name="camp_a_comfortable_space_of_our_own" formatted="false">"우리만의 편안한 공간"</string>
     <string name="camp_a_little_room_between_you_and_nature_017" formatted="false">"자연과 나 사이, 작은 방"</string>
-    <string name="camp_a_little_closer_na_little_more_naturally" formatted="false">"조금 더 가까이,\n자연스럽게 쉬어가기."</string>
+    <string name="camp_a_little_closer_na_little_more_naturally" formatted="false">"조금 더 가까이, 자연스럽게 쉬어가기."</string>
     <string name="camp_demo_vehicle_connected" formatted="false">"데모 차량 연결됨"</string>
     <string name="camp_pleos_vehicle_status" formatted="false">"Pleos 차량 상태"</string>
     <string name="camp_pleos_simulator" formatted="false">"PLEOS · 시뮬레이터"</string>
-    <string name="camp_pleos_local_sdk" formatted="false">"PLEOS · 로컬 SDK"</string>
-    <string name="camp_my_little_outdoors" formatted="false">"나의 작은 아웃도어  /  %1$s"</string>
+    <string name="camp_pleos_local_sdk" formatted="false">"Pleos · 차량 모드"</string>
+    <string name="camp_my_little_outdoors" formatted="false">"나의 캠핑 / %1$s"</string>
     <string name="camp_demo_mode" formatted="false">"체험 모드"</string>
     <string name="camp_pleos_mode" formatted="false">"Pleos 모드"</string>
     <string name="camp_voice_command" formatted="false">"음성 명령"</string>
@@ -54,21 +54,21 @@
     <string name="camp_stopped" formatted="false">"중지됨"</string>
     <string name="camp_checking_status" formatted="false">"상태 확인 중"</string>
     <string name="camp_where_will_you_unwind_this_weekend" formatted="false">"이번 주말, 어디서 쉬어갈까요?"</string>
-    <string name="camp_find_a_place_that_calls_to_you" formatted="false">"마음이 향하는 곳을 찾고, 나만의 캠핑을 시작하세요."</string>
+    <string name="camp_find_a_place_that_calls_to_you" formatted="false">"마음에 드는 캠핑장을 찾아보세요."</string>
     <string name="camp_near_me" formatted="false">"내 주변"</string>
     <string name="camp_check_in" formatted="false">"체크인"</string>
     <string name="camp_check_out" formatted="false">"체크아웃"</string>
     <string name="camp_find_campsites" formatted="false">"캠핑장 찾기"</string>
     <string name="camp_make_it_yours" formatted="false">"내 취향에 맞게"</string>
     <string name="camp_car_camping" formatted="false">"차박 가능"</string>
-    <string name="camp_places_to_slow_down" formatted="false">"쉼이 있는 캠핑장  %1$s"</string>
-    <string name="camp_discover_a_place_that_makes_car_camping" formatted="false">"차박의 설렘을 더해줄 장소들을 만나보세요."</string>
+    <string name="camp_places_to_slow_down" formatted="false">"캠핑장 %1$s"</string>
+    <string name="camp_discover_a_place_that_makes_car_camping" formatted="false">"차박하기 좋은 장소를 살펴보세요."</string>
     <string name="camp_external_data_connected" formatted="false">"외부 데이터 연동"</string>
-    <string name="camp_demo_campsite_collection" formatted="false">"데모 캠핑장 컬렉션"</string>
+    <string name="camp_demo_campsite_collection" formatted="false">"데모 캠핑장"</string>
     <string name="camp_no_campsites_match_these_filters" formatted="false">"조건에 맞는 캠핑장이 없어요"</string>
-    <string name="camp_try_a_wider_region_or_fewer_facilities" formatted="false">"지역이나 시설 조건을 조금 넓혀보세요."</string>
+    <string name="camp_try_a_wider_region_or_fewer_facilities" formatted="false">"지역 범위를 넓히거나 시설 조건을 줄여보세요."</string>
     <string name="camp_reset_filters" formatted="false">"조건 초기화"</string>
-    <string name="camp_found_your_place_let_the_rest_of" formatted="false">"좋은 장소를 찾았다면, 여정도 한 번에 이어가세요."</string>
+    <string name="camp_found_your_place_let_the_rest_of" formatted="false">"장소를 골랐다면 이동 계획도 준비해 보세요."</string>
     <string name="camp_weather_your_route_cabin_settings_and_essentials" formatted="false">"날씨, 이동 계획, 차박 공간과 준비물이 내 캠핑에 모입니다."</string>
     <string name="camp_explore_my_trip" formatted="false">"내 캠핑 둘러보기"</string>
     <string name="camp_where_to" formatted="false">"어디로 떠날까요"</string>
@@ -88,36 +88,36 @@
     <string name="camp_view_details" formatted="false">"자세히 보기"</string>
     <string name="camp_checked" formatted="false">"%1$s · 조회 시각 %2$s"</string>
     <string name="camp_getting_ready_one_little_step_at_a" formatted="false">"떠날 준비, 차근차근."</string>
-    <string name="camp_your_place_your_journey_and_your_last" formatted="false">"선택한 장소부터 마지막 준비물까지, 하나의 여정으로 이어집니다."</string>
+    <string name="camp_your_place_your_journey_and_your_last" formatted="false">"캠핑장부터 이동 계획과 준비물까지 한곳에서 확인하세요."</string>
     <string name="camp_change_place_or_dates" formatted="false">"장소 · 일정 변경"</string>
-    <string name="camp_shall_we_plan_our_next_escape" formatted="false">"우리의 다음 캠핑을 정해볼까요?"</string>
+    <string name="camp_shall_we_plan_our_next_escape" formatted="false">"다음 캠핑을 준비해 볼까요?"</string>
     <string name="camp_find_a_campsite" formatted="false">"캠핑장 찾으러 가기"</string>
     <string name="camp_my_upcoming_trip" formatted="false">"나의 캠핑 일정"</string>
-    <string name="camp_check_in_check_out_trip_saved" formatted="false">"체크인 %1$s    ·    체크아웃 %2$s    ·    여행 저장됨 ✓"</string>
-    <string name="camp_a_little_closer_to_your_journey" formatted="false">"여정에 조금 더 가까이"</string>
+    <string name="camp_check_in_check_out_trip_saved" formatted="false">"체크인 %1$s · 체크아웃 %2$s · 저장됨"</string>
+    <string name="camp_a_little_closer_to_your_journey" formatted="false">"이동 준비"</string>
     <string name="camp_use_location_arrival_alerts_and_spoken_guidance" formatted="false">"위치와 도착 알림, 음성 안내를 함께 활용하세요."</string>
     <string name="camp_arrival_alert" formatted="false">"도착 알림"</string>
     <string name="camp_hear_trip_briefing" formatted="false">"여행 안내 듣기"</string>
     <string name="camp_voice_guidance_099" formatted="false">"음성 안내: %1$s"</string>
-    <string name="camp_a_few_promises_for_a_peaceful_stay" formatted="false">"함께 지키는 캠핑 약속"</string>
-    <string name="camp_set_up_our_cabin" formatted="false">"우리 차박 공간 꾸미기"</string>
-    <string name="camp_a_few_things_worth_bringing_along" formatted="false">"이번 캠핑에 챙기면 좋은 것들"</string>
-    <string name="camp_thoughtful_essentials_for_the_facilities_and_weather" formatted="false">"캠핑장 시설과 날씨를 생각한 작은 준비."</string>
+    <string name="camp_a_few_promises_for_a_peaceful_stay" formatted="false">"캠핑장 이용 수칙"</string>
+    <string name="camp_set_up_our_cabin" formatted="false">"차박 공간 설정"</string>
+    <string name="camp_a_few_things_worth_bringing_along" formatted="false">"캠핑 준비물"</string>
+    <string name="camp_thoughtful_essentials_for_the_facilities_and_weather" formatted="false">"캠핑장 시설과 날씨에 맞춰 준비하세요."</string>
     <string name="camp_view_cart" formatted="false">"장바구니 보기"</string>
     <string name="camp_essentials_orders" formatted="false">"준비물 주문 내역"</string>
     <string name="camp_demo_order_confirmed" formatted="false">"데모 주문 완료"</string>
     <string name="camp_expected" formatted="false">"%1$s 도착 예정"</string>
-    <string name="camp_weather_during_your_stay" formatted="false">"  머무는 동안의 날씨"</string>
+    <string name="camp_weather_during_your_stay" formatted="false">"머무는 동안의 날씨"</string>
     <string name="camp_demo_forecast" formatted="false">"데모 예보"</string>
     <string name="camp_weather_forecast" formatted="false">"기상 예보"</string>
     <string name="camp_a_forecast_isn_t_available_for_these" formatted="false">"이 기간의 예보를 확인할 수 없어요."</string>
     <string name="camp_overnight_low" formatted="false">"밤 최저"</string>
     <string name="camp_rain_chance_bring_a_warm_sleeping_bag" formatted="false">"강수 확률 %1$s%% · 따뜻한 침낭을 챙겨주세요"</string>
-    <string name="camp_the_journey_in_your_car" formatted="false">"  내 차로 떠나는 여정"</string>
+    <string name="camp_the_journey_in_your_car" formatted="false">"이동 계획"</string>
     <string name="camp_demo_route" formatted="false">"데모 경로"</string>
     <string name="camp_pleos_route" formatted="false">"Pleos 경로"</string>
     <string name="camp_includes_a_charging_stop" formatted="false">"충전 경유 포함"</string>
-    <string name="camp_an_easy_ride_to_your_retreat" formatted="false">"쉼 없이, 여유롭게"</string>
+    <string name="camp_an_easy_ride_to_your_retreat" formatted="false">"여유롭게 이동하기"</string>
     <string name="camp_distance" formatted="false">"이동 거리"</string>
     <string name="camp_estimated_time" formatted="false">"예상 소요"</string>
     <string name="camp_hr_min" formatted="false">"%1$s시간 %2$s분"</string>
@@ -125,7 +125,7 @@
     <string name="camp_demo_guidance_running" formatted="false">"데모 길안내 실행 중"</string>
     <string name="camp_guidance_request_sent" formatted="false">"길안내 요청 전달됨"</string>
     <string name="camp_start_guidance" formatted="false">"길안내 시작"</string>
-    <string name="camp_current_soc_estimated_use_kwh_nyour_actual" formatted="false">"현재 SOC %1$s%% · 예상 소비 %2$s kWh\n실제 경로는 달라질 수 있어요"</string>
+    <string name="camp_current_soc_estimated_use_kwh_nyour_actual" formatted="false">"배터리 %1$s%% · 예상 소비 %2$s kWh. 실제 경로는 달라질 수 있어요"</string>
     <string name="camp_add" formatted="false">"%1$s 담기"</string>
     <string name="camp_unpack" formatted="false">"짐 정리"</string>
     <string name="camp_ease_into_your_arrival" formatted="false">"도착 후 여유롭게"</string>
@@ -142,7 +142,7 @@
     <string name="camp_simulator_connected" formatted="false">"시뮬레이터 연결"</string>
     <string name="camp_current_battery" formatted="false">"현재 배터리"</string>
     <string name="camp_measured_cabin_temperature" formatted="false">"실내 측정 온도"</string>
-    <string name="camp_doors" formatted="false">"도어 상태"</string>
+    <string name="camp_doors" formatted="false">"문 상태"</string>
     <string name="camp_all_closed" formatted="false">"모두 닫힘"</string>
     <string name="camp_a_door_is_open" formatted="false">"열린 문 있음"</string>
     <string name="camp_check_needed" formatted="false">"확인 필요"</string>
@@ -154,23 +154,23 @@
     <string name="camp_moving" formatted="false">"이동"</string>
     <string name="camp_unknown" formatted="false">"미확인"</string>
     <string name="camp_state" formatted="false">"%1$s%2$s 상태"</string>
-    <string name="camp_a_little_more_just_for_you" formatted="false">"나에게 맞게 조금 더"</string>
+    <string name="camp_a_little_more_just_for_you" formatted="false">"세부 설정"</string>
     <string name="camp_only_settings_you_explicitly_apply_will_run" formatted="false">"사용자가 직접 적용한 설정만 실행해요"</string>
     <string name="camp_target_cabin_temperature" formatted="false">"목표 실내 온도"</string>
     <string name="camp_lower_target_temperature" formatted="false">"목표 온도 낮추기"</string>
     <string name="camp_raise_target_temperature" formatted="false">"목표 온도 높이기"</string>
-    <string name="camp_measured_temperature_and_target_are_different" formatted="false">"측정 온도와 설정 목표는 달라요"</string>
+    <string name="camp_measured_temperature_and_target_are_different" formatted="false">"측정 온도와 목표 온도를 구분해 주세요"</string>
     <string name="camp_front_seats" formatted="false">"앞좌석"</string>
     <string name="camp_rear_seats" formatted="false">"뒷좌석"</string>
-    <string name="camp_cabin_setting_results" formatted="false">"  공간 설정 처리 결과"</string>
+    <string name="camp_cabin_setting_results" formatted="false">"설정 결과"</string>
     <string name="camp_items_checked" formatted="false">"항목 확인 완료"</string>
     <string name="camp_some_items_need_attention" formatted="false">"일부 확인 필요"</string>
-    <string name="camp_observed_state_checked" formatted="false">"관측값 확인"</string>
-    <string name="camp_command_accepted" formatted="false">"명령 수락"</string>
+    <string name="camp_observed_state_checked" formatted="false">"차량 상태 확인"</string>
+    <string name="camp_command_accepted" formatted="false">"요청 접수"</string>
     <string name="camp_state_needs_checking" formatted="false">"상태 확인 필요"</string>
-    <string name="camp_command_acceptance_and_observed_state_are_different" formatted="false">"명령 수락과 관측 상태는 다릅니다. 위 결과는 데모 시뮬레이터입니다."</string>
-    <string name="camp_command_acceptance_and_observed_state_are_different_170" formatted="false">"명령 수락과 관측 상태는 다릅니다. 미관측 항목은 확인 필요로 유지됩니다."</string>
-    <string name="camp_travel_light_into_the_next_chapter" formatted="false">"다음 여정도 가볍게."</string>
+    <string name="camp_command_acceptance_and_observed_state_are_different" formatted="false">"요청 접수와 실제 적용은 다를 수 있어요. 위 결과는 데모 시뮬레이터 결과예요."</string>
+    <string name="camp_command_acceptance_and_observed_state_are_different_170" formatted="false">"요청이 접수돼도 실제 적용 여부는 확인이 필요해요. 미확인 항목은 직접 확인해 주세요."</string>
+    <string name="camp_travel_light_into_the_next_chapter" formatted="false">"출발 전 확인"</string>
     <string name="camp_check_doors_windows_and_battery_at_then" formatted="false">"문 · 창문 상태와 배터리 %1$s%%를 확인하고 다음 목적지로 이어가세요."</string>
     <string name="camp_view_travel_plan" formatted="false">"이동 계획 보기"</string>
     <string name="camp_zone" formatted="false">"%1$s 공간"</string>
@@ -179,27 +179,27 @@
     <string name="camp_shade" formatted="false">"차광"</string>
     <string name="camp_what_kind_of_rest_do_you_need" formatted="false">"지금, 어떤 쉼이 필요한가요?"</string>
     <string name="camp_keep_the_front_bright_for_reading_and" formatted="false">"앞좌석은 독서에 집중하도록 밝게, 뒷좌석은 휴식에 알맞게 차분하게 설정해요."</string>
-    <string name="camp_lower_the_light_and_add_shade_for" formatted="false">"빛은 낮추고 차광을 더해, 편안한 밤을 준비해요."</string>
+    <string name="camp_lower_the_light_and_add_shade_for" formatted="false">"조명을 낮추고 빛을 가려 편안한 밤을 준비해요."</string>
     <string name="camp_reset_shade_and_lighting_then_check_before" formatted="false">"차광과 조명을 정리하고 출발 전 상태를 확인해요."</string>
     <string name="camp_light_both_zones_so_you_can_unpack" formatted="false">"짐을 정리하기 편하도록 앞뒤 공간을 밝혀요."</string>
     <string name="camp_soft_lighting_and_a_comfortable_temperature_for" formatted="false">"함께 머무는 시간에 어울리는 은은한 조명과 온도로 맞춰요."</string>
-    <string name="camp_apply_these_cabin_settings" formatted="false">"이 공간 설정 적용하기"</string>
-    <string name="camp_after_supported_commands_run_the_simulator_state" formatted="false">"지원 항목 실행 후 시뮬레이터 관측값을 다시 확인합니다."</string>
-    <string name="camp_different_moments_shared_comfortably" formatted="false">"각자의 시간이, 함께 흐르는 공간"</string>
-    <string name="camp_a_softer_landing_at_the_end_of" formatted="false">"하루를 접고, 편안한 밤으로"</string>
-    <string name="camp_a_little_room_for_today_s_rest" formatted="false">"오늘의 쉼을 담는 작은 방"</string>
+    <string name="camp_apply_these_cabin_settings" formatted="false">"설정 적용"</string>
+    <string name="camp_after_supported_commands_run_the_simulator_state" formatted="false">"지원 항목을 실행한 뒤 시뮬레이터 상태를 다시 확인해요."</string>
+    <string name="camp_different_moments_shared_comfortably" formatted="false">"독서와 휴식을 함께"</string>
+    <string name="camp_a_softer_landing_at_the_end_of" formatted="false">"편안한 밤을 준비하세요"</string>
+    <string name="camp_a_little_room_for_today_s_rest" formatted="false">"오늘의 차박 공간"</string>
     <string name="camp_reading" formatted="false">"독서"</string>
     <string name="camp_resting" formatted="false">"휴식"</string>
     <string name="camp_front" formatted="false">"앞좌석 %1$s"</string>
     <string name="camp_light_shade" formatted="false">"조명 %1$s · 차광 %2$s"</string>
     <string name="camp_rear" formatted="false">"뒷좌석 %1$s"</string>
-    <string name="camp_a_light_to_focus_by" formatted="false">"집중하는 빛"</string>
+    <string name="camp_a_light_to_focus_by" formatted="false">"독서 조명"</string>
     <string name="camp_reading_light_on" formatted="false">"독서등 켜짐"</string>
     <string name="camp_reading_light_off" formatted="false">"독서등 꺼짐"</string>
     <string name="camp_a_comfortable_temperature" formatted="false">"편안한 온도"</string>
     <string name="camp_target_c" formatted="false">"목표 %1$s°C"</string>
-    <string name="camp_demo_simulator_observations" formatted="false">"  데모 시뮬레이터 관측 상태"</string>
-    <string name="camp_pleos_vehicle_observations" formatted="false">"  Pleos 차량 관측 상태"</string>
+    <string name="camp_demo_simulator_observations" formatted="false">"데모 차량 상태"</string>
+    <string name="camp_pleos_vehicle_observations" formatted="false">"Pleos 차량 상태"</string>
     <string name="camp_front_201" formatted="false">"앞좌석 "</string>
     <string name="camp_rear_202" formatted="false">"뒷좌석 "</string>
     <string name="camp_ambient_brightness" formatted="false">"앰비언트 밝기"</string>
@@ -217,18 +217,18 @@
     <string name="camp_available" formatted="false">"가능"</string>
     <string name="camp_unavailable_216" formatted="false">"불가"</string>
     <string name="camp_check_in_check_out" formatted="false">"입실 · 퇴실"</string>
-    <string name="camp_a_few_promises_for_a_comfortable_stay" formatted="false">"편안한 캠핑을 위한 약속"</string>
+    <string name="camp_a_few_promises_for_a_comfortable_stay" formatted="false">"캠핑장 이용 수칙"</string>
     <string name="camp_accepted" formatted="false">"수령 가능"</string>
     <string name="camp_not_accepted" formatted="false">"수령 불가"</string>
     <string name="camp_campsite_parcel_receiving" formatted="false">"캠핑장 택배 %1$s"</string>
     <string name="camp_checked_222" formatted="false">"%1$s · %2$s 조회"</string>
-    <string name="camp_guests_223" formatted="false">"%1$s — %2$s · %3$s"</string>
+    <string name="camp_guests_223" formatted="false">"%1$s ~ %2$s · %3$s"</string>
     <string name="camp_save_to_my_trip" formatted="false">"내 캠핑에 담기"</string>
-    <string name="camp_pack_a_little_rest_a_lot" formatted="false">"가벼운 준비, 편안한 캠핑."</string>
-    <string name="camp_bring_the_little_things_this_journey_needs" formatted="false">"이번 여정에 필요한 것들을 챙겨보세요."</string>
+    <string name="camp_pack_a_little_rest_a_lot" formatted="false">"준비물 챙기기"</string>
+    <string name="camp_bring_the_little_things_this_journey_needs" formatted="false">"이번 캠핑에 필요한 준비물을 챙겨보세요."</string>
     <string name="camp_close_cart" formatted="false">"장바구니 닫기"</string>
     <string name="camp_packed_essentials" formatted="false">"담은 준비물  %1$s"</string>
-    <string name="camp_a_travel_bag_waiting_to_be_filled" formatted="false">"아직 비어 있는 여행 가방"</string>
+    <string name="camp_a_travel_bag_waiting_to_be_filled" formatted="false">"장바구니가 비어 있어요"</string>
     <string name="camp_add_a_recommended_essential_below" formatted="false">"아래 추천 준비물을 담아보세요."</string>
     <string name="camp_decrease_quantity" formatted="false">"%1$s 수량 줄이기"</string>
     <string name="camp_increase_quantity" formatted="false">"%1$s 수량 늘리기"</string>
@@ -243,68 +243,68 @@
     <string name="camp_choose_a_campsite_first" formatted="false">"캠핑장을 먼저 선택해 주세요"</string>
     <string name="camp_parcels_accepted" formatted="false">"택배 수령 가능"</string>
     <string name="camp_parcels_not_accepted_or_unconfirmed" formatted="false">"택배 수령 불가 또는 확인 필요"</string>
-    <string name="camp_pitch_reservation_reference" formatted="false">"사이트 · 예약 참조"</string>
-    <string name="camp_stay" formatted="false">"체류 %1$s — %2$s"</string>
-    <string name="camp_the_prefilled_name_and_address_are_fictional" formatted="false">"입력된 이름과 주소는 시연을 위한 가상 정보입니다."</string>
-    <string name="camp_check_delivery_availability" formatted="false">"배송 가능 여부 확인"</string>
-    <string name="camp_this_delivery_doesn_t_fit_the_receiving" formatted="false">"이 배송 조건으로는 받을 수 없어요"</string>
+    <string name="camp_pitch_reservation_reference" formatted="false">"자리·예약 정보"</string>
+    <string name="camp_stay" formatted="false">"숙박 %1$s ~ %2$s"</string>
+    <string name="camp_the_prefilled_name_and_address_are_fictional" formatted="false">"미리 입력된 이름과 주소는 시연용 가상 정보예요."</string>
+    <string name="camp_check_delivery_availability" formatted="false">"배송 조건 확인"</string>
+    <string name="camp_this_delivery_doesn_t_fit_the_receiving" formatted="false">"수령 조건이 맞지 않아요"</string>
     <string name="camp_items_subtotal" formatted="false">"상품 금액"</string>
     <string name="camp_delivery" formatted="false">"배송비"</string>
     <string name="camp_order_total" formatted="false">"총 주문 금액"</string>
     <string name="camp_demo_payment" formatted="false">"%1$s 데모 결제"</string>
-    <string name="camp_no_real_payment_or_delivery_occurs_ncheck" formatted="false">"실제 결제 · 배송은 발생하지 않습니다.\n주문 전 수령 조건과 도착 예정일을 확인해 주세요."</string>
+    <string name="camp_no_real_payment_or_delivery_occurs_ncheck" formatted="false">"실제 결제와 배송은 진행되지 않아요. 주문 전 수령 조건과 도착 예정일을 확인해 주세요."</string>
     <string name="camp_no_real_payment" formatted="false">"실제 결제 없음"</string>
-    <string name="camp_your_essentials_are_waiting_for_the_journey" formatted="false">"준비물이 여정을 기다리고 있어요."</string>
+    <string name="camp_your_essentials_are_waiting_for_the_journey" formatted="false">"준비물 주문 확인"</string>
     <string name="camp_your_demo_order_has_been_saved" formatted="false">"데모 주문이 저장되었습니다."</string>
     <string name="camp_order_number" formatted="false">"주문 번호"</string>
     <string name="camp_order_amount" formatted="false">"주문 금액"</string>
     <string name="camp_estimated_arrival" formatted="false">"도착 예정"</string>
     <string name="camp_receiving_at" formatted="false">"받는 곳"</string>
-    <string name="camp_this_is_a_demo_order_no_real" formatted="false">"시연용 주문입니다. 실제 결제 승인이나 배송 접수는 발생하지 않았어요."</string>
-    <string name="camp_back_to_my_trip" formatted="false">"내 캠핑으로 돌아가기"</string>
-    <string name="camp_a_little_rest_with_a_few_words" formatted="false">"  말로 준비하는 작은 쉼"</string>
+    <string name="camp_this_is_a_demo_order_no_real" formatted="false">"데모 주문이에요. 실제 결제나 배송 접수는 없어요."</string>
+    <string name="camp_back_to_my_trip" formatted="false">"내 캠핑으로"</string>
+    <string name="camp_a_little_rest_with_a_few_words" formatted="false">"음성으로 준비하기"</string>
     <string name="camp_close_voice_command" formatted="false">"음성 명령 닫기"</string>
-    <string name="camp_speak_or_type_a_phrase_we_ll" formatted="false">"음성을 인식하거나 텍스트로 직접 입력해 주세요. 명령은 먼저 미리보기로 보여드립니다."</string>
+    <string name="camp_speak_or_type_a_phrase_we_ll" formatted="false">"말하거나 직접 입력해 주세요. 실행 전 명령을 미리 확인할 수 있어요."</string>
     <string name="camp_checking_your_voice" formatted="false">"음성을 확인하고 있어요"</string>
     <string name="camp_speak_a_command" formatted="false">"음성으로 말하기"</string>
-    <string name="camp_recognized_text_type_instead" formatted="false">"인식 결과 · 직접 입력"</string>
-    <string name="camp_you_can_type_if_voice_is_unavailable" formatted="false">"음성 사용이 어려우면 직접 입력할 수 있어요. 직접 입력은 녹음 결과가 아닙니다."</string>
+    <string name="camp_recognized_text_type_instead" formatted="false">"명령 입력"</string>
+    <string name="camp_you_can_type_if_voice_is_unavailable" formatted="false">"음성 대신 입력할 수 있어요. 입력한 내용은 녹음 결과가 아니에요."</string>
     <string name="camp_navigation" formatted="false">"길안내"</string>
     <string name="camp_preview_command" formatted="false">"명령 미리보기"</string>
     <string name="camp_review_on_the_screen" formatted="false">"화면에서 확인하기"</string>
-    <string name="camp_run_vehicle_settings_and_navigation_with_their" formatted="false">"차량 설정과 길안내는 해당 화면의 버튼으로 직접 실행합니다. 음성으로 주문 · 결제를 실행하지 않습니다."</string>
+    <string name="camp_run_vehicle_settings_and_navigation_with_their" formatted="false">"차량 설정과 길안내는 화면의 버튼으로 실행해 주세요. 음성으로는 주문하거나 결제할 수 없어요."</string>
     <string name="camp_fully_booked" formatted="false">"예약 마감"</string>
     <string name="camp_pitches_left" formatted="false">"잔여 %1$s자리"</string>
     <string name="camp_almost_full" formatted="false">"마감 임박"</string>
     <string name="camp_available_277" formatted="false">"예약 가능"</string>
-    <string name="camp_not_observed" formatted="false">"미관측"</string>
+    <string name="camp_not_observed" formatted="false">"미확인"</string>
     <string name="camp_demo_camper" formatted="false">"데모 캠퍼"</string>
     <string name="camp_12_camping_road_unit_101_seoul_fictional" formatted="false">"서울시 캠핑로 12, 101호 (가상 주소)"</string>
     <string name="camp_a_12_demo" formatted="false">"A-12 (데모)"</string>
     <string name="camp_we_couldn_t_complete_the_request" formatted="false">"요청을 처리하지 못했어요."</string>
     <string name="camp_we_couldn_t_start_the_vehicle_connection" formatted="false">"차량 연결을 시작하지 못했어요. %1$s"</string>
     <string name="camp_we_couldn_t_read_the_vehicle_state" formatted="false">"차량 상태를 확인하지 못했어요. 다시 연결을 확인해 주세요."</string>
-    <string name="camp_we_couldn_t_confirm_that_the_vehicle" formatted="false">"차량 상태 구독 해제를 확인하지 못했어요."</string>
+    <string name="camp_we_couldn_t_confirm_that_the_vehicle" formatted="false">"차량 상태 수신이 중지됐는지 확인하지 못했어요."</string>
     <string name="camp_choose_a_check_out_date_after_check" formatted="false">"체크아웃은 체크인 다음 날 이후로 선택해 주세요."</string>
     <string name="camp_your_trip_is_saved_shall_we_get" formatted="false">"이번 캠핑이 저장됐어요. 여정을 준비해 볼까요?"</string>
     <string name="camp_demo_navigation_has_started" formatted="false">"데모 길안내가 시작됐어요."</string>
     <string name="camp_the_request_was_sent_to_pleos_navigation" formatted="false">"Pleos 내비게이션 요청을 전달했어요."</string>
-    <string name="camp_cabin_settings_were_applied_and_the_simulator" formatted="false">"공간 설정을 적용하고 시뮬레이터 관측값을 확인했어요."</string>
-    <string name="camp_cabin_commands_and_supported_observations_were_checked" formatted="false">"공간 설정 명령과 지원되는 관측 상태를 확인했어요."</string>
+    <string name="camp_cabin_settings_were_applied_and_the_simulator" formatted="false">"공간 설정을 적용하고 시뮬레이터 상태를 확인했어요."</string>
+    <string name="camp_cabin_commands_and_supported_observations_were_checked" formatted="false">"공간 설정 요청과 확인 가능한 차량 상태를 점검했어요."</string>
     <string name="camp_please_check_the_remaining_items" formatted="false">"일부 항목을 확인해 주세요."</string>
     <string name="camp_the_essential_was_added_to_your_cart" formatted="false">"준비물을 장바구니에 담았어요."</string>
     <string name="camp_enter_the_recipient_s_name" formatted="false">"받는 분의 이름을 입력해 주세요."</string>
     <string name="camp_enter_your_home_delivery_address" formatted="false">"자택 배송 주소를 입력해 주세요."</string>
-    <string name="camp_enter_a_pitch_or_reservation_reference" formatted="false">"사이트 또는 예약 참조를 입력해 주세요."</string>
+    <string name="camp_enter_a_pitch_or_reservation_reference" formatted="false">"캠핑 자리나 예약 정보를 입력해 주세요."</string>
     <string name="camp_check_delivery_availability_first" formatted="false">"배송 가능 여부를 먼저 확인해 주세요."</string>
     <string name="camp_the_demo_order_is_saved_no_real" formatted="false">"데모 주문이 저장됐어요. 실제 결제는 발생하지 않았습니다."</string>
     <string name="camp_permission_is_missing_allow_it_in_settings" formatted="false">"%1$s 권한이 없어 기능을 시작하지 못했어요. 설정에서 권한을 허용한 뒤 다시 시도해 주세요."</string>
     <string name="camp_we_couldn_t_read_the_last_known" formatted="false">"마지막으로 확인된 위치를 조회할 수 없어요."</string>
     <string name="camp_device_location" formatted="false">"기기 위치"</string>
-    <string name="camp_sorted_from_the_last_observed_location" formatted="false">"%1$s · 마지막으로 확인된 위치 기준 가까운 순서"</string>
+    <string name="camp_sorted_from_the_last_observed_location" formatted="false">"%1$s · 마지막 확인 위치에서 가까운 순"</string>
     <string name="camp_campsites_were_sorted_from_the_last_observed" formatted="false">"마지막으로 확인된 위치를 기준으로 캠핑장을 정렬했어요."</string>
     <string name="camp_save_a_campsite_to_my_trip_first" formatted="false">"캠핑장을 먼저 내 캠핑에 담아주세요."</string>
-    <string name="camp_this_is_a_demo_forecast" formatted="false">"시연용 데모 예보입니다. "</string>
+    <string name="camp_this_is_a_demo_forecast" formatted="false">"데모 예보입니다. "</string>
     <string name="camp_the_forecast_is_the_overnight_low_is" formatted="false">"%1$s날씨는 %2$s. 밤 최저 기온은 %3$s도입니다."</string>
     <string name="camp_the_forecast_for_these_dates_needs_checking" formatted="false">"이 기간의 날씨 예보는 확인이 필요합니다."</string>
     <string name="camp_the_current_battery_state_needs_checking" formatted="false">"현재 배터리 상태는 확인이 필요합니다."</string>
@@ -316,14 +316,14 @@
     <string name="camp_speech_recognition_result" formatted="false">"음성 인식 결과"</string>
     <string name="camp_voice_unavailable_you_can_type_instead" formatted="false">"음성 인식 불가 · 직접 입력 가능"</string>
     <string name="camp_voice_doesn_t_place_orders_or_make" formatted="false">"음성으로 주문이나 결제를 실행하지 않습니다. 장바구니에서 직접 확인해 주세요."</string>
-    <string name="camp_preview_on_the_cabin_screen_apply_it" formatted="false">"차박 화면에서 \'%1$s\'을 미리 선택합니다. 실제 적용은 \'이 공간 설정 적용하기\' 버튼으로 직접 실행해 주세요."</string>
-    <string name="camp_open_the_travel_plan_in_my_trip" formatted="false">"내 캠핑의 이동 계획으로 이동합니다. 실제 안내는 \'길안내 시작\' 버튼으로 직접 실행해 주세요."</string>
+    <string name="camp_preview_on_the_cabin_screen_apply_it" formatted="false">"차박 화면에서 \'%1$s\' 설정을 미리 선택해요. 실행하려면 \'설정 적용\'을 눌러주세요."</string>
+    <string name="camp_open_the_travel_plan_in_my_trip" formatted="false">"내 캠핑의 이동 계획을 열어요. \'길안내 시작\'을 눌러 실행해 주세요."</string>
     <string name="camp_try_a_supported_phrase_prepare_for_sleep" formatted="false">"지원하는 표현을 확인해 주세요. 예: 취침 준비, 독서와 휴식, 길안내"</string>
-    <string name="language_settings">"언어 및 지역"</string>
+    <string name="language_settings">"언어 설정"</string>
     <string name="language_system">"시스템 언어 사용"</string>
     <string name="language_english">"English"</string>
     <string name="language_korean">"한국어"</string>
-    <string name="language_settings_description">"앱 언어를 선택하세요. 음성 인식과 안내도 선택한 언어를 따릅니다."</string>
+    <string name="language_settings_description">"앱과 음성 안내에 사용할 언어를 선택하세요. 음성 인식에도 적용돼요."</string>
     <string name="language_close">"언어 설정 닫기"</string>
     <plurals name="camp_guest_count">
         <item quantity="one">"%1$d명"</item>
@@ -333,19 +333,19 @@
         <item quantity="one">"잔여 %1$d자리"</item>
         <item quantity="other">"잔여 %1$d자리"</item>
     </plurals>
-    <string name="assist_location_observed">"마지막으로 관측된 기기 위치를 받았어요."</string>
+    <string name="assist_location_observed">"마지막으로 확인한 기기 위치를 불러왔어요."</string>
     <string name="assist_location_unavailable">"위치를 사용할 수 없어요. 위치 권한과 기기 서비스를 확인해 주세요."</string>
-    <string name="assist_arrival_registered">"도착 알림을 등록했어요. 실제 진입과 이탈이 관측될 때만 표시합니다."</string>
-    <string name="assist_arrival_inside">"최근 관측된 위치가 이미 도착 범위 안에 있어요."</string>
-    <string name="assist_arrival_entered">"도착 범위로 진입한 위치 변화가 관측되었어요."</string>
-    <string name="assist_arrival_exited">"도착 범위에서 이탈한 위치 변화가 관측되었어요."</string>
+    <string name="assist_arrival_registered">"도착 알림을 등록했어요. 도착 범위에 들어오거나 나간 것이 확인되면 알려드려요."</string>
+    <string name="assist_arrival_inside">"마지막으로 확인한 위치가 이미 도착 범위 안에 있어요."</string>
+    <string name="assist_arrival_entered">"도착 범위에 들어온 것을 확인했어요."</string>
+    <string name="assist_arrival_exited">"도착 범위를 벗어난 것을 확인했어요."</string>
     <string name="assist_arrival_idle">"도착 알림을 아직 등록하지 않았어요."</string>
     <string name="assist_arrival_unavailable">"도착 알림을 사용할 수 없어요. 좌표와 권한, 기기 서비스를 확인해 주세요."</string>
     <string name="assist_tts_started">"음성 재생 시작을 확인했어요."</string>
     <string name="assist_tts_completed">"음성 안내가 끝났어요."</string>
     <string name="assist_tts_ready">"음성 안내를 사용할 준비가 되었어요."</string>
     <string name="assist_tts_stopped">"음성 안내를 중지했어요."</string>
-    <string name="assist_tts_unavailable">"음성 안내를 사용할 수 없어요. 엔진과 선택한 언어, 권한을 확인해 주세요."</string>
+    <string name="assist_tts_unavailable">"음성 안내를 사용할 수 없어요. 음성 설정과 선택한 언어, 권한을 확인해 주세요."</string>
     <string name="assist_stt_recognized">"음성 인식 결과를 받았어요. 내용을 확인한 뒤 계속해 주세요."</string>
     <string name="assist_stt_listening">"음성 명령을 듣고 있어요."</string>
     <string name="assist_stt_ended">"듣기는 끝났지만 최종 인식 결과는 아직 확인되지 않았어요."</string>
@@ -356,11 +356,11 @@
     <string name="assist_navigation_unavailable">"길안내가 시작되지 않았어요. 경로와 권한, Pleos 실행 환경을 확인해 주세요."</string>
     <string name="assist_status_unknown">"서비스 상태를 확인해 주세요."</string>
     <string name="assist_control_unsupported">"이 차량은 해당 제어를 지원하지 않아요."</string>
-    <string name="assist_control_blocked">"필요한 호스트 안전 조건이 확인될 때까지 이 제어는 차단됩니다."</string>
+    <string name="assist_control_blocked">"차량의 안전 조건이 확인되면 사용할 수 있어요."</string>
     <string name="assist_control_failed">"제어를 적용하지 못했어요. 지원 여부와 권한, 연결을 확인해 주세요."</string>
-    <string name="assist_control_observed_different">"상태가 관측되었지만 요청한 값과 달라요."</string>
-    <string name="assist_control_observed">"관측 상태를 확인했어요. 요청한 값과 비교해 주세요."</string>
-    <string name="assist_control_acknowledged">"명령은 수락되었지만 실제 결과 상태는 아직 관측되지 않았어요."</string>
+    <string name="assist_control_observed_different">"현재 차량 상태가 요청한 설정과 달라요."</string>
+    <string name="assist_control_observed">"차량 상태를 확인했어요. 요청한 설정과 비교해 주세요."</string>
+    <string name="assist_control_acknowledged">"요청이 접수됐지만 실제 적용 여부는 아직 확인되지 않았어요."</string>
     <string name="assist_control_unverified">"결과 상태가 아직 확인되지 않았어요."</string>
     <string name="camp_ux_unavailable_title">차량 연결을 확인해 주세요</string>
     <string name="camp_ux_unavailable_body">차량에서 화면 이용이 가능한 상태를 확인하면 캠프룸을 사용할 수 있어요.</string>
@@ -369,21 +369,21 @@
     <string name="camp_ux_retry">다시 확인</string>
     <string name="cabin_layout_title">"확인된 제어 영역"</string>
     <string name="cabin_layout_demo">"데모용 가상 영역입니다. 실제 차량 배치가 아닙니다."</string>
-    <string name="cabin_layout_sdk">"Pleos 기능 조회가 반환한 영역 묶음을 그대로 표시합니다."</string>
+    <string name="cabin_layout_sdk">"Pleos에서 확인한 제어 영역을 표시해요."</string>
     <string name="cabin_layout_not_geometry">"제어 영역은 차종·트림·좌석 수·실내 형상을 뜻하지 않습니다. 좌우를 운전석·동승석으로 추정하지 않습니다."</string>
     <string name="cabin_layout_unknown">"확인된 제어 영역이 없습니다. 실제 좌석 배치는 알 수 없습니다."</string>
-    <string name="cabin_layout_seat_group">"SDK 좌석 제어 묶음 · 좌석 수가 아님"</string>
-    <string name="cabin_layout_window_group">"SDK 창문 제어 묶음"</string>
-    <string name="cabin_layout_demo_group">"명시적인 데모 가상 프로필"</string>
-    <string name="cabin_layout_value_unknown">"관측값 확인 안 됨"</string>
+    <string name="cabin_layout_seat_group">"좌석 제어 영역 · 좌석 수와 다름"</string>
+    <string name="cabin_layout_window_group">"창문 제어 영역"</string>
+    <string name="cabin_layout_demo_group">"데모용 가상 배치"</string>
+    <string name="cabin_layout_value_unknown">"상태 미확인"</string>
     <string name="cabin_layout_on">"켜짐"</string>
     <string name="cabin_layout_off">"꺼짐"</string>
-    <string name="cabin_layout_read_write">"조회·제어 기능 확인"</string>
-    <string name="cabin_layout_read_only">"조회 기능만 확인"</string>
-    <string name="cabin_layout_write_only">"제어 기능만 확인 · 읽기 확인 불가"</string>
-    <string name="cabin_layout_access_unknown">"접근 권한 확인 안 됨"</string>
+    <string name="cabin_layout_read_write">"상태 확인·설정 가능"</string>
+    <string name="cabin_layout_read_only">"상태 확인만 가능"</string>
+    <string name="cabin_layout_write_only">"설정 가능 · 상태 확인 불가"</string>
+    <string name="cabin_layout_access_unknown">"사용 권한 미확인"</string>
     <string name="cabin_layout_unconfirmed_features">"확인되지 않은 기능"</string>
-    <string name="cabin_layout_fanout">"앞뒤 설정은 일치하는 지원 영역에 각각 실행됩니다. 앞뒤를 함께 포함한 불명확한 묶음은 차단합니다. 기능 미확인은 좌석 부재를 뜻하지 않습니다."</string>
+    <string name="cabin_layout_fanout">"지원되는 앞뒤 영역에 각각 설정해요. 앞뒤가 묶인 영역은 따로 설정할 수 없어요. 지원 기능만으로 좌석 유무를 판단할 수는 없어요."</string>
     <string name="cabin_layout_demo_front">"데모 앞쪽 영역"</string>
     <string name="cabin_layout_demo_rear">"데모 뒤쪽 영역"</string>
     <string name="cabin_layout_left">"왼쪽"</string>
@@ -392,9 +392,9 @@
     <string name="cabin_layout_row_position">"%1$s열 · %2$s"</string>
     <string name="cabin_layout_front_targets">"앞쪽 제어 대상"</string>
     <string name="cabin_layout_rear_targets">"뒤쪽 제어 대상"</string>
-    <string name="cabin_layout_unspecified">"SDK 위치 미지정"</string>
-    <string name="cabin_layout_demo_short">"데모 앞뒤 영역 · 가상 프로필"</string>
-    <string name="cabin_layout_model_unknown_short">"차종 배치는 확인되지 않았습니다. 좌석 배치가 아닌 지원 제어 영역입니다."</string>
+    <string name="cabin_layout_unspecified">"위치 미지정"</string>
+    <string name="cabin_layout_demo_short">"데모 앞뒤 영역"</string>
+    <string name="cabin_layout_model_unknown_short">"실제 좌석 배치는 확인되지 않았어요. 설정 가능한 영역만 표시해요."</string>
     <string name="cabin_layout_linked_groups">"함께 제어되는 영역 · 위치 미지정"</string>
     <string name="cabin_layout_row_heading">"%1$s열 제어 영역"</string>
     <string name="cabin_layout_value_unknown_short">"미확인"</string>
@@ -403,13 +403,14 @@
     <string name="cabin_layout_rear_windshield">"뒤 유리"</string>
     <string name="cabin_layout_roof_1">"지붕 영역 1"</string>
     <string name="cabin_layout_roof_2">"지붕 영역 2"</string>
-    <string name="cabin_layout_confirmed">"새 관측값으로 설정을 확인했습니다."</string>
-    <string name="cabin_layout_mismatch">"관측값이 요청과 다릅니다. 이 영역을 확인해 주세요."</string>
+    <string name="cabin_layout_confirmed">"새로 확인한 차량 상태로 설정 적용을 확인했어요."</string>
+    <string name="cabin_layout_mismatch">"현재 상태가 요청한 설정과 달라요. 해당 영역을 확인해 주세요."</string>
     <string name="cabin_layout_blocked">"지원 기능·권한·정차 상태를 확인한 뒤 사용할 수 있습니다."</string>
     <string name="cabin_layout_failed">"설정을 완료하지 못했습니다. 차량 연결을 확인한 뒤 다시 시도해 주세요."</string>
-    <string name="cabin_layout_acknowledged">"요청을 받았으나 적용값은 확인되지 않았습니다."</string>
+    <string name="cabin_layout_acknowledged">"요청이 접수됐지만 적용 결과는 아직 확인되지 않았어요."</string>
     <string name="cabin_layout_unverified">"적용값을 확인하지 못했습니다."</string>
-    <string name="cabin_layout_unavailable">"이 선택에 사용할 수 있는 제어 대상이 확인되지 않았습니다."</string>
+    <string name="cabin_layout_unavailable">"이 설정을 적용할 수 있는 영역이 확인되지 않았어요."</string>
     <string name="cabin_layout_invalid">"유효한 설정값을 선택해 주세요."</string>
     <string name="cabin_layout_ambiguous">"함께 제어되는 영역이므로 앞뒤를 나누어 설정할 수 없습니다."</string>
+    <string name="camp_out_of_stock">"품절"</string>
 </resources>
