@@ -1,0 +1,28 @@
+{
+  "status": "completed",
+  "skill": "humanize-korean v2.3-codex",
+  "route": "light",
+  "genre": "report",
+  "run_id": "2026-10-25-004-8a3c",
+  "source": "/workspace/scratch/ba5b9bcb89cd/_workspace/2026-10-25-004-8a3c/01_input.txt",
+  "reviewed_file": "/workspace/scratch/ba5b9bcb89cd/_workspace/2026-10-25-004-8a3c/final.md",
+  "deliverable": "/workspace/scratch/ba5b9bcb89cd/work/ui-copy-20261025/README-snippet.md",
+  "sha256": "a9a38648f62150d559248cf1c85983b3ec2748aefe232b74772ff29fb5047bea",
+  "changes": "C-11: 연결어미 뒤 쉼표 2개 제거",
+  "change_rate": 0.0032,
+  "gate": {
+    "verdict": "OK — 수렴",
+    "exit_code": 0
+  },
+  "self_check": "6/6",
+  "self_grade": "B",
+  "protected_content": [
+    "UI review link",
+    "demo.3 release URL",
+    "127.0.0.1:8000",
+    "adb reverse tcp:8000 tcp:8000"
+  ],
+  "repository_readme_modified": false,
+  "existing_source_build_10_0_2_2_paragraph_modified": false,
+  "completed_utc": "2026-10-25T12:25:15.452400+00:00"
+}

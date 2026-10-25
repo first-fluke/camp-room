@@ -76,6 +76,10 @@ adb shell am start -n camp.room.app.demo/camp.room.app.MainActivity
 
 ## 검증과 시연
 
+최신 한국어 UI의 변경 내용과 검수 범위는 [한국어 UI 검수 기록](docs/verification/korean-ui-copy-review.md)에서 확인할 수 있으며 APK와 시연 영상은 [데모 3 릴리스](https://github.com/first-fluke/camp-room/releases/tag/v1.0.0-demo.3)에서 제공합니다.
+
+배포용 Demo APK는 API 서버를 `127.0.0.1:8000`으로 찾으므로 설치 후 로컬 API 서버를 실행하고 `adb reverse tcp:8000 tcp:8000`을 설정해야 합니다.
+
 ```bash
 .venv/bin/python -m pytest apps/api/tests apps/worker/tests -q
 .venv/bin/python scripts/review-database.py

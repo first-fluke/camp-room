@@ -1,0 +1,77 @@
+{
+  "recordedAt": "2026-10-25T12:27:22.370914+00:00",
+  "repository": "first-fluke/camp-room",
+  "branch": "main",
+  "release": "v1.0.0-demo.3",
+  "releaseType": "prerelease",
+  "latestNativeCodeCommit": "49c7fe685c8d08c1379856890bc1913df0725032",
+  "videoApplicationCommit": "3edc3228538ccbcae22b1d21975fc25daa999604",
+  "captureScriptCommit": "33c583a4013c1080efe08c8e7e4c48b2c6f59c41",
+  "latestBuild": {
+    "status": "passed",
+    "unitTests": 14,
+    "apks": [
+      {
+        "flavor": "demo",
+        "bytes": 24568796,
+        "sha256": "fbfad04e054d7aacdf6622c2d5bf2983cf820d9167476828431a86e6324975b9"
+      },
+      {
+        "flavor": "pleos",
+        "bytes": 41699861,
+        "sha256": "d4b938c69bfde714302ec84c01d5755e54b869bc717344c51dd210c06093fa4a"
+      }
+    ]
+  },
+  "video": {
+    "file": "Camp_Room_Demo.mp4",
+    "sha256": "245ff7fa16c1175cd25a3ad5da137704a7d25f2f9aa0d7d7d1948097092b5228",
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1920,
+        "height": 1080
+      }
+    ],
+    "format": {
+      "duration": "229.933333",
+      "size": "3621010"
+    },
+    "sourceDurationSeconds": 680.836,
+    "playbackRate": 3
+  },
+  "recordedApk": {
+    "file": "Camp_Room_Recorded_Demo.apk",
+    "sha256": "496d4eae811212d09364399115634ba58969dc3490a53c5fcf901a603ccfc015"
+  },
+  "runtime": {
+    "passedChecks": 18,
+    "overallScenarioStatus": "failed",
+    "failure": "Rotated diagnostic JSONL contains one malformed line with NUL bytes. New controlled-crash verification was not reached.",
+    "normalFinalUiVerification": "blocked-by-observed-anr",
+    "anrCause": "Not established"
+  },
+  "visualScope": {
+    "recordingAndNarrowApk": "3edc3228538ccbcae22b1d21975fc25daa999604",
+    "narrowScreens": 8,
+    "narrowDisplay": "640x800",
+    "fontScale": 1.3,
+    "narrowMatrixStatus": "incomplete; eight captured visible regions reviewed",
+    "adminScreens": 12,
+    "adminWidths": [
+      1440,
+      768,
+      390
+    ],
+    "adminOrders": "empty state only",
+    "latestTripFooter": "blocked by app-not-responding overlay"
+  },
+  "hostedCi": {
+    "runId": 40192089140,
+    "executedSteps": 0,
+    "status": "Not started because account payments failed or spending limit must increase"
+  },
+  "evidenceAsset": "Camp_Room_UI_Verification.zip",
+  "priorReleasePreserved": "v1.0.0-demo.2"
+}
