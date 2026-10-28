@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+    <string name="camp_nearby_current_page">%1$s 기준 · 현재 목록 안에서 거리순</string>
+    <string name="camp_nearby_current_page_notice">현재 목록을 마지막 위치 기준 거리순으로 정렬했습니다.</string>
+    <string name="camp_catalog_loading">장소를 불러오고 있어요</string>
+    <string name="camp_catalog_previous">이전 목록</string>
+    <string name="camp_catalog_next">다음 목록</string>
+    <string name="camp_catalog_page">목록 %1$,d</string>
+    <string name="camp_catalog_total">전체 %1$,d곳</string>
+    <string name="camp_catalog_results">검색 결과 %1$,d곳</string>
+    <string name="camp_catalog_results_of_total">검색 결과 %1$,d곳 · 전체 %2$,d곳</string>
+    <string name="camp_catalog_last">마지막 목록입니다.</string>
+    <string name="camp_catalog_retry">다시 시도</string>
+    <string name="camp_catalog_search_changed">검색 조건을 바꿨어요. 캠핑장 찾기를 눌러 새 목록을 확인하세요.</string>
+    <string name="camp_catalog_changed">목록이 갱신되어 처음부터 다시 표시합니다.</string>
+    <string name="camp_live_data_vehicle_simulator">실데이터 · 차량체험</string>
     <string name="camp_location" formatted="false">"위치"</string>
     <string name="camp_speech_recognition" formatted="false">"음성 인식"</string>
     <string name="camp_voice_guidance" formatted="false">"음성 안내"</string>
@@ -61,8 +75,6 @@
     <string name="camp_find_campsites" formatted="false">"캠핑장 찾기"</string>
     <string name="camp_make_it_yours" formatted="false">"내 취향에 맞게"</string>
     <string name="camp_car_camping" formatted="false">"차박 가능"</string>
-    <string name="camp_places_to_slow_down" formatted="false">"캠핑장 %1$s"</string>
-    <string name="camp_discover_a_place_that_makes_car_camping" formatted="false">"차박하기 좋은 장소를 살펴보세요."</string>
     <string name="camp_external_data_connected" formatted="false">"외부 데이터 연동"</string>
     <string name="camp_demo_campsite_collection" formatted="false">"데모 캠핑장"</string>
     <string name="camp_no_campsites_match_these_filters" formatted="false">"조건에 맞는 캠핑장이 없어요"</string>
@@ -439,4 +451,44 @@
     <string name="request_error_order_conflict">"같은 주문에 서로 다른 내용이 요청됐어요. 새 주문으로 다시 확인해 주세요."</string>
     <string name="request_error_order_not_found">"주문을 찾을 수 없어요."</string>
     <string name="camp_brand_name">"캠프룸"</string>
+    <string name="camp_photo_loading">사진을 불러오는 중</string>
+    <string name="camp_photo_failed">사진을 불러오지 못했어요</string>
+    <string name="camp_photo_missing">제공된 사진이 없어요</string>
+    <string name="camp_photo_illustration">대체 일러스트</string>
+    <string name="camp_date_confirm">확인</string>
+    <string name="camp_date_cancel">취소</string>
+    <string name="camp_cart_item_count">장바구니, 준비물 %1$d개</string>
+    <string name="camp_facilities_conditions">시설·조건</string>
+    <string name="camp_availability_check_needed">예약 가능 여부 확인 필요</string>
+    <string name="camp_rain_probability">강수 확률 %1$s%%</string>
+    <string name="camp_route_not_ready">경로 정보를 아직 확인할 수 없어요.</string>
+    <string name="camp_region_unknown">지역 정보 확인 필요</string>
+    <string name="camp_region_seoul">서울</string>
+    <string name="camp_region_busan">부산</string>
+    <string name="camp_region_daegu">대구</string>
+    <string name="camp_region_incheon">인천</string>
+    <string name="camp_region_gwangju">광주</string>
+    <string name="camp_region_daejeon">대전</string>
+    <string name="camp_region_ulsan">울산</string>
+    <string name="camp_region_sejong">세종</string>
+    <string name="camp_region_chungnam">충남</string>
+    <string name="camp_region_jeonbuk">전북</string>
+    <string name="camp_region_jeonnam">전남</string>
+    <string name="camp_region_gyeongnam">경남</string>
+    <string name="camp_other_facility">기타 시설</string>
+    <string name="camp_add_to_trip">담기</string>
+    <string name="camp_call_campsite">전화</string>
+    <string name="camp_campsite_phone_unavailable">캠핑장 전화번호 정보가 없어요</string>
+    <string name="camp_voice_permission_needed">음성 서비스 권한을 확인해 주세요.</string>
+    <string name="camp_tts_completed">여행 안내 재생을 마쳤습니다.</string>
+    <string name="camp_tts_engine_unavailable">선택한 언어의 차량 음성 엔진을 사용할 수 없습니다. 언어와 음성 서비스를 확인한 뒤 앱을 다시 열어 주세요.</string>
+    <string name="camp_tts_failed">음성 안내를 마치지 못했습니다. 잠시 후 다시 시도해 주세요.</string>
+    <string name="camp_tts_timeout">음성 안내 완료를 확인하지 못해 재생을 중지했습니다.</string>
+    <string name="camp_voice_cancelled">음성 작업을 중지했습니다.</string>
+    <string name="camp_stt_no_result">음성 인식 결과를 받지 못했습니다. 마이크 입력을 확인하거나 직접 입력해 주세요.</string>
+    <string name="camp_stt_final_result">차량 음성 인식 결과입니다. 실행 전 내용을 확인해 주세요.</string>
+    <string name="camp_stt_unavailable">차량 음성 인식 서비스와 마이크 입력을 확인해 주세요.</string>
+    <string name="camp_voice_cleanup_pending">이전 음성 작업의 종료를 확인해야 합니다. 앱을 다시 열어 주세요.</string>
+    <string name="camp_voice_in_progress">음성 작업을 처리하고 있습니다.</string>
+    <string name="camp_voice_unavailable_reopen">현재 음성 기능을 사용할 수 없습니다. 앱을 다시 연 뒤 확인해 주세요.</string>
 </resources>

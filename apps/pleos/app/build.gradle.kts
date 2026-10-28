@@ -38,6 +38,7 @@ android {
         }
         create("pleos") {
             dimension = "runtime"
+            minSdk = 28
             buildConfigField("String", "API_BASE_URL", "\"${providers.gradleProperty("campApiBaseUrl").orElse("https://api.example.invalid/api/v1").get()}\"")
             buildConfigField("Boolean", "IS_DEMO", "false")
         }
@@ -51,6 +52,7 @@ android {
 }
 dependencies {
     implementation(project(":api-client"))
+    implementation("io.coil-kt:coil-compose:2.7.0")
     implementation("io.sentry:sentry-android-core:8.61.1")
     implementation("com.posthog:posthog-android:3.72.8")
     val composeBom = platform("androidx.compose:compose-bom:2025.04.01")
@@ -74,6 +76,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.ktor:ktor-client-mock:3.1.3")
     "pleosImplementation"("ai.pleos.playground:Vehicle:2.3.2")
+    "pleosImplementation"("ai.pleos.playground:vehicle-data:1.1.11")
     "pleosImplementation"("ai.pleos.playground:NaviHelper:3.0.5")
     "pleosImplementation"("ai.pleos.playground:FusedLocation:1.1.3")
     "pleosImplementation"("ai.pleos.playground:TextToSpeech:3.3.1")

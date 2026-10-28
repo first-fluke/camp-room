@@ -8,7 +8,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
-import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
@@ -40,6 +39,15 @@ data class CampUiState(
     val interactionAllowed: Boolean = BuildConfig.IS_DEMO,
     val data: Bootstrap? = null,
     val sites: List<Campsite> = emptyList(),
+    val catalogLoading: Boolean = false,
+    val catalogError: String = "",
+    val catalogWarning: String = "",
+    val catalogPageNumber: Int = 0,
+    val catalogTotal: Int = 0,
+    val catalogSourceTotal: Int? = null,
+    val catalogHasNext: Boolean = false,
+    val catalogHasPrevious: Boolean = false,
+    val catalogNeedsSearch: Boolean = false,
     val tab: Int = 0,
     val error: String = "",
     val notice: String = "",
@@ -49,7 +57,7 @@ data class CampUiState(
         LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SATURDAY)).plusDays(1).toString(),
     val guests: Int = 2,
     val region: String = "전체",
-    val carCamping: Boolean = true,
+    val carCamping: Boolean = false,
     val facilities: Set<String> = emptySet(),
     val selectedSite: Campsite? = null,
     val cartOpen: Boolean = false,
@@ -60,9 +68,9 @@ data class CampUiState(
     val commands: List<CommandResult> = emptyList(),
     val commandStatus: String = "",
     val destination: String = "campsite",
-    val recipient: String = camp.room.app.CampText.get(camp.room.app.R.string.camp_demo_camper),
-    val address: String = camp.room.app.CampText.get(camp.room.app.R.string.camp_12_camping_road_unit_101_seoul_fictional),
-    val siteReference: String = camp.room.app.CampText.get(camp.room.app.R.string.camp_a_12_demo),
+    val recipient: String = "",
+    val address: String = "",
+    val siteReference: String = "",
     val quote: Quote? = null,
     val order: Order? = null,
     val locationSummary: String = "",
@@ -71,6 +79,10 @@ data class CampUiState(
     val arrivalMessage: String = "",
     val ttsStatus: String = "",
     val sttStatus: String = "",
+    val ttsMessage: String = "",
+    val sttMessage: String = "",
+    val ttsRetryable: Boolean = true,
+    val sttRetryable: Boolean = true,
     val voiceOpen: Boolean = false,
     val transcript: String = "",
     val transcriptSource: String = "",
@@ -79,7 +91,7 @@ data class CampUiState(
     val previewScene: String? = null,
 ) {
     val tripSite: Campsite?
-        get() = (data?.campsites.orEmpty() + sites).firstOrNull { it.id == data?.trip?.campsiteId }
+        get() = (data?.campsites.orEmpty() + sites + listOfNotNull(data?.tripCampsite)).firstOrNull { it.id == data?.trip?.campsiteId }
 }
 
 /** A quote is valid only for the exact delivery and cart facts sent with it. */
@@ -135,6 +147,9 @@ constructor(
     private var foregroundVehicleJob: Job? = null
     private val actionJobs = CampActionJobs()
     private var quotedInput: DeliveryQuoteSnapshot? = null
+    private val catalogHistory = CatalogPageHistory<Campsite> { it.id }
+    private var catalogJob: Job? = null
+    private var failedCatalogRequest: Pair<Int,String?>? = null
 
     init {
         telemetry.record(Event.SCREEN_VIEWED,Dimensions(screen=Screen.FIND))
@@ -204,42 +219,38 @@ constructor(
                 while (isActive) {
                     if (!mutable.value.busy && mutable.value.data != null) {
                         try {
-                            val current = Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })
+                            val current = readVehicle()
                             val assist = AssistMessages.status(bridge.assistStatus())
                             mutable.update {
                                 it.copy(
                                     data = it.data?.copy(vehicle = current),
+                                    route = it.route.takeIf { current.isConnected },
+                                    navigationLaunched = it.navigationLaunched && current.isConnected,
+                                    commands = if (current.isConnected) it.commands else emptyList(),
+                                    commandStatus = it.commandStatus.takeIf { current.isConnected }.orEmpty(),
                                     arrivalStatus = assist.text("arrivalStatus"),
                                     arrivalMessage = assist.text("arrivalMessage"),
                                     ttsStatus = assist.text("ttsStatus"),
                                     sttStatus = assist.text("sttStatus"),
+                                    ttsMessage = assist.text("ttsMessage"),
+                                    sttMessage = assist.text("sttMessage"),
+                                    ttsRetryable = assist.optBoolean("ttsRetryable", true),
+                                    sttRetryable = assist.optBoolean("sttRetryable", true),
                                 )
                             }
                         } catch (cancelled: CancellationException) {
                             throw cancelled
                         } catch (error: Exception) {
                             mutable.update { state ->
-                                val unknown =
-                                    state.data
-                                        ?.vehicle
-                                        ?.copy(
-                                            soc = null,
-                                            measuredTemperature = null,
-                                            targetTemperature = null,
-                                            front = CabinZone(null, null, null),
-                                            rear = CabinZone(null, null, null),
-                                            doorsClosed = null,
-                                            windowsClosed = null,
-                                            motionState = "unknown",
-                                            updatedAt = "",
-                                            layoutSource = "unknown",
-                                            controlAreas = emptyList(),
-                                            unknownFeatures = emptyList(),
-                                        )
+                                val unknown = state.data?.vehicle?.disconnected()
                                 state.copy(
                                     data = unknown?.let { state.data?.copy(vehicle = it) },
-                                    error =
-                                        state.error.ifBlank { camp.room.app.CampText.get(camp.room.app.R.string.camp_we_couldn_t_read_the_vehicle_state) },
+                                    route = null,
+                                    navigationLaunched = false,
+                                    commands = emptyList(),
+                                    commandStatus = "",
+                                    arrivalStatus = "",
+                                    arrivalMessage = "",
                                 )
                             }
                         }
@@ -250,7 +261,7 @@ constructor(
     }
 
     fun onHostStop() {
-        actionJobs.cancelRecognition()
+        actionJobs.cancelUserAction()
         foregroundVehicleJob?.cancel()
         foregroundVehicleJob = null
         try {
@@ -261,10 +272,15 @@ constructor(
     }
 
     fun reload() = launchAction {
-        val boot = repository.bootstrap().let { it.copy(vehicle = Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })) }
+        invalidateCatalog()
+        val boot = repository.bootstrap().let { it.copy(vehicle = readVehicle()) }
         mutable.update {
             it.copy(
                 data = boot,
+                route = it.route.takeIf { boot.vehicle.isConnected },
+                navigationLaunched = it.navigationLaunched && boot.vehicle.isConnected,
+                commands = if (boot.vehicle.isConnected) it.commands else emptyList(),
+                commandStatus = it.commandStatus.takeIf { boot.vehicle.isConnected }.orEmpty(),
                 sites = boot.campsites,
                 checkIn = boot.trip?.checkIn ?: it.checkIn,
                 checkOut = boot.trip?.checkOut ?: it.checkOut,
@@ -272,23 +288,52 @@ constructor(
                 loading = false,
             )
         }
+        search()
         loadTrip()
     }
 
     private suspend fun refresh() {
-        val boot = repository.bootstrap().let { it.copy(vehicle = Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })) }
+        val boot = repository.bootstrap().let { it.copy(vehicle = readVehicle()) }
         mutable.update {
-            val next = it.copy(data = boot)
+            val next = it.copy(
+                data = boot,
+                route = it.route.takeIf { boot.vehicle.isConnected },
+                navigationLaunched = it.navigationLaunched && boot.vehicle.isConnected,
+                commands = if (boot.vehicle.isConnected) it.commands else emptyList(),
+                commandStatus = it.commandStatus.takeIf { boot.vehicle.isConnected }.orEmpty(),
+            )
             if (quotedInput == quoteInput(next)) next else next.copy(quote = null)
+        }
+    }
+
+    private suspend fun readVehicle(): Vehicle = try {
+        Vehicle.parse(sdk(SdkOperation.VEHICLE_STATE) { bridge.vehicle() })
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        Vehicle.parse(JSONObject())
+    }
+
+    private fun requireConnectedVehicle() {
+        requireUserInput(mutable.value.data?.vehicle?.isConnected == true) {
+            CampText.get(R.string.vehicle_control_connection_needed)
         }
     }
 
     private suspend fun loadTrip() {
         val trip = mutable.value.data?.trip ?: return
         val site = mutable.value.tripSite ?: return
-        val route = RoutePreview.parse(sdk(SdkOperation.NAVIGATION_PREVIEW) { bridge.navigationPreview(site) })
         val weather = repository.weather(trip.campsiteId,trip.checkIn,trip.checkOut)
-        mutable.update { it.copy(route = route, weather = weather) }
+        mutable.update { it.copy(weather = weather, route = null) }
+        if (mutable.value.data?.vehicle?.isConnected != true) return
+        val route = try {
+            RoutePreview.parse(sdk(SdkOperation.NAVIGATION_PREVIEW) { bridge.navigationPreview(site) })
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            null
+        }
+        mutable.update { current -> current.copy(route = route.takeIf { current.data?.vehicle?.isConnected == true }) }
     }
 
     fun tab(value: Int) {
@@ -301,21 +346,25 @@ constructor(
     fun dates(checkIn: String, checkOut: String) {
         if (!mutable.value.interactionAllowed || mutable.value.busy) return
         mutable.update { it.copy(checkIn = checkIn, checkOut = checkOut) }
+        invalidateCatalog()
     }
 
     fun region(value: String) {
         if (!mutable.value.interactionAllowed || mutable.value.busy) return
         mutable.update { it.copy(region = value) }
+        invalidateCatalog()
     }
 
     fun guests(value: Int) {
         if (!mutable.value.interactionAllowed || mutable.value.busy) return
         mutable.update { it.copy(guests = value.coerceIn(1, 8)) }
+        invalidateCatalog()
     }
 
     fun carCamping() {
         if (!mutable.value.interactionAllowed || mutable.value.busy) return
         mutable.update { it.copy(carCamping = !it.carCamping) }
+        invalidateCatalog()
     }
 
     fun facility(value: String) {
@@ -326,6 +375,7 @@ constructor(
                     if (value in it.facilities) it.facilities - value else it.facilities + value
             )
         }
+        invalidateCatalog()
     }
 
     fun clearError() {
@@ -336,22 +386,85 @@ constructor(
         mutable.update { it.copy(notice = "") }
     }
 
-    fun search() = launchAction(Action.SEARCH) {
+    private fun invalidateCatalog() {
+        catalogJob?.cancel()
+        catalogHistory.reset()
+        failedCatalogRequest = null
+        mutable.update { it.copy(sites=emptyList(),catalogLoading=false,catalogError="",catalogWarning="",
+            catalogPageNumber=0,catalogTotal=0,catalogSourceTotal=null,catalogHasNext=false,catalogHasPrevious=false,catalogNeedsSearch=true) }
+    }
+
+    fun search() {
         val s = mutable.value
+        if(s.catalogLoading)return
         val start = runCatching { LocalDate.parse(s.checkIn) }.getOrNull()
         val end = runCatching { LocalDate.parse(s.checkOut) }.getOrNull()
-        requireUserInput(start != null && end != null && end > start) { camp.room.app.CampText.get(camp.room.app.R.string.camp_choose_a_check_out_date_after_check) }
+        if(start==null || end==null || end<=start) {
+            mutable.update { it.copy(error=CampText.get(R.string.camp_choose_a_check_out_date_after_check)) }
+            return
+        }
+        mutable.update { it.copy(error="") }
+        invalidateCatalog()
+        requestCatalogPage(0,null)
+    }
+
+    private fun requestCatalogPage(number:Int,cursor:String?) {
+        catalogHistory.select(number)?.let { showCatalogPage(number,it);return }
+        val s=mutable.value
+        val owner=catalogHistory.epoch
         val params =
             mutableMapOf(
                 "checkIn" to s.checkIn,
                 "checkOut" to s.checkOut,
                 "guests" to s.guests.toString(),
-                "carCamping" to s.carCamping.toString(),
             )
+        if (s.carCamping) params["carCamping"] = "true"
         if (s.region != "전체") params["region"] = s.region
         if (s.facilities.isNotEmpty()) params["facilities"] = s.facilities.joinToString(",")
-        val sites = repository.campsites(params)
-        mutable.update { it.copy(sites = sites) }
+        catalogJob?.cancel()
+        mutable.update { it.copy(catalogLoading=true,catalogError="",catalogNeedsSearch=false) }
+        catalogJob=viewModelScope.launch {
+            try {
+                val page=repository.campsitePage(params,cursor)
+                currentCoroutineContext().ensureActive()
+                if(owner!=catalogHistory.epoch)return@launch
+                if(!catalogHistory.accept(owner,number,page))throw CatalogChangedException()
+                showCatalogPage(number,catalogHistory.page(number)!!)
+                failedCatalogRequest=null
+            } catch(cancelled:CancellationException) {
+                throw cancelled
+            } catch(changed:CatalogChangedException) {
+                if(owner==catalogHistory.epoch) {
+                    mutable.update { it.copy(catalogLoading=false,notice=CampText.get(R.string.camp_catalog_changed)) }
+                    search()
+                }
+            } catch(error:Exception) {
+                if(owner==catalogHistory.epoch) {
+                    failedCatalogRequest=number to cursor
+                    mutable.update { it.copy(catalogError=if(error is CampRequestFailure)error.localizedMessage() else CampText.get(R.string.camp_we_couldn_t_complete_the_request)) }
+                }
+            } finally {
+                if(owner==catalogHistory.epoch)mutable.update { it.copy(catalogLoading=false) }
+            }
+        }
+    }
+
+    private fun showCatalogPage(number:Int,page:CatalogPage<Campsite>) {
+        mutable.update { it.copy(sites=page.items,catalogPageNumber=number+1,catalogTotal=page.total,catalogSourceTotal=page.sourceTotal,
+            catalogHasNext=page.nextCursor!=null,catalogHasPrevious=number>0,catalogLoading=false,
+            catalogError="",catalogWarning=page.warning,catalogNeedsSearch=false,locationSummary="",distances=emptyMap()) }
+    }
+
+    fun nextCampsites() {
+        if(mutable.value.catalogLoading || mutable.value.catalogNeedsSearch)return
+        val current=catalogHistory.page(catalogHistory.index)?:return
+        current.nextCursor?.let { requestCatalogPage(catalogHistory.index+1,it) }
+    }
+    fun previousCampsites() {
+        if(!mutable.value.catalogLoading && catalogHistory.index>0)requestCatalogPage(catalogHistory.index-1,null)
+    }
+    fun retryCampsites() {
+        if(!mutable.value.catalogLoading)failedCatalogRequest?.let { requestCatalogPage(it.first,it.second) }
     }
 
     fun resetFilters() {
@@ -382,17 +495,16 @@ constructor(
     }
 
     fun navigation() = launchAction(Action.NAVIGATION) {
+        requireConnectedVehicle()
         val site = mutable.value.tripSite ?: return@launchAction
         val result = AssistMessages.result("navigation", sdk(SdkOperation.NAVIGATION_START) { bridge.navigationStart(site) })
         refresh()
         mutable.update {
             it.copy(
-                navigationLaunched = result.optBoolean("started"),
+                navigationLaunched = result.optBoolean("started") && it.data?.vehicle?.isConnected == true,
                 notice =
-                    result.text(
-                        "message",
-                        if (BuildConfig.IS_DEMO) camp.room.app.CampText.get(camp.room.app.R.string.camp_demo_navigation_has_started) else camp.room.app.CampText.get(camp.room.app.R.string.camp_the_request_was_sent_to_pleos_navigation),
-                    ),
+                    if (it.data?.vehicle?.isConnected != true) CampText.get(R.string.vehicle_control_connection_needed)
+                    else result.text("message", CampText.get(R.string.camp_the_request_was_sent_to_pleos_navigation)),
             )
         }
     }
@@ -403,31 +515,37 @@ constructor(
     }
 
     fun applyScene() = launchAction(Action.APPLY_SCENE) {
+        requireConnectedVehicle()
         val result = sdk(SdkOperation.VEHICLE_SCENE) { bridge.scene(mutable.value.sceneId) }
-        vehicleResult(result)
+        if (!vehicleResult(result)) return@launchAction
         mutable.update {
             it.copy(
                 notice =
                     if (result.text("status") == "completed")
-                        if (BuildConfig.IS_DEMO) camp.room.app.CampText.get(camp.room.app.R.string.camp_cabin_settings_were_applied_and_the_simulator)
-                        else camp.room.app.CampText.get(camp.room.app.R.string.camp_cabin_commands_and_supported_observations_were_checked)
+                        camp.room.app.CampText.get(camp.room.app.R.string.camp_cabin_commands_and_supported_observations_were_checked)
                     else camp.room.app.CampText.get(camp.room.app.R.string.camp_please_check_the_remaining_items)
             )
         }
     }
 
-    private suspend fun vehicleResult(raw: JSONObject) {
+    private suspend fun vehicleResult(raw: JSONObject): Boolean {
         val result = AssistMessages.vehicle(raw)
         refresh()
+        if (mutable.value.data?.vehicle?.isConnected != true) {
+            mutable.update { it.copy(commands = emptyList(), commandStatus = "", notice = CampText.get(R.string.vehicle_control_connection_needed)) }
+            return false
+        }
         mutable.update {
             it.copy(
                 commands = result.objects("results").map(CommandResult::parse),
                 commandStatus = result.text("status"),
             )
         }
+        return true
     }
 
     fun control(name: String, value: Any, zone: String? = null) = launchAction(Action.CONTROL) {
+        requireConnectedVehicle()
         val body = JSONObject().put("control", name).put("value", value)
         if (zone != null) body.put("zone", zone)
         vehicleResult(sdk(SdkOperation.VEHICLE_CONTROL) { bridge.control(body) })
@@ -496,15 +614,7 @@ constructor(
     }
 
     fun checkout() = launchAction(Action.CHECKOUT) {
-        val requested = quoteInput(mutable.value)
-        requireUserInput(mutable.value.quote?.eligible == true && quotedInput == requested) { camp.room.app.CampText.get(camp.room.app.R.string.camp_check_delivery_availability_first) }
-        val key = orderKey ?: UUID.randomUUID().toString().also { orderKey = it }
-        val order = repository.order(requested.delivery,key)
-        refresh()
-        mutable.update {
-            it.copy(order = order, quote = null, notice = camp.room.app.CampText.get(camp.room.app.R.string.camp_the_demo_order_is_saved_no_real))
-        }
-        orderKey = null
+        throw CampUserMessageException(CampText.get(R.string.camp_checkout_example_context))
     }
 
     private suspend fun sdk(operation:SdkOperation, request:suspend ()->JSONObject):JSONObject {
@@ -532,7 +642,17 @@ constructor(
 
     fun setLanguage(tag:String) {
         bridge.setLanguage(tag)
-        mutable.update { it.copy(error="",notice="",commands=emptyList(),commandStatus="",voicePreview="",transcriptSource="",arrivalMessage="") }
+        val assist = AssistMessages.status(bridge.assistStatus())
+        mutable.update {
+            it.copy(
+                error = "", notice = "", commands = emptyList(), commandStatus = "",
+                voicePreview = "", transcriptSource = "", arrivalMessage = "",
+                ttsStatus = assist.text("ttsStatus"), sttStatus = assist.text("sttStatus"),
+                ttsMessage = assist.text("ttsMessage"), sttMessage = assist.text("sttMessage"),
+                ttsRetryable = assist.optBoolean("ttsRetryable", true),
+                sttRetryable = assist.optBoolean("sttRetryable", true),
+            )
+        }
     }
 
     fun permissionDenied(kind: String) {
@@ -566,8 +686,8 @@ constructor(
                 sites =
                     it.sites.sortedBy { site -> distances[site.id] ?: Double.POSITIVE_INFINITY },
                 distances = distances,
-                locationSummary = camp.room.app.CampText.get(camp.room.app.R.string.camp_sorted_from_the_last_observed_location, result.text("source", camp.room.app.CampText.get(camp.room.app.R.string.camp_device_location))),
-                notice = camp.room.app.CampText.get(camp.room.app.R.string.camp_campsites_were_sorted_from_the_last_observed),
+                locationSummary = CampText.get(R.string.camp_nearby_current_page, result.text("source", CampText.get(R.string.camp_device_location))),
+                notice = CampText.get(R.string.camp_nearby_current_page_notice),
             )
         }
     }
@@ -596,11 +716,13 @@ constructor(
         val batteryText =
             if (soc == null) camp.room.app.CampText.get(camp.room.app.R.string.camp_the_current_battery_state_needs_checking) else camp.room.app.CampText.get(camp.room.app.R.string.camp_the_current_battery_is_percent, number(soc))
         val text =
-            camp.room.app.CampText.get(camp.room.app.R.string.camp_trip_briefing_check_in_is_and_check, if(BuildConfig.IS_DEMO)camp.room.app.CampText.get(camp.room.app.R.string.camp_demo_310)else"", site.name, site.checkInTime, site.checkOutTime, weatherText, batteryText, site.rules.joinToString(". "))
+            camp.room.app.CampText.get(camp.room.app.R.string.camp_trip_briefing_check_in_is_and_check, "", site.name, site.checkInTime, site.checkOutTime, weatherText, batteryText, site.rules.joinToString(". "))
         val result = AssistMessages.result("tts", sdk(SdkOperation.TTS) { bridge.speak(text) })
         mutable.update {
             it.copy(
                 ttsStatus = result.text("status"),
+                ttsMessage = result.text("message"),
+                ttsRetryable = result.optBoolean("retryable", true),
                 notice = result.text("message", camp.room.app.CampText.get(camp.room.app.R.string.camp_the_spoken_briefing_request_was_sent)),
             )
         }
@@ -635,6 +757,8 @@ constructor(
             mutable.update {
                 it.copy(
                     sttStatus = result.text("status"),
+                    sttMessage = result.text("message"),
+                    sttRetryable = result.optBoolean("retryable", true),
                     transcript =
                         if (result.text("status") == "recognized") result.text("text")
                         else it.transcript,
@@ -671,7 +795,9 @@ constructor(
                     when {
                         blocked -> camp.room.app.CampText.get(camp.room.app.R.string.camp_voice_doesn_t_place_orders_or_make)
                         scene != null ->
-                            camp.room.app.CampText.get(camp.room.app.R.string.camp_preview_on_the_cabin_screen_apply_it, campScenes.first { it.id == scene }.name)
+                            if (it.data?.vehicle?.isConnected == true)
+                                camp.room.app.CampText.get(camp.room.app.R.string.camp_preview_on_the_cabin_screen_apply_it, campScenes.first { it.id == scene }.name)
+                            else CampText.get(R.string.vehicle_scene_voice_walkthrough, campScenes.first { it.id == scene }.name)
                         navigation -> camp.room.app.CampText.get(camp.room.app.R.string.camp_open_the_travel_plan_in_my_trip)
                         else -> camp.room.app.CampText.get(camp.room.app.R.string.camp_try_a_supported_phrase_prepare_for_sleep)
                     },

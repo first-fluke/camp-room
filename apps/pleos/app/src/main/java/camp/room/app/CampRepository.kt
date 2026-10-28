@@ -53,9 +53,16 @@ class CampRepository @Inject constructor(private val api:DefaultApi,private val 
     private inline fun <reified T> objectOf(value:T)=JSONObject(json.encodeToString(value))
     suspend fun bootstrap():Bootstrap=Bootstrap.parse(objectOf(call(ApiOperation.BOOTSTRAP) { api.getBootstrap() }))
     suspend fun campsites(query:Map<String,String>):List<Campsite> {
+        return campsitePage(query).items
+    }
+    suspend fun campsitePage(query:Map<String,String>,cursor:String?=null):CatalogPage<Campsite> {
         val response=call(ApiOperation.SEARCH_CAMPSITES) { api.searchCampsites(region=query["region"]?:"",checkIn=query["checkIn"],checkOut=query["checkOut"],
-            guests=query["guests"]?.toIntOrNull()?:2,carCamping=query["carCamping"]?.toBooleanStrictOrNull(),facilities=query["facilities"]?:"") }
-        return response.items.map { Campsite.parse(objectOf(it)) }
+            guests=query["guests"]?.toIntOrNull()?:2,carCamping=query["carCamping"]?.toBooleanStrictOrNull(),facilities=query["facilities"]?:"",cursor=cursor,numOfRows=20).also {
+                if(it.status==409)throw CatalogChangedException()
+            } }
+        return CatalogPage(response.items.map { Campsite.parse(objectOf(it)) },response.total,response.sourceTotal,
+            response.nextCursor,response.catalogGeneration,
+            if(response.source.status in listOf("unavailable","fallback"))response.source.message else "")
     }
     suspend fun saveTrip(campsiteId:String,checkIn:String,checkOut:String,guests:Int) {
         call(ApiOperation.SAVE_TRIP) { api.saveTrip(TripInput(campsiteId=campsiteId,checkIn=checkIn,checkOut=checkOut,guests=guests)) }

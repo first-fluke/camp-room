@@ -32,7 +32,7 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
     ) {
         Surface(
             modifier =
-                Modifier.semantics { testTagsAsResourceId = true }
+                Modifier.imePadding().semantics { testTagsAsResourceId = true }
                     .widthIn(max = 650.dp)
                     .fillMaxWidth(.93f),
             shape = RoundedCornerShape(14.dp),
@@ -69,10 +69,17 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                     if (state.busy) tr(camp.room.app.R.string.camp_checking_your_voice)
                     else tr(camp.room.app.R.string.camp_speak_a_command),
                     CampIcons.Microphone,
+                    enabled = state.sttRetryable && state.interactionAllowed,
                     busy = state.busy,
                     modifier = Modifier.fillMaxWidth().testTag("voice-listen"),
                     onClick = onListen,
                 )
+                if (state.sttMessage.isNotBlank())
+                    Text(
+                        state.sttMessage,
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
+                    )
                 OutlinedTextField(
                     value = state.transcript,
                     onValueChange = vm::transcript,
@@ -139,7 +146,7 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                     }
                 if (state.error.isNotBlank()) CampError(state.error, vm::clearError)
                 Text(
-                    tr(camp.room.app.R.string.camp_run_vehicle_settings_and_navigation_with_their),
+                    tr(R.string.vehicle_voice_help),
                     fontSize = 22.sp,
                     color = CampPalette.Muted,
                 )

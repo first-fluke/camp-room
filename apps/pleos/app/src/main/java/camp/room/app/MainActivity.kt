@@ -22,19 +22,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -89,6 +99,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
+    var navigationExpanded by rememberSaveable { mutableStateOf(false) }
     val ux by uxMonitor.state.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(ux.allowsInteraction) {
@@ -214,7 +225,6 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
             },
         ) { padding ->
             Row(Modifier.fillMaxSize().padding(padding)) {
-                if (wide) CampSidebar(state, vm)
                 Column(Modifier.weight(1f).fillMaxHeight()) {
                     CampTopbar(state, vm, wide) { languageSettingsOpen = true }
                     if (state.busy)
@@ -281,44 +291,12 @@ fun CampRoomRoot(uxMonitor: CampUxMonitor, vm: CampViewModel = viewModel()) {
                                 1 -> TripScreen(state, vm, arrival, speak)
                                 else -> CabinScreen(state, vm)
                             }
-                            FlowRow(
-                                Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 20.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                Icon(
-                                    CampIcons.TreeEvergreen,
-                                    null,
-                                    Modifier.size(24.dp),
-                                    tint = CampPalette.Muted,
-                                )
-                                Text(
-                                    tr(R.string.camp_brand_name),
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 22.sp,
-                                    color = CampPalette.Muted,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-
-                                Text(
-                                    if (BuildConfig.IS_DEMO)
-                                        tr(
-                                            camp.room.app.R.string
-                                                .camp_demo_data_no_real_reservations_or_payments
-                                        )
-                                    else
-                                        tr(
-                                            camp.room.app.R.string
-                                                .camp_pleos_vehicle_integration_check_external_data_sources
-                                        ),
-                                    fontSize = 22.sp,
-                                    color = CampPalette.Muted,
-                                    maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
                         }
+                }
+                if (wide) {
+                    CampSidebar(state, vm, navigationExpanded) {
+                        navigationExpanded = !navigationExpanded
+                    }
                 }
             }
         }
@@ -370,16 +348,41 @@ enum class CampNav(
 }
 
 @Composable
-private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
+private fun CampSidebar(
+    state: CampUiState,
+    vm: CampViewModel,
+    expanded: Boolean,
+    onToggle: () -> Unit,
+) {
+    val toggleLabel = tr(if (expanded) R.string.camp_collapse_menu else R.string.camp_expand_menu)
+    val menuState = tr(if (expanded) R.string.camp_menu_expanded else R.string.camp_menu_collapsed)
     Column(
-        Modifier.width(264.dp).fillMaxHeight().background(CampPalette.Deep)
-            .verticalScroll(rememberScrollState()).padding(21.dp),
+        Modifier.width(if (expanded) 264.dp else 80.dp).fillMaxHeight()
+            .background(CampPalette.Deep).testTag("right-navigation")
+            .verticalScroll(rememberScrollState()).padding(if (expanded) 16.dp else 12.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            Icon(CampIcons.Artwork.TreeEvergreen, null, Modifier.size(29.dp), tint = Color(0xFFC7D4B7))
-            Text(tr(R.string.camp_brand_name), fontSize = 24.sp, color = CampPalette.OnSidebar,
-                fontWeight = FontWeight.SemiBold, letterSpacing = (-1).sp)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+            if (expanded) {
+                Icon(CampIcons.Artwork.TreeEvergreen, null, Modifier.size(24.dp),
+                    tint = Color(0xFFC7D4B7))
+                Text(tr(R.string.camp_brand_name), modifier = Modifier.weight(1f),
+                    fontSize = 24.sp, color = CampPalette.OnSidebar,
+                    fontWeight = FontWeight.SemiBold, letterSpacing = (-1).sp,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            IconButton(onClick = onToggle,
+                modifier = Modifier.size(48.dp).testTag("navigation-toggle")
+                    .semantics {
+                        contentDescription = toggleLabel
+                        stateDescription = menuState
+                    },
+                colors = IconButtonDefaults.iconButtonColors(contentColor = CampPalette.OnSidebar)) {
+                Text(if (expanded) "\u203a" else "\u2039", fontSize = 30.sp,
+                    modifier = Modifier.clearAndSetSemantics {})
+            }
         }
         Spacer(Modifier.height(12.dp))
         CampNav.entries.forEach { nav ->
@@ -388,27 +391,46 @@ private fun CampSidebar(state: CampUiState, vm: CampViewModel) {
                 onClick = { vm.tab(nav.index) },
                 color = if (active) CampPalette.Sage else Color.Transparent,
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.fillMaxWidth().testTag(nav.tag),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag(nav.tag)
+                    .semantics {
+                        contentDescription = nav.label
+                        selected = active
+                        role = Role.Tab
+                    },
             ) {
-                Row(Modifier.padding(horizontal = 13.dp, vertical = 18.dp),
+                Row(Modifier.padding(horizontal = if (expanded) 13.dp else 0.dp, vertical = 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Icon(if (active) nav.selectedIcon else nav.icon, nav.label, Modifier.size(28.dp),
+                    horizontalArrangement = if (expanded) Arrangement.spacedBy(12.dp) else Arrangement.Center) {
+                    Icon(if (active) nav.selectedIcon else nav.icon, null, Modifier.size(28.dp),
                         tint = if (active) CampPalette.Forest else Color(0xFFA6BBA4))
-                    Text(nav.label, modifier = Modifier.weight(1f), fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (active) CampPalette.Ink else CampPalette.OnSidebar)
+                    if (expanded) {
+                        Text(nav.label, modifier = Modifier.weight(1f).clearAndSetSemantics {},
+                            fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis,
+                            color = if (active) CampPalette.Ink else CampPalette.OnSidebar)
+                    }
                 }
             }
         }
         Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = Color(0xFF426049))
-        Text(
-            if (BuildConfig.IS_DEMO) tr(R.string.camp_demo_vehicle_connected)
-            else tr(R.string.camp_pleos_vehicle_status),
-            fontSize = 22.sp, color = Color(0xFFD2DDC8),
-        )
-        Text("${number(state.data?.vehicle?.soc)}%", fontSize = 24.sp, color = Color(0xFFD2DDC8))
+        val vehicle = state.data?.vehicle
+        val vehicleStatus = if (vehicle?.isConnected == true) tr(R.string.vehicle_connected)
+            else tr(R.string.vehicle_disconnected)
+        if (expanded) {
+            Text(vehicleStatus, fontSize = 22.sp, color = Color(0xFFD2DDC8),
+                modifier = Modifier.fillMaxWidth().testTag("sidebar-vehicle-status"))
+            if (vehicle?.isConnected == true) {
+                Text("${number(vehicle.soc)}%", fontSize = 24.sp, color = Color(0xFFD2DDC8),
+                    modifier = Modifier.fillMaxWidth())
+            } else {
+                Text(tr(R.string.vehicle_connection_needed), fontSize = 22.sp,
+                    color = Color(0xFFD2DDC8), modifier = Modifier.fillMaxWidth())
+            }
+        } else {
+            Icon(CampIcons.Vehicle, vehicleStatus,
+                Modifier.size(28.dp).testTag("sidebar-vehicle-status"), tint = Color(0xFFD2DDC8))
+        }
     }
 }
 
@@ -419,69 +441,96 @@ private fun CampTopbar(
     wide: Boolean,
     onLanguage: () -> Unit,
 ) {
-    FlowRow(
+    val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
+    BoxWithConstraints(
         Modifier.fillMaxWidth()
             .heightIn(min = 72.dp)
             .background(CampPalette.Paper)
-            .padding(horizontal = if (wide) 34.dp else 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+            .padding(horizontal = if (wide) 34.dp else 20.dp, vertical = 8.dp),
     ) {
-        Text(
-            if (wide)
-                tr(camp.room.app.R.string.camp_my_little_outdoors, CampNav.entries[state.tab].label)
-            else tr(R.string.camp_brand_name),
-            fontSize = 22.sp,
-            color = if (wide) CampPalette.Muted else CampPalette.Forest,
-            fontWeight = if (wide) FontWeight.Normal else FontWeight.SemiBold,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
-        CampPill(
-            if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_mode)
-            else tr(camp.room.app.R.string.camp_pleos_mode)
-        )
-        Spacer(Modifier.width(2.dp))
-        IconButton(onClick = { vm.voice(true) }, modifier = Modifier.testTag("voice-open")) {
-            Icon(
-                CampIcons.Microphone,
-                tr(camp.room.app.R.string.camp_voice_command),
-                Modifier.size(24.dp),
-            )
-        }
-        TextButton(onClick = { vm.cart(true) }, modifier = Modifier.testTag("cart-open")) {
-            Icon(
-                CampIcons.ShoppingBag,
-                tr(camp.room.app.R.string.camp_essentials),
-                Modifier.size(24.dp),
-            )
-            Spacer(Modifier.width(7.dp))
-            Text(
-                tr(camp.room.app.R.string.camp_essentials),
-                fontSize = 22.sp,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if ((state.data?.cart?.count ?: 0) > 0)
-                Text(
-                    "  ${state.data?.cart?.count}",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
-        }
-        Spacer(Modifier.width(2.dp))
-        IconButton(onClick = onLanguage, modifier = Modifier.testTag("language-settings")) {
-            Icon(
-                CampIcons.Globe,
-                tr(R.string.language_settings),
-                Modifier.size(24.dp),
-                tint = CampPalette.Forest,
-            )
+        if (maxWidth >= (640 * fontScale).dp) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                CampTopbarInfo(state, wide, Modifier.weight(1f))
+                CampTopbarActions(state, vm, onLanguage)
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                CampTopbarInfo(state, wide, Modifier.fillMaxWidth())
+                CampTopbarActions(state, vm, onLanguage, Modifier.fillMaxWidth())
+            }
         }
     }
     HorizontalDivider(color = CampPalette.Line)
+}
+
+@Composable
+private fun CampTopbarInfo(state: CampUiState, wide: Boolean, modifier: Modifier) {
+    Text(
+        if (wide)
+            tr(R.string.camp_my_little_outdoors, CampNav.entries[state.tab].label)
+        else tr(R.string.camp_brand_name),
+        modifier = modifier,
+        fontSize = 22.sp,
+        color = if (wide) CampPalette.Muted else CampPalette.Forest,
+        fontWeight = if (wide) FontWeight.Normal else FontWeight.SemiBold,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+private fun CampTopbarActions(
+    state: CampUiState,
+    vm: CampViewModel,
+    onLanguage: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val cartCount = state.data?.cart?.count ?: 0
+    val cartDescription = if (cartCount > 0) tr(R.string.camp_cart_item_count, cartCount)
+        else tr(R.string.camp_view_cart)
+    val actionColors = IconButtonDefaults.iconButtonColors(contentColor = CampPalette.Forest)
+    Row(modifier, horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+        verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { vm.voice(true) }, colors = actionColors,
+            modifier = Modifier.size(48.dp).testTag("voice-open")) {
+            Icon(CampIcons.Microphone, tr(R.string.camp_voice_command), Modifier.size(24.dp))
+        }
+        IconButton(onClick = { vm.cart(true) }, colors = actionColors,
+            modifier = Modifier.size(48.dp).testTag("cart-open")
+                .semantics { contentDescription = cartDescription }) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Icon(CampIcons.ShoppingBag, null, Modifier.size(24.dp))
+                if (cartCount > 0) {
+                    CampCartBadge(cartCount,
+                        Modifier.align(Alignment.TopEnd).padding(top = 5.dp, end = 5.dp))
+                }
+            }
+        }
+        IconButton(onClick = onLanguage, colors = actionColors,
+            modifier = Modifier.size(48.dp).testTag("language-settings")) {
+            Icon(CampIcons.Globe, tr(R.string.language_settings), Modifier.size(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun CampCartBadge(count: Int, modifier: Modifier = Modifier) {
+    val density = LocalDensity.current
+    Box(
+        modifier.widthIn(min = 18.dp).height(18.dp)
+            .background(MaterialTheme.colorScheme.error, RoundedCornerShape(50))
+            .padding(horizontal = 4.dp).clearAndSetSemantics {},
+        contentAlignment = Alignment.Center,
+    ) {
+        // The full count is announced by the cart button; keep its decorative pill compact.
+        CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 1f)) {
+            Text(if (count > 99) "99+" else count.toString(),
+                fontSize = 11.sp, lineHeight = 12.sp, fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onError, maxLines = 1, softWrap = false,
+                style = LocalTextStyle.current.copy(platformStyle = PlatformTextStyle(includeFontPadding = false)))
+        }
+    }
 }
 
 @Composable
@@ -641,7 +690,7 @@ fun facilityName(code: String): String =
         "pets" to camp.room.app.CampText.get(camp.room.app.R.string.camp_pets_welcome),
         "toilet" to camp.room.app.CampText.get(camp.room.app.R.string.camp_restrooms),
         "water" to camp.room.app.CampText.get(camp.room.app.R.string.camp_water_point),
-    )[code] ?: code
+    )[code] ?: CampText.get(R.string.camp_other_facility)
 
 fun assistStatusLabel(value: String): String =
     when (value) {

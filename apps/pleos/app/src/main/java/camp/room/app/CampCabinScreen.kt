@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -85,13 +87,10 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
         tr(camp.room.app.R.string.camp_a_little_room_of_our_own_inside),
         tr(camp.room.app.R.string.camp_let_reading_and_resting_happen_comfortably_side),
         action = {
-            CampPill(
-                if (vehicle.mode == "demo") tr(camp.room.app.R.string.camp_simulator_connected)
-                else tr(camp.room.app.R.string.camp_pleos_vehicle_status)
-            )
+            if (vehicle.isConnected) CampPill(tr(R.string.vehicle_connected))
         },
     )
-    CampSurface(Modifier.fillMaxWidth()) {
+    if (vehicle.isConnected) CampSurface(Modifier.fillMaxWidth().testTag("vehicle-status-summary")) {
         FlowRow(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(24.dp),
@@ -100,58 +99,39 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             VehicleStatus(
                 CampIcons.BatteryCharging,
                 tr(camp.room.app.R.string.camp_current_battery),
-                "${number(vehicle.soc)}%",
+                vehicle.soc?.let { "${number(it)}%" } ?: tr(R.string.vehicle_value_unknown),
             )
             VehicleStatus(
                 CampIcons.Thermometer,
                 tr(R.string.cabin_layout_front_temperature),
-                "${number(vehicle.measuredTemperature)}°C",
+                vehicle.measuredTemperature?.let { "${number(it)}°C" } ?: tr(R.string.vehicle_value_unknown),
             )
-            VehicleStatus(
-                CampIcons.Door,
-                tr(camp.room.app.R.string.camp_doors),
-                when (vehicle.doorsClosed) {
-                    true -> tr(camp.room.app.R.string.camp_all_closed)
-                    false -> tr(camp.room.app.R.string.camp_a_door_is_open)
-                    null -> tr(camp.room.app.R.string.camp_check_needed)
-                },
-            )
-            VehicleStatus(
-                CampIcons.Wind,
-                tr(camp.room.app.R.string.camp_windows),
-                when (vehicle.windowsClosed) {
-                    true -> tr(camp.room.app.R.string.camp_all_closed)
-                    false -> tr(camp.room.app.R.string.camp_a_window_is_open)
-                    null -> tr(camp.room.app.R.string.camp_check_needed)
-                },
-            )
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_observed,
-                        vehicle.updatedAt.take(16).replace('T', ' '),
-                    ),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+            vehicle.doorsClosed?.let { closed ->
+                VehicleStatus(
+                    CampIcons.Door,
+                    tr(camp.room.app.R.string.camp_doors),
+                    if (closed) tr(camp.room.app.R.string.camp_all_closed)
+                    else tr(camp.room.app.R.string.camp_a_door_is_open),
                 )
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_state,
-                        if (vehicle.mode == "demo") tr(camp.room.app.R.string.camp_simulated)
-                        else "",
-                        when (vehicle.motionState) {
-                            "parked" -> tr(camp.room.app.R.string.camp_parked)
-                            "moving" -> tr(camp.room.app.R.string.camp_moving)
-                            else -> tr(camp.room.app.R.string.camp_unknown)
-                        },
-                    ),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
+            }
+            vehicle.windowsClosed?.let { closed ->
+                VehicleStatus(
+                    CampIcons.Wind,
+                    tr(camp.room.app.R.string.camp_windows),
+                    if (closed) tr(camp.room.app.R.string.camp_all_closed)
+                    else tr(camp.room.app.R.string.camp_a_window_is_open),
                 )
+            }
+        }
+    }
+    else CampSurface(Modifier.fillMaxWidth().testTag("vehicle-connection-needed")) {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(54.dp).background(CampPalette.Sage, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                Icon(CampIcons.Vehicle, null, Modifier.size(30.dp), tint = CampPalette.Muted)
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Text(tr(R.string.vehicle_connection_needed), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                Text(tr(R.string.vehicle_connection_details), fontSize = 22.sp, color = CampPalette.Muted, lineHeight = 29.sp)
             }
         }
     }
@@ -203,9 +183,9 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     ) {
                         OutlinedIconButton(
                             onClick = {
-                                vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) - 1)
+                                vehicle.targetTemperature?.let { vm.control("targetTemperature", it - 1) }
                             },
-                            enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) > 16,
+                            enabled = !s.busy && s.interactionAllowed && vehicle.isConnected && vehicle.targetTemperature != null && vehicle.targetTemperature > 16,
                             modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
                             Icon(
@@ -215,7 +195,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             )
                         }
                         Text(
-                            "${number(vehicle.targetTemperature)}°C",
+                            vehicle.targetTemperature?.let { "${number(it)}°C" } ?: tr(R.string.vehicle_value_unknown),
                             fontSize = 31.sp,
                             fontWeight = FontWeight.Light,
                             maxLines = 3,
@@ -223,9 +203,9 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         )
                         OutlinedIconButton(
                             onClick = {
-                                vm.control("targetTemperature", (vehicle.targetTemperature ?: 22.0) + 1)
+                                vehicle.targetTemperature?.let { vm.control("targetTemperature", it + 1) }
                             },
-                            enabled = !s.busy && (vehicle.targetTemperature ?: 22.0) < 30,
+                            enabled = !s.busy && s.interactionAllowed && vehicle.isConnected && vehicle.targetTemperature != null && vehicle.targetTemperature < 30,
                             modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
                             Icon(
@@ -248,7 +228,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     tr(R.string.cabin_layout_front_targets),
                     "front",
                     vehicle.front,
-                    s.busy,
+                    !s.busy && s.interactionAllowed && vehicle.isConnected,
                     vm,
                     Modifier.width(controlWidth),
                 )
@@ -256,14 +236,14 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     tr(R.string.cabin_layout_rear_targets),
                     "rear",
                     vehicle.rear,
-                    s.busy,
+                    !s.busy && s.interactionAllowed && vehicle.isConnected,
                     vm,
                     Modifier.width(controlWidth),
                 )
             }
         }
     }
-    if (s.commands.isNotEmpty())
+    if (vehicle.isConnected && s.commands.isNotEmpty())
         CampSurface(Modifier.fillMaxWidth().testTag("scene-results")) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(
@@ -319,16 +299,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                 HorizontalDivider(color = CampPalette.Line)
             }
             Text(
-                if (vehicle.mode == "demo")
-                    tr(
-                        camp.room.app.R.string
-                            .camp_command_acceptance_and_observed_state_are_different
-                    )
-                else
-                    tr(
-                        camp.room.app.R.string
-                            .camp_command_acceptance_and_observed_state_are_different_170
-                    ),
+                tr(R.string.vehicle_scene_observations),
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
             )
@@ -345,10 +316,10 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        tr(
+                        if (vehicle.isConnected) tr(
                             camp.room.app.R.string.camp_check_doors_windows_and_battery_at_then,
                             number(vehicle.soc),
-                        ),
+                        ) else tr(R.string.vehicle_departure_unconnected),
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 7.dp),
@@ -398,7 +369,7 @@ private fun ZoneControls(
     label: String,
     zone: String,
     value: CabinZone,
-    busy: Boolean,
+    enabled: Boolean,
     vm: CampViewModel,
     modifier: Modifier,
 ) {
@@ -425,7 +396,7 @@ private fun ZoneControls(
             Switch(
                 checked = value.reading == true,
                 onCheckedChange = { vm.control("readingLight", it, zone) },
-                enabled = !busy && value.reading != null,
+                enabled = enabled && value.reading != null,
                 modifier = Modifier.sizeIn(minWidth = CampDesign.IconTarget, minHeight = CampDesign.IconTarget),
             )
         }
@@ -453,7 +424,7 @@ private fun ZoneControls(
             onValueChangeFinished = { vm.control("blindLevel", blind.toInt(), zone) },
             valueRange = 0f..100f,
             steps = 9,
-            enabled = !busy && value.blind != null,
+            enabled = enabled && value.blind != null,
             modifier = Modifier.fillMaxWidth().heightIn(min = CampDesign.IconTarget),
         )
     }
@@ -464,7 +435,8 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     CampSurface(modifier) {
 
         Text(
-            tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need),
+            if (s.data?.vehicle?.isConnected == true) tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need)
+            else tr(R.string.vehicle_scene_walkthrough),
             fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 3,
@@ -474,7 +446,7 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
             val selected = scene.id == s.sceneId
             Surface(
                 onClick = { vm.scene(scene.id) },
-                enabled = !s.busy,
+                enabled = !s.busy && s.interactionAllowed,
                 color = if (selected) CampPalette.Sage else CampPalette.Paper,
                 shape = RoundedCornerShape(8.dp),
                 border =
@@ -518,6 +490,7 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                     RadioButton(
                         selected = selected,
                         onClick = null,
+                        enabled = !s.busy && s.interactionAllowed,
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -542,12 +515,14 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
         CampPrimary(
             tr(camp.room.app.R.string.camp_apply_these_cabin_settings),
             CampIcons.Check,
+            enabled = s.interactionAllowed && s.data?.vehicle?.isConnected == true,
             busy = s.busy,
             modifier = Modifier.fillMaxWidth().testTag("apply-scene"),
             onClick = vm::applyScene,
         )
         Text(
-            tr(camp.room.app.R.string.camp_after_supported_commands_run_the_simulator_state),
+            if (s.data?.vehicle?.isConnected == true) tr(R.string.vehicle_scene_observations)
+            else tr(R.string.vehicle_scene_walkthrough_details),
             fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
@@ -558,11 +533,14 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
 
 @Composable
 private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
+    if (!vehicle.isConnected) {
+        DisconnectedCabinDiagram(modifier)
+        return
+    }
     CampSurface(modifier.testTag("cabin-control-layout")) {
         Text(tr(R.string.cabin_layout_title), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
         Text(
-            if (vehicle.layoutSource == "demo_synthetic") tr(R.string.cabin_layout_demo_short)
-            else tr(R.string.cabin_layout_model_unknown_short),
+            tr(R.string.cabin_layout_model_unknown_short),
             fontSize = 22.sp, color = CampPalette.Muted,
         )
         if (vehicle.controlAreas.isEmpty()) {
@@ -609,7 +587,7 @@ private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
                                                 fontSize = 22.sp, fontWeight = FontWeight.Medium,
                                             )
                                         }
-                                        if (!group.writable || !group.readable) Text(
+                                        if (!group.readable || (!group.writable && group.feature !in listOf("targetTemperature", "cabinTemperature"))) Text(
                                             when {
                                                 group.readable -> tr(R.string.cabin_layout_read_only)
                                                 group.writable -> tr(R.string.cabin_layout_write_only)
@@ -629,6 +607,34 @@ private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
             Text(tr(R.string.cabin_layout_unconfirmed_features), fontSize = 22.sp, fontWeight = FontWeight.Medium)
             vehicle.unknownFeatures.forEach { Text(cabinFeatureLabel(it), fontSize = 22.sp, color = CampPalette.Muted) }
         }
+    }
+}
+
+@Composable
+private fun DisconnectedCabinDiagram(modifier: Modifier) {
+    val description = tr(R.string.vehicle_layout_outline_description)
+    val canvasColor = CampPalette.Canvas
+    val lineColor = CampPalette.Line
+    CampSurface(modifier.testTag("cabin-control-layout")) {
+        Text(tr(R.string.vehicle_layout_waiting), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+        Box(Modifier.fillMaxWidth().height(290.dp), contentAlignment = Alignment.Center) {
+            Canvas(Modifier.fillMaxSize().semantics { contentDescription = description }) {
+                val width = minOf(size.width * .55f, size.height * .52f)
+                val height = size.height * .82f
+                val left = (size.width - width) / 2
+                val top = (size.height - height) / 2
+                val body = Size(width, height)
+                drawRoundRect(canvasColor, Offset(left, top), body, CornerRadius(width * .24f))
+                drawRoundRect(lineColor, Offset(left, top), body, CornerRadius(width * .24f), style = Stroke(2.dp.toPx()))
+                drawRoundRect(lineColor, Offset(left + width * .13f, top + height * .2f), Size(width * .74f, height * .54f), CornerRadius(width * .12f), style = Stroke(2.dp.toPx()))
+                drawLine(lineColor, Offset(left + width * .13f, top + height * .34f), Offset(left + width * .87f, top + height * .34f), 2.dp.toPx())
+                drawLine(lineColor, Offset(left + width * .13f, top + height * .64f), Offset(left + width * .87f, top + height * .64f), 2.dp.toPx())
+                drawRoundRect(lineColor, Offset(left - width * .08f, top + height * .24f), Size(width * .08f, height * .08f), CornerRadius(3.dp.toPx()))
+                drawRoundRect(lineColor, Offset(left + width, top + height * .24f), Size(width * .08f, height * .08f), CornerRadius(3.dp.toPx()))
+            }
+            Text(tr(R.string.vehicle_value_unknown), fontSize = 30.sp, color = CampPalette.Muted)
+        }
+        Text(tr(R.string.vehicle_layout_waiting_details), fontSize = 22.sp, color = CampPalette.Muted, lineHeight = 29.sp)
     }
 }
 

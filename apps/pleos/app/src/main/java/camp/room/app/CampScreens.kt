@@ -8,154 +8,54 @@ package camp.room.app
 
 import camp.room.app.icons.CampIcons
 
-import android.app.DatePickerDialog
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDate
+import java.time.Instant
+import java.time.ZoneOffset
 
 @Composable
 fun DiscoverScreen(s: CampUiState, vm: CampViewModel, onNearby: () -> Unit) {
-    SectionTitle(
-        tr(camp.room.app.R.string.camp_where_will_you_unwind_this_weekend),
-        tr(camp.room.app.R.string.camp_find_a_place_that_calls_to_you),
-        action = {
-            CampSecondary(
-                tr(camp.room.app.R.string.camp_near_me),
-                CampIcons.Crosshair,
-                enabled = !s.busy,
-                modifier = Modifier.testTag("nearby-campsites"),
-                onClick = onNearby,
-            )
-        },
-    )
+    DiscoverHeading(s, onNearby)
     CampSurface {
-        BoxWithConstraints {
-            val wide = maxWidth > 720.dp
-            if (wide)
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    RegionSelector(s.region, vm::region, Modifier.weight(1.2f))
-                    DateSelector(
-                        tr(camp.room.app.R.string.camp_check_in),
-                        s.checkIn,
-                        Modifier.weight(1f),
-                    ) {
-                        vm.dates(it, s.checkOut)
-                    }
-                    DateSelector(
-                        tr(camp.room.app.R.string.camp_check_out),
-                        s.checkOut,
-                        Modifier.weight(1f),
-                    ) {
-                        vm.dates(s.checkIn, it)
-                    }
-                    GuestSelector(s.guests, vm::guests, Modifier.weight(.8f))
-                    CampPrimary(
-                        tr(camp.room.app.R.string.camp_find_campsites),
-                        CampIcons.Search,
-                        busy = s.busy,
-                        modifier = Modifier.testTag("search-campsites"),
-                        onClick = vm::search,
-                    )
-                }
-            else
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-                        RegionSelector(s.region, vm::region, Modifier.weight(1f))
-                        GuestSelector(s.guests, vm::guests, Modifier.weight(1f))
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(15.dp)) {
-                        DateSelector(
-                            tr(camp.room.app.R.string.camp_check_in),
-                            s.checkIn,
-                            Modifier.weight(1f),
-                        ) {
-                            vm.dates(it, s.checkOut)
-                        }
-                        DateSelector(
-                            tr(camp.room.app.R.string.camp_check_out),
-                            s.checkOut,
-                            Modifier.weight(1f),
-                        ) {
-                            vm.dates(s.checkIn, it)
-                        }
-                    }
-                    CampPrimary(
-                        tr(camp.room.app.R.string.camp_find_campsites),
-                        CampIcons.Search,
-                        busy = s.busy,
-                        modifier = Modifier.fillMaxWidth().testTag("search-campsites"),
-                        onClick = vm::search,
-                    )
-                }
-        }
+        CampsiteSearchForm(s, vm)
         HorizontalDivider(color = CampPalette.Line)
-        FlowRow(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(9.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Icon(CampIcons.SlidersHorizontal, null, Modifier.size(24.dp), tint = CampPalette.Muted)
-            Text(
-                tr(camp.room.app.R.string.camp_make_it_yours),
-                fontSize = 22.sp,
-                color = CampPalette.Muted,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            CampChip(
-                tr(camp.room.app.R.string.camp_car_camping),
-                s.carCamping,
-                CampIcons.Vehicle,
-                vm::carCamping,
-            )
-            listOf("shower", "electricity", "pets").forEach { code ->
-                CampChip(
-                    facilityName(code),
-                    code in s.facilities,
-                    when (code) {
-                        "shower" -> CampIcons.Shower
-                        "electricity" -> CampIcons.Lightning
-                        else -> CampIcons.PawPrint
-                    },
-                ) {
-                    vm.facility(code)
-                }
-            }
-        }
+        CampsiteFilters(s, vm)
     }
-    SectionTitle(
-        tr(camp.room.app.R.string.camp_places_to_slow_down, s.sites.size),
-        tr(camp.room.app.R.string.camp_discover_a_place_that_makes_car_camping),
-        action = {
-            CampPill(
-                if (s.data?.mode == "live") tr(camp.room.app.R.string.camp_external_data_connected)
-                else tr(camp.room.app.R.string.camp_demo_campsite_collection)
-            )
-        },
-    )
+    if (s.catalogPageNumber > 0) {
+        val sourceTotal = s.catalogSourceTotal
+        val hasFilters = s.region != "전체" || s.carCamping || s.facilities.isNotEmpty()
+        Text(
+            when {
+                sourceTotal != null && sourceTotal != s.catalogTotal ->
+                    tr(R.string.camp_catalog_results_of_total, s.catalogTotal, sourceTotal)
+                sourceTotal != null && !hasFilters ->
+                    tr(R.string.camp_catalog_total, sourceTotal)
+                else -> tr(R.string.camp_catalog_results, s.catalogTotal)
+            },
+            fontSize = 22.sp,
+            color = CampPalette.Muted,
+            modifier = Modifier.testTag("catalog-count-summary"),
+        )
+    }
     if (s.locationSummary.isNotBlank())
         Text(
             s.locationSummary,
@@ -164,10 +64,11 @@ fun DiscoverScreen(s: CampUiState, vm: CampViewModel, onNearby: () -> Unit) {
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
-    if (s.sites.isEmpty())
+    CampCatalogPager(s,vm)
+    if (s.sites.isEmpty() && !s.catalogLoading)
         CampSurface(Modifier.fillMaxWidth()) {
             Text(
-                tr(camp.room.app.R.string.camp_no_campsites_match_these_filters),
+                if(s.catalogNeedsSearch)tr(R.string.camp_catalog_search_changed) else tr(camp.room.app.R.string.camp_no_campsites_match_these_filters),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 3,
@@ -241,6 +142,236 @@ fun DiscoverScreen(s: CampUiState, vm: CampViewModel, onNearby: () -> Unit) {
 }
 
 @Composable
+private fun DiscoverHeading(s: CampUiState, onNearby: () -> Unit) {
+    val title = tr(R.string.camp_where_will_you_unwind_this_weekend)
+    val subtitle = tr(R.string.camp_find_a_place_that_calls_to_you)
+    val nearby = tr(R.string.camp_near_me)
+    val density = LocalDensity.current
+    val measurer = rememberTextMeasurer()
+    val titleStyle = LocalTextStyle.current.copy(
+        fontSize = 28.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-.7).sp,
+    )
+    val subtitleStyle = LocalTextStyle.current.copy(fontSize = 22.sp)
+    val textWidth = with(density) {
+        maxOf(
+            measurer.measure(title, titleStyle, softWrap = false, maxLines = 1).size.width,
+            measurer.measure(subtitle, subtitleStyle, softWrap = false, maxLines = 1).size.width,
+        ).toDp() + 2.dp
+    }
+    val actionWidth = with(density) {
+        measurer.measure(nearby, subtitleStyle, softWrap = false, maxLines = 1).size.width.toDp()
+    } + 24.dp + 7.dp + 48.dp
+    val heading: @Composable (Modifier) -> Unit = { modifier ->
+        Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(title, style = titleStyle)
+            Text(subtitle, style = subtitleStyle, color = CampPalette.Muted)
+        }
+    }
+    val action: @Composable () -> Unit = {
+        CampSecondary(
+            nearby,
+            CampIcons.Crosshair,
+            enabled = !s.busy && !s.catalogLoading && s.sites.isNotEmpty(),
+            modifier = Modifier.testTag("nearby-campsites"),
+            onClick = onNearby,
+        )
+    }
+    BoxWithConstraints(Modifier.fillMaxWidth().testTag("discover-heading")) {
+        if (maxWidth >= textWidth + actionWidth + 24.dp) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                heading(Modifier.weight(1f))
+                action()
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                heading(Modifier.fillMaxWidth())
+                Box(Modifier.align(Alignment.End)) { action() }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CampsiteSearchForm(s: CampUiState, vm: CampViewModel) {
+    val density = LocalDensity.current
+    val textMeasurer = rememberTextMeasurer()
+    val labelStyle = LocalTextStyle.current.copy(fontSize = 22.sp)
+    val valueStyle = labelStyle.copy(fontWeight = FontWeight.Medium)
+    fun textWidth(text: String, emphasized: Boolean = false): Dp = with(density) {
+        textMeasurer.measure(
+            text = text,
+            style = if (emphasized) valueStyle else labelStyle,
+            maxLines = 1,
+            softWrap = false,
+        ).size.width.toDp() + 2.dp
+    }
+
+    val checkInLabel = tr(R.string.camp_check_in)
+    val checkOutLabel = tr(R.string.camp_check_out)
+    // Keep the default prompt readable; longer selected region names may ellipsize.
+    val regionWidth = maxOf(
+        textWidth(tr(R.string.camp_where_to)),
+        textWidth(tr(R.string.camp_all_regions), emphasized = true) + 55.dp,
+        48.dp,
+    )
+    val guestWidth = maxOf(
+        textWidth(tr(R.string.camp_who_s_coming)),
+        textWidth(guestCount(s.guests), emphasized = true) + 55.dp,
+        48.dp,
+    )
+    val checkInWidth = maxOf(
+        textWidth(checkInLabel),
+        textWidth(displayDate(s.checkIn), emphasized = true) + 31.dp,
+        48.dp,
+    )
+    val checkOutWidth = maxOf(
+        textWidth(checkOutLabel),
+        textWidth(displayDate(s.checkOut), emphasized = true) + 31.dp,
+        48.dp,
+    )
+    val fieldGap = 16.dp
+
+    BoxWithConstraints(Modifier.fillMaxWidth().testTag("campsite-search-form")) {
+        val availableWidth = maxWidth
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            if (availableWidth >= regionWidth + guestWidth + checkInWidth + checkOutWidth + fieldGap * 3) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(fieldGap)) {
+                    RegionSelector(s.region, vm::region, Modifier.weight(regionWidth.value))
+                    DateSelector(checkInLabel, s.checkIn, Modifier.weight(checkInWidth.value)) {
+                        vm.dates(it, s.checkOut)
+                    }
+                    DateSelector(checkOutLabel, s.checkOut, Modifier.weight(checkOutWidth.value)) {
+                        vm.dates(s.checkIn, it)
+                    }
+                    GuestSelector(s.guests, vm::guests, Modifier.weight(guestWidth.value))
+                }
+            } else {
+                CampsiteSearchPair(
+                    firstWidth = regionWidth,
+                    secondWidth = guestWidth,
+                    first = { RegionSelector(s.region, vm::region, it) },
+                    second = { GuestSelector(s.guests, vm::guests, it) },
+                )
+                CampsiteSearchPair(
+                    firstWidth = checkInWidth,
+                    secondWidth = checkOutWidth,
+                    first = { modifier ->
+                        DateSelector(checkInLabel, s.checkIn, modifier) {
+                            vm.dates(it, s.checkOut)
+                        }
+                    },
+                    second = { modifier ->
+                        DateSelector(checkOutLabel, s.checkOut, modifier) {
+                            vm.dates(s.checkIn, it)
+                        }
+                    },
+                )
+            }
+            CampPrimary(
+                tr(R.string.camp_find_campsites),
+                CampIcons.Search,
+                busy = s.busy || s.catalogLoading,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("search-campsites"),
+                onClick = vm::search,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CampsiteSearchPair(
+    firstWidth: Dp,
+    secondWidth: Dp,
+    first: @Composable (Modifier) -> Unit,
+    second: @Composable (Modifier) -> Unit,
+) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        if (maxWidth >= firstWidth + secondWidth + 16.dp) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                first(Modifier.weight(firstWidth.value))
+                second(Modifier.weight(secondWidth.value))
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                first(Modifier.fillMaxWidth())
+                second(Modifier.fillMaxWidth())
+            }
+        }
+    }
+}
+
+@Composable
+private fun CampsiteFilters(s: CampUiState, vm: CampViewModel) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val fontScale = LocalDensity.current.fontScale.coerceAtLeast(1f)
+        if (maxWidth >= 760.dp * fontScale) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(18.dp)) {
+                CampsiteFilterLabel()
+                CampsiteFilterActions(s, vm, Modifier.weight(1f))
+            }
+        } else {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                CampsiteFilterLabel()
+                CampsiteFilterActions(s, vm, Modifier.fillMaxWidth())
+            }
+        }
+    }
+}
+
+@Composable
+private fun CampsiteFilterLabel() {
+    Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Icon(CampIcons.SlidersHorizontal, null, Modifier.size(24.dp), tint = CampPalette.Muted)
+        Text(tr(R.string.camp_facilities_conditions), fontSize = 22.sp, color = CampPalette.Muted)
+    }
+}
+
+@Composable
+private fun CampsiteFilterActions(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
+    FlowRow(modifier,
+        horizontalArrangement = Arrangement.spacedBy(9.dp, Alignment.End),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        CampChip(tr(R.string.camp_car_camping), s.carCamping, CampIcons.Vehicle, vm::carCamping)
+        listOf("shower", "electricity", "pets").forEach { code ->
+            CampChip(facilityName(code), code in s.facilities,
+                when (code) {
+                    "shower" -> CampIcons.Shower
+                    "electricity" -> CampIcons.Lightning
+                    else -> CampIcons.PawPrint
+                }) { vm.facility(code) }
+        }
+    }
+}
+
+@Composable
+private fun CampCatalogPager(s:CampUiState,vm:CampViewModel) {
+    if(s.catalogLoading) {
+        LinearProgressIndicator(Modifier.fillMaxWidth().testTag("catalog-loading"))
+        Text(tr(R.string.camp_catalog_loading),fontSize=22.sp,color=CampPalette.Muted)
+    }
+    if(s.catalogPageNumber>0) {
+        FlowRow(horizontalArrangement=Arrangement.spacedBy(12.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick=vm::previousCampsites,enabled=s.catalogHasPrevious&&!s.catalogLoading&&!s.catalogNeedsSearch,
+                modifier=Modifier.heightIn(min=48.dp).testTag("catalog-previous")) {Text(tr(R.string.camp_catalog_previous),fontSize=22.sp)}
+            Text(tr(R.string.camp_catalog_page,s.catalogPageNumber),fontSize=22.sp,color=CampPalette.Muted,
+                modifier=Modifier.padding(vertical=12.dp).testTag("catalog-page-info"))
+            OutlinedButton(onClick=vm::nextCampsites,enabled=s.catalogHasNext&&!s.catalogLoading&&!s.catalogNeedsSearch,
+                modifier=Modifier.heightIn(min=48.dp).testTag("catalog-next")) {Text(tr(R.string.camp_catalog_next),fontSize=22.sp)}
+        }
+        if(!s.catalogHasNext&&!s.catalogLoading)Text(tr(R.string.camp_catalog_last),fontSize=22.sp,color=CampPalette.Muted)
+    }
+    if(s.catalogError.isNotBlank()) {
+        Text(s.catalogError,fontSize=22.sp,color=CampPalette.Muted)
+        CampSecondary(tr(R.string.camp_catalog_retry),CampIcons.Refresh,enabled=!s.catalogLoading,
+            modifier=Modifier.testTag("catalog-retry"),onClick=vm::retryCampsites)
+    }
+    if(s.catalogWarning.isNotBlank())Text(s.catalogWarning,fontSize=22.sp,color=CampPalette.Muted)
+}
+
+@Composable
 private fun RegionSelector(
     region: String,
     onChange: (String) -> Unit,
@@ -258,7 +389,8 @@ private fun RegionSelector(
                 tr(camp.room.app.R.string.camp_where_to),
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
-                maxLines = 3,
+                maxLines = 1,
+                softWrap = false,
                 overflow = TextOverflow.Ellipsis,
             )
             Row(
@@ -277,7 +409,8 @@ private fun RegionSelector(
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f).padding(start = 7.dp),
-                    maxLines = 3,
+                    maxLines = 1,
+                    softWrap = false,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Icon(
@@ -322,7 +455,8 @@ private fun GuestSelector(guests: Int, onChange: (Int) -> Unit, modifier: Modifi
                 tr(camp.room.app.R.string.camp_who_s_coming),
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
-                maxLines = 3,
+                maxLines = 1,
+                softWrap = false,
                 overflow = TextOverflow.Ellipsis,
             )
             Row(Modifier.padding(top = 5.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -337,7 +471,8 @@ private fun GuestSelector(guests: Int, onChange: (Int) -> Unit, modifier: Modifi
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f).padding(start = 7.dp),
-                    maxLines = 3,
+                    maxLines = 1,
+                    softWrap = false,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Icon(
@@ -369,23 +504,11 @@ private fun DateSelector(
     modifier: Modifier = Modifier,
     onChange: (String) -> Unit,
 ) {
-    val context = LocalContext.current
+    var showPicker by remember { mutableStateOf(false) }
     Column(
         modifier
             .heightIn(min = 56.dp)
-            .clickable {
-                val d = runCatching { LocalDate.parse(date) }.getOrDefault(LocalDate.now())
-                DatePickerDialog(
-                        context,
-                        { _, year, month, day ->
-                            onChange(LocalDate.of(year, month + 1, day).toString())
-                        },
-                        d.year,
-                        d.monthValue - 1,
-                        d.dayOfMonth,
-                    )
-                    .show()
-            }
+            .clickable { showPicker = true }
             .padding(vertical = 4.dp)
             .testTag(
                 if (label == tr(camp.room.app.R.string.camp_check_in)) "date-check-in"
@@ -396,7 +519,8 @@ private fun DateSelector(
             label,
             fontSize = 22.sp,
             color = CampPalette.Muted,
-            maxLines = 3,
+            maxLines = 1,
+            softWrap = false,
             overflow = TextOverflow.Ellipsis,
         )
         Row(Modifier.padding(top = 5.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -406,9 +530,40 @@ private fun DateSelector(
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f).padding(start = 7.dp),
-                maxLines = 3,
+                maxLines = 1,
+                softWrap = false,
                 overflow = TextOverflow.Ellipsis,
             )
+        }
+    }
+    if (showPicker) {
+        val initial = runCatching { LocalDate.parse(date) }.getOrDefault(LocalDate.now())
+        val picker = rememberDatePickerState(
+            initialSelectedDateMillis = initial.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(),
+        )
+        val maxPickerHeight = (LocalConfiguration.current.screenHeightDp * .68f).dp
+        androidx.compose.material3.DatePickerDialog(
+            onDismissRequest = { showPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    picker.selectedDateMillis?.let {
+                        onChange(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate().toString())
+                    }
+                    showPicker = false
+                }, enabled = picker.selectedDateMillis != null,
+                    modifier = Modifier.heightIn(min = CampDesign.IconTarget).testTag("date-confirm")) {
+                    Text(tr(R.string.camp_date_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPicker = false },
+                    modifier = Modifier.heightIn(min = CampDesign.IconTarget).testTag("date-cancel")) {
+                    Text(tr(R.string.camp_date_cancel))
+                }
+            },
+        ) {
+            DatePicker(state = picker,
+                modifier = Modifier.heightIn(max = maxPickerHeight).verticalScroll(rememberScrollState()))
         }
     }
 }
@@ -442,6 +597,35 @@ private fun CampChip(
     )
 }
 
+private fun campsiteRegionLabel(region: String): String {
+    val plain = region.substringBefore(" · ").substringBefore(" 연동 데이터")
+        .substringBefore(" Connected data").substringBefore(" Demo").trim()
+    val key = plain.lowercase(java.util.Locale.ROOT)
+        .replace("-", "").replace("_", "").replace(" ", "")
+    val resource = when (key) {
+        "서울", "서울시", "서울특별시", "seoul" -> R.string.camp_region_seoul
+        "부산", "부산시", "부산광역시", "busan" -> R.string.camp_region_busan
+        "대구", "대구시", "대구광역시", "daegu" -> R.string.camp_region_daegu
+        "인천", "인천시", "인천광역시", "incheon" -> R.string.camp_region_incheon
+        "광주", "광주시", "광주광역시", "gwangju" -> R.string.camp_region_gwangju
+        "대전", "대전시", "대전광역시", "daejeon" -> R.string.camp_region_daejeon
+        "울산", "울산시", "울산광역시", "ulsan" -> R.string.camp_region_ulsan
+        "세종", "세종시", "세종특별자치시", "sejong" -> R.string.camp_region_sejong
+        "경기", "경기도", "gyeonggi", "gyeonggido" -> R.string.camp_gyeonggi
+        "강원", "강원도", "강원특별자치도", "gangwon", "gangwondo" -> R.string.camp_gangwon
+        "충북", "충청북도", "chungbuk", "chungcheongbukdo" -> R.string.camp_chungbuk
+        "충남", "충청남도", "chungnam", "chungcheongnamdo" -> R.string.camp_region_chungnam
+        "전북", "전라북도", "전북특별자치도", "jeonbuk", "jeollabukdo" -> R.string.camp_region_jeonbuk
+        "전남", "전라남도", "jeonnam", "jeollanamdo" -> R.string.camp_region_jeonnam
+        "경북", "경상북도", "gyeongbuk", "gyeongsangbukdo" -> R.string.camp_gyeongbuk
+        "경남", "경상남도", "gyeongnam", "gyeongsangnamdo" -> R.string.camp_region_gyeongnam
+        "제주", "제주도", "제주특별자치도", "jeju", "jejudo" -> R.string.camp_jeju
+        else -> null
+    }
+    return resource?.let { CampText.get(it) }
+        ?: plain.ifBlank { CampText.get(R.string.camp_region_unknown) }
+}
+
 @Composable
 private fun CampsiteCard(
     site: Campsite,
@@ -458,45 +642,20 @@ private fun CampsiteCard(
     ) {
         Column {
             Box(Modifier.fillMaxWidth().height(165.dp).clickable(onClick = onClick)) {
-                CampLandscape(site.id, Modifier.fillMaxSize())
-                Box(Modifier.padding(13.dp)) {
-                    CampPill(
-                        site.availability.label,
-                        if (site.availability.status == "limited") CampPalette.Warm
-                        else CampPalette.Forest,
-                    )
-                }
-
+                CampCampsiteImage(site, Modifier.fillMaxSize())
             }
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(
-                        CampIcons.MapPin,
-                        null,
-                        Modifier.size(24.dp),
-                        tint = CampPalette.Muted,
-                    )
-                    Text(
-                        site.region +
-                            (distance?.let {
-                                tr(
-                                    camp.room.app.R.string.camp_km_from_the_last_observed_location,
-                                    number(it),
-                                )
-                            } ?: ""),
-                        fontSize = 22.sp,
-                        color = CampPalette.Muted,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        if (site.sourceMode == "demo") tr(camp.room.app.R.string.camp_demo)
-                        else tr(camp.room.app.R.string.camp_connected_data),
-                        fontSize = 22.sp,
-                        color = CampPalette.Muted,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Icon(CampIcons.MapPin, null, Modifier.size(24.dp), tint = CampPalette.Muted)
+                    Text(campsiteRegionLabel(site.region), fontSize = 22.sp,
+                        color = CampPalette.Muted, modifier = Modifier.weight(1f),
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                if (distance != null) {
+                    Text(tr(R.string.camp_km_from_the_last_observed_location, number(distance)).trim().removePrefix("·").trim(),
+                        fontSize = 22.sp, color = CampPalette.Muted,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
                 Row(
                     Modifier.fillMaxWidth().clickable(onClick = onClick),
@@ -516,49 +675,29 @@ private fun CampsiteCard(
                         tint = CampPalette.Muted,
                     )
                 }
-                Text(site.description, fontSize = 22.sp, color = CampPalette.Muted)
+                Text(site.description, fontSize = 22.sp, color = CampPalette.Muted, maxLines=3, overflow=TextOverflow.Ellipsis)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(5.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     site.facilities.take(3).forEach { CampPill(facilityName(it)) }
                 }
                 HorizontalDivider(color = CampPalette.Line)
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        won(site.price),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 3,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (site.price != null)
-                        Text(
-                            tr(camp.room.app.R.string.camp_night),
-                            fontSize = 22.sp,
-                            color = CampPalette.Muted,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    TextButton(onClick = onClick, contentPadding = PaddingValues(0.dp)) {
-                        Text(
-                            tr(camp.room.app.R.string.camp_view_details),
-                            fontSize = 22.sp,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        val verifiedPrice = site.price.takeUnless { site.sourceMode == "demo" }
+                        Text(won(verifiedPrice), fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false))
+                        if (verifiedPrice != null) {
+                            Text(tr(R.string.camp_night), fontSize = 22.sp, color = CampPalette.Muted)
+                        }
+                    }
+                    TextButton(onClick = onClick, contentPadding = PaddingValues(horizontal = 8.dp),
+                        modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp)) {
+                        Text(tr(R.string.camp_view_details), fontSize = 22.sp)
                         Spacer(Modifier.width(6.dp))
                         Icon(CampIcons.ChevronRight, null, Modifier.size(24.dp))
                     }
                 }
-                Text(
-                    tr(
-                        camp.room.app.R.string.camp_checked,
-                        site.availability.provider,
-                        site.availability.checkedAt.take(16).replace('T', ' '),
-                    ),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
         }
     }
@@ -604,12 +743,12 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
         BoxWithConstraints(Modifier.fillMaxWidth().testTag("trip-summary")) {
             if (maxWidth > 820.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale) {
                 Row(Modifier.fillMaxWidth()) {
-                    CampLandscape(site.id, Modifier.width(240.dp).height(240.dp))
+                    CampCampsiteImage(site, Modifier.width(240.dp).height(240.dp))
                     TripSiteSummary(site, trip, Modifier.weight(1f))
                 }
             } else {
                 Column {
-                    CampLandscape(site.id, Modifier.fillMaxWidth().height(150.dp))
+                    CampCampsiteImage(site, Modifier.fillMaxWidth().height(150.dp))
                     TripSiteSummary(site, trip, Modifier.fillMaxWidth())
                 }
             }
@@ -646,7 +785,7 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
             CampSecondary(
                 tr(camp.room.app.R.string.camp_hear_trip_briefing),
                 CampIcons.Speaker,
-                enabled = !s.busy,
+                enabled = !s.busy && s.ttsRetryable,
                 modifier = Modifier.testTag("speak-briefing"),
                 onClick = onSpeak,
             )
@@ -667,6 +806,14 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+            )
+        if (s.ttsMessage.isNotBlank())
+            Text(
+                s.ttsMessage,
+                fontSize = 22.sp,
+                color = CampPalette.Muted,
+                maxLines = 4,
                 overflow = TextOverflow.Ellipsis,
             )
     }
@@ -729,6 +876,9 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
             }
         },
     )
+    CampFoodChecklist(
+        tripKey = "${trip.campsiteId.length}:${trip.campsiteId}|${trip.checkIn}|${trip.checkOut}",
+    )
     ProductGrid(data.products, s.busy, vm::addProduct)
     if (data.orders.isNotEmpty())
         CampSurface(Modifier.fillMaxWidth()) {
@@ -741,7 +891,8 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
             )
             data.orders.take(3).forEach { order ->
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CampPill(tr(camp.room.app.R.string.camp_demo_order_confirmed))
+                    Text(tr(R.string.camp_demo_order_confirmed), fontSize = 22.sp,
+                        color = CampPalette.Muted)
                     Text(
                         order.id,
                         fontSize = 22.sp,
@@ -771,225 +922,108 @@ fun TripScreen(s: CampUiState, vm: CampViewModel, onArrival: () -> Unit, onSpeak
 
 @Composable
 private fun WeatherCard(weather: Weather, modifier: Modifier) {
+    val hasForecast = weather.status != "unavailable" && !weather.demo
     CampSurface(modifier) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(
-                CampIcons.Sun,
-                null,
-                tint = CampPalette.Muted,
-                modifier = Modifier.size(24.dp),
-            )
-            Text(
-                tr(camp.room.app.R.string.camp_weather_during_your_stay),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            CampPill(
-                if (weather.demo) tr(camp.room.app.R.string.camp_demo_forecast)
-                else tr(camp.room.app.R.string.camp_weather_forecast)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(CampIcons.Sun, null, tint = CampPalette.Muted, modifier = Modifier.size(24.dp))
+            Text(tr(R.string.camp_weather_during_your_stay), fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
         }
-        if (weather.status == "unavailable")
-            Text(
-                weather.message.ifBlank {
-                    tr(camp.room.app.R.string.camp_a_forecast_isn_t_available_for_these)
-                },
-                fontSize = 22.sp,
-                color = CampPalette.Muted,
-                modifier = Modifier.heightIn(min = 125.dp),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-        else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(CampIcons.Artwork.Sun, null, Modifier.size(65.dp), tint = CampPalette.Warm)
-                Column(Modifier.weight(1f).padding(start = 22.dp)) {
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            "${number(weather.low)}°",
-                            fontSize = 43.sp,
-                            fontWeight = FontWeight.Light,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            tr(camp.room.app.R.string.camp_overnight_low),
-                            fontSize = 22.sp,
-                            color = CampPalette.Muted,
-                            modifier = Modifier.padding(start = 9.dp, bottom = 10.dp),
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    Text(
-                        weather.summary,
-                        fontSize = 22.sp,
-                        color = CampPalette.Muted,
-
-                    )
-                }
+        if (!hasForecast) {
+            Text(if (weather.demo) tr(R.string.camp_a_forecast_isn_t_available_for_these)
+                else weather.message.ifBlank { tr(R.string.camp_a_forecast_isn_t_available_for_these) },
+                fontSize = 22.sp, color = CampPalette.Muted)
+        } else {
+            FlowRow(verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                Text("${number(weather.low)}°", fontSize = 43.sp, fontWeight = FontWeight.Light)
+                Text(tr(R.string.camp_overnight_low), fontSize = 22.sp,
+                    color = CampPalette.Muted, modifier = Modifier.align(Alignment.CenterVertically))
             }
+            Text(weather.summary, fontSize = 22.sp, color = CampPalette.Muted)
             HorizontalDivider(color = CampPalette.Line)
-            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                weather.forecast.take(5).forEachIndexed { index, f ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(7.dp),
-                    ) {
-                        Text(
-                            if (f.time.length > 10) f.time.substring(11).take(5) else f.time,
-                            fontSize = 22.sp,
-                            color = CampPalette.Muted,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Icon(
-                            if (index > 2) CampIcons.Artwork.MoonStars else CampIcons.Artwork.Sun,
-                            null,
-                            Modifier.size(24.dp),
-                            tint = CampPalette.Warm,
-                        )
-                        Text(
-                            "${number(f.temperature)}°",
-                            fontSize = 22.sp,
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+            val hours = weather.forecast.take(5)
+            if (hours.isNotEmpty()) {
+                BoxWithConstraints(Modifier.fillMaxWidth()) {
+                    val cellWidth = 128.dp * LocalDensity.current.fontScale.coerceAtLeast(1f)
+                    val rowWidth = maxOf(maxWidth, cellWidth * hours.size + 8.dp * (hours.size - 1))
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+                        Row(Modifier.width(rowWidth), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            hours.forEach { forecast ->
+                                Column(Modifier.weight(1f),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                    Text(if (forecast.time.length > 11) forecast.time.substring(11).take(5) else forecast.time,
+                                        fontSize = 22.sp, color = CampPalette.Muted,
+                                        textAlign = TextAlign.Center)
+                                    Text(forecast.condition, fontSize = 22.sp, color = CampPalette.Muted,
+                                        textAlign = TextAlign.Center, minLines = 2)
+                                    Text("${number(forecast.temperature)}°", fontSize = 22.sp,
+                                        textAlign = TextAlign.Center)
+                                }
+                            }
+                        }
                     }
                 }
             }
-            Text(
-                tr(
-                    camp.room.app.R.string.camp_rain_chance_bring_a_warm_sleeping_bag,
-                    number(weather.rain),
-                ),
-                fontSize = 22.sp,
-                color = CampPalette.Muted,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Text(tr(R.string.camp_rain_probability, number(weather.rain)),
+                fontSize = 22.sp, color = CampPalette.Muted)
         }
-        Text(
-            "${weather.source} · ${weather.updatedAt.take(16).replace('T',' ')}",
-            fontSize = 22.sp,
-            color = CampPalette.Muted,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
-        )
+        if (hasForecast) {
+            val attribution = listOf(weather.source.trim(),
+                weather.updatedAt.take(16).replace('T', ' ').trim())
+                .filter { it.isNotBlank() }.joinToString(" · ")
+            if (attribution.isNotBlank()) {
+                Text(attribution, fontSize = 22.sp, color = CampPalette.Muted)
+            }
+        }
     }
 }
 
 @Composable
 private fun RouteCard(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
     val route = s.route
+    val connected = s.data?.vehicle?.isConnected == true
+    // A verified SDK preview may omit ETA; keep its known distance/energy visible.
+    // Route creation rejects unconfirmed destinations before populating distance.
+    val routeReady = connected && route?.distance?.let { it.isFinite() && it >= 0 } == true
     CampSurface(modifier) {
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(
-                CampIcons.NavigationArrow,
-                null,
-                tint = CampPalette.Muted,
-                modifier = Modifier.size(24.dp),
-            )
-            Text(
-                tr(camp.room.app.R.string.camp_the_journey_in_your_car),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-            CampPill(
-                if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_route)
-                else tr(camp.room.app.R.string.camp_pleos_route)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Icon(CampIcons.NavigationArrow, null, tint = CampPalette.Muted,
+                modifier = Modifier.size(24.dp))
+            Text(tr(R.string.camp_the_journey_in_your_car), fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
         }
-        Box(
-            Modifier.fillMaxWidth()
-                .height(106.dp)
-                .clip(RoundedCornerShape(7.dp))
-                .background(CampPalette.Sage)
-        ) {
-            val routePaper = CampPalette.Paper
-            val routeForest = CampPalette.Forest
-            Canvas(Modifier.fillMaxSize()) {
-                val p =
-                    Path().apply {
-                        moveTo(size.width * .13f, size.height * .8f)
-                        cubicTo(
-                            size.width * .45f,
-                            size.height * .1f,
-                            size.width * .7f,
-                            size.height * 1.2f,
-                            size.width * .88f,
-                            size.height * .2f,
-                        )
-                    }
-                drawPath(p, Color(0xFF9CB88B), style = Stroke(width = 4f))
-                drawCircle(routePaper, 19.dp.toPx(), Offset(size.width * .13f, size.height * .8f))
-                drawCircle(routeForest, 19.dp.toPx(), Offset(size.width * .88f, size.height * .2f))
+        if (!connected) {
+            Text(tr(R.string.vehicle_connection_needed), fontSize = 22.sp,
+                fontWeight = FontWeight.Medium, modifier = Modifier.testTag("route-connection-needed"))
+            Text(tr(R.string.vehicle_route_connection_needed), fontSize = 22.sp,
+                color = CampPalette.Muted)
+        } else if (!routeReady || route == null) {
+            Text(tr(R.string.camp_route_not_ready), fontSize = 22.sp, color = CampPalette.Muted)
+        } else {
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Metric(tr(R.string.camp_distance), number(route.distance), "km")
+                Metric(tr(R.string.camp_estimated_time),
+                    route.minutes?.let { tr(R.string.camp_hr_min, it / 60, it % 60) } ?: "—", "")
+                Metric(tr(R.string.camp_estimated_arrival_charge), number(route.arrivalSoc), "%")
             }
-            Icon(
-                CampIcons.Vehicle,
-                null,
-                tint = CampPalette.Muted,
-                modifier =
-                    Modifier.align(Alignment.BottomStart)
-                        .padding(start = 39.dp, bottom = 5.dp)
-                        .size(24.dp),
-            )
-            Icon(
-                CampIcons.Tent,
-                null,
-                tint = CampPalette.OnForest,
-                modifier =
-                    Modifier.align(Alignment.TopEnd).padding(top = 9.dp, end = 40.dp).size(24.dp),
-            )
-            Text(
-                if (route?.chargingStop == true)
-                    tr(camp.room.app.R.string.camp_includes_a_charging_stop)
-                else tr(camp.room.app.R.string.camp_an_easy_ride_to_your_retreat),
-                fontSize = 22.sp,
-                color = CampPalette.Muted,
-                modifier = Modifier.align(Alignment.Center),
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Metric(tr(camp.room.app.R.string.camp_distance), "${number(route?.distance)}", "km")
-            Metric(
-                tr(camp.room.app.R.string.camp_estimated_time),
-                route?.minutes?.let { tr(camp.room.app.R.string.camp_hr_min, it / 60, it % 60) }
-                    ?: "—",
-                "",
-            )
-            Metric(
-                tr(camp.room.app.R.string.camp_estimated_arrival_charge),
-                number(route?.arrivalSoc),
-                "%",
-            )
+            Text(tr(R.string.camp_current_soc_estimated_use_kwh_nyour_actual,
+                number(s.data?.vehicle?.soc), number(route.consumption)),
+                fontSize = 22.sp, color = CampPalette.Muted)
         }
         CampPrimary(
-            if (s.navigationLaunched || s.data?.trip?.navigationStarted == true)
-                if (BuildConfig.IS_DEMO) tr(camp.room.app.R.string.camp_demo_guidance_running)
-                else tr(camp.room.app.R.string.camp_guidance_request_sent)
-            else tr(camp.room.app.R.string.camp_start_guidance),
+            if (routeReady && (s.navigationLaunched || s.data?.trip?.navigationStarted == true))
+                tr(R.string.camp_guidance_request_sent)
+            else tr(R.string.camp_start_guidance),
             CampIcons.NavigationArrow,
-            busy = s.busy,
+            enabled = routeReady,
+            busy = s.busy || s.catalogLoading,
             modifier = Modifier.fillMaxWidth().testTag("start-navigation"),
             onClick = vm::navigation,
-        )
-        Text(
-            tr(
-                camp.room.app.R.string.camp_current_soc_estimated_use_kwh_nyour_actual,
-                number(s.data?.vehicle?.soc),
-                number(route?.consumption),
-            ),
-            fontSize = 22.sp,
-            color = CampPalette.Muted,
-            maxLines = 3,
-            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -1060,13 +1094,6 @@ private fun ProductGrid(products: List<Product>, busy: Boolean, onAdd: (String) 
                                     Modifier.padding(18.dp),
                                     verticalArrangement = Arrangement.spacedBy(7.dp),
                                 ) {
-                                    Text(
-                                        product.category,
-                                        fontSize = 22.sp,
-                                        color = CampPalette.Muted,
-                                        maxLines = 3,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
                                     Text(
                                         product.name,
                                         fontSize = 22.sp,

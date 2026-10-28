@@ -17,27 +17,29 @@ object AssistMessages {
                     else R.string.assist_location_unavailable
                 "arrival" -> arrivalKey(status)
                 "tts" ->
-                    when (status) {
+                    speechFailureKey(operation, speechErrorCode(value, "errorCode")) ?: if (!value.optBoolean("retryable", true)) R.string.camp_voice_unavailable_reopen else when (status) {
+                        "initializing", "processing" -> R.string.camp_voice_in_progress
                         "started",
                         "speaking",
                         "playing" -> R.string.assist_tts_started
                         "completed",
-                        "done" -> R.string.assist_tts_completed
+                        "done" -> R.string.camp_tts_completed
                         "ready",
                         "available" -> R.string.assist_tts_ready
                         "stopped",
                         "cancelled" -> R.string.assist_tts_stopped
-                        else -> R.string.assist_tts_unavailable
+                        else -> R.string.camp_tts_failed
                     }
                 "stt" ->
-                    when (status) {
-                        "recognized" -> R.string.assist_stt_recognized
+                    speechFailureKey(operation, speechErrorCode(value, "errorCode")) ?: if (!value.optBoolean("retryable", true)) R.string.camp_voice_unavailable_reopen else when (status) {
+                        "initializing", "processing" -> R.string.camp_voice_in_progress
+                        "recognized" -> R.string.camp_stt_final_result
                         "started",
                         "listening" -> R.string.assist_stt_listening
                         "ended" -> R.string.assist_stt_ended
                         "ready",
                         "idle" -> R.string.assist_stt_ready
-                        else -> R.string.assist_stt_unavailable
+                        else -> R.string.camp_stt_unavailable
                     }
                 "navigation" ->
                     if (value.optBoolean("started")) {
@@ -65,6 +67,37 @@ object AssistMessages {
                 "arrivalMessage",
                 CampText.get(arrivalKey(original.optString("arrivalStatus").lowercase(java.util.Locale.ROOT))),
             )
+            for (operation in listOf("tts", "stt")) {
+                val state = original.optString("${operation}Status").lowercase(java.util.Locale.ROOT)
+                val errorCode = speechErrorCode(original, "${operation}ErrorCode")
+                val hasOutcome = state in setOf("unavailable", "failed", "error", "stopped", "cancelled", "done", "completed", "recognized")
+                if (original.optString("${operation}Message").isNotBlank() || errorCode.isNotBlank() ||
+                    !original.optBoolean("${operation}Retryable", true) || hasOutcome) {
+                    val voice = JSONObject()
+                        .put("status", state)
+                        .put("errorCode", errorCode)
+                        .put("retryable", original.optBoolean("${operation}Retryable", true))
+                    put("${operation}Message", result(operation, voice).optString("message"))
+                }
+            }
+        }
+
+    private fun speechErrorCode(value: JSONObject, key: String): String =
+        if (value.isNull(key)) "" else value.optString(key).takeUnless { it.equals("null", ignoreCase = true) }.orEmpty()
+
+    private fun speechFailureKey(operation: String, errorCode: String): Int? =
+        when (errorCode.uppercase(java.util.Locale.ROOT)) {
+            "PERMISSION_DENIED", "PERMISSION_REQUIRED" -> R.string.camp_voice_permission_needed
+            "ON_DEVICE_ENGINE_ERROR", "NOT_SUPPORTED_API", "UNAVAILABLE_LANGUAGE" ->
+                if (operation == "tts") R.string.camp_tts_engine_unavailable
+                else R.string.camp_stt_unavailable
+            "TIMEOUT", "INITIALIZE_TIMEOUT", "START_TIMEOUT", "COMPLETION_TIMEOUT", "RESULT_TIMEOUT" ->
+                if (operation == "tts") R.string.camp_tts_timeout else R.string.camp_stt_no_result
+            "CANCELLED" -> R.string.camp_voice_cancelled
+            "CLEANUP_PENDING" -> R.string.camp_voice_cleanup_pending
+            "IN_PROGRESS" -> R.string.camp_voice_in_progress
+            "NO_RESULT", "EMPTY_RESULT" -> R.string.camp_stt_no_result
+            else -> null
         }
 
     private fun arrivalKey(status: String): Int =

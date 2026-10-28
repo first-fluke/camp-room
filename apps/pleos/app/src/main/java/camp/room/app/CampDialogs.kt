@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -51,7 +52,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     Modifier.fillMaxWidth()
                         .height(if (screen.screenHeightDp < 700) 142.dp else 205.dp)
                 ) {
-                    CampLandscape(site.id, Modifier.fillMaxSize())
+                    CampCampsiteImage(site, Modifier.fillMaxSize())
                     IconButton(
                         onClick = { vm.detail(null) },
                         modifier =
@@ -66,13 +67,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                             Modifier.size(24.dp),
                         )
                     }
-                    Box(Modifier.align(Alignment.BottomStart).padding(18.dp)) {
-                        CampPill(
-                            if (site.sourceMode == "demo")
-                                tr(camp.room.app.R.string.camp_demo_campsite)
-                            else tr(camp.room.app.R.string.camp_external_data)
-                        )
-                    }
+
                 }
                 Column(
                     Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(25.dp),
@@ -98,6 +93,12 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                         site.address,
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
+                    )
+                    if (site.sourceMode == "demo") Text(
+                        tr(R.string.camp_example_campsite_context),
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
+                        lineHeight = 28.sp,
                     )
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         site.facilities.take(5).forEach { CampPill(facilityName(it)) }
@@ -180,25 +181,6 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                             }
                         }
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CampPill(site.availability.label)
-                        Column(Modifier.weight(1f).padding(start = 12.dp)) {
-                            Text(
-                                site.availability.provider,
-                                fontSize = 22.sp,
-                                color = CampPalette.Muted,
-                            )
-                            Text(
-                                tr(
-                                    camp.room.app.R.string.camp_checked_222,
-                                    site.availability.coverage,
-                                    site.availability.checkedAt.take(16).replace('T', ' '),
-                                ),
-                                fontSize = 22.sp,
-                                color = CampPalette.Muted,
-                            )
-                        }
-                    }
                     Column(Modifier.fillMaxWidth()) {
                         Text(
                             won(site.price),
@@ -220,17 +202,27 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     if (s.error.isNotBlank()) CampError(s.error, vm::clearError)
                 }
                 HorizontalDivider(color = CampPalette.Line)
-                Column(
+                Row(
                     Modifier.fillMaxWidth().padding(horizontal = 25.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-
                     CampPrimary(
-                        tr(camp.room.app.R.string.camp_save_to_my_trip),
+                        tr(R.string.camp_add_to_trip),
                         CampIcons.Plus,
                         busy = s.busy,
-                        modifier = Modifier.fillMaxWidth().testTag("save-trip"),
+                        modifier = Modifier.weight(1f).testTag("save-trip"),
                         onClick = vm::saveTrip,
+                    )
+                    val phoneUnavailable = tr(R.string.camp_campsite_phone_unavailable)
+                    CampSecondary(
+                        tr(R.string.camp_call_campsite),
+                        enabled = false,
+                        modifier = Modifier.weight(1f)
+                            .heightIn(min = CampDesign.PrimaryHeight)
+                            .testTag("call-campsite")
+                            .semantics { stateDescription = phoneUnavailable },
+                        onClick = {},
                     )
                 }
             }
@@ -578,13 +570,8 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                 color = CampPalette.Muted,
             )
         }
-        Text(
-            tr(camp.room.app.R.string.camp_the_prefilled_name_and_address_are_fictional),
-            fontSize = 22.sp,
-            color = CampPalette.Muted,
-        )
         CampSecondary(
-            tr(camp.room.app.R.string.camp_check_delivery_availability),
+            tr(R.string.camp_delivery_estimate_preview),
             CampIcons.Clock,
             enabled = !s.busy && cart.items.isNotEmpty(),
             modifier = Modifier.fillMaxWidth().testTag("delivery-quote"),
@@ -658,15 +645,15 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             }
         }
         CampPrimary(
-            tr(camp.room.app.R.string.camp_demo_payment, won(s.quote?.total ?: cart.total)),
+            tr(R.string.camp_checkout_unavailable),
             CampIcons.ShoppingBag,
-            enabled = s.quote?.eligible == true && cart.items.isNotEmpty(),
+            enabled = false,
             busy = s.busy,
             modifier = Modifier.fillMaxWidth().testTag("checkout-submit"),
             onClick = vm::checkout,
         )
         Text(
-            tr(camp.room.app.R.string.camp_no_real_payment_or_delivery_occurs_ncheck),
+            tr(R.string.camp_checkout_example_context),
             fontSize = 22.sp,
             color = CampPalette.Muted,
             lineHeight = 28.sp,

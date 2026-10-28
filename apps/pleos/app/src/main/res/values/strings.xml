@@ -1,5 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+    <string name="camp_nearby_current_page">Distance order within this list only · %1$s</string>
+    <string name="camp_nearby_current_page_notice">This list is sorted by distance from the last observed location.</string>
+    <string name="camp_catalog_loading">Loading places…</string>
+    <string name="camp_catalog_previous">Previous list</string>
+    <string name="camp_catalog_next">Next list</string>
+    <string name="camp_catalog_page">List %1$,d</string>
+    <string name="camp_catalog_total">All campsites: %1$,d</string>
+    <string name="camp_catalog_results">Search results: %1$,d</string>
+    <string name="camp_catalog_results_of_total">Search results: %1$,d · All campsites: %2$,d</string>
+    <string name="camp_catalog_last">You have reached the last list.</string>
+    <string name="camp_catalog_retry">Try again</string>
+    <string name="camp_catalog_search_changed">Search conditions changed. Find campsites to start a new list.</string>
+    <string name="camp_catalog_changed">The list was updated. Starting from the first list.</string>
+    <string name="camp_live_data_vehicle_simulator">Live data · Vehicle simulator</string>
     <string name="camp_location" formatted="false">"Location"</string>
     <string name="camp_speech_recognition" formatted="false">"Speech recognition"</string>
     <string name="camp_voice_guidance" formatted="false">"Voice guidance"</string>
@@ -61,8 +75,6 @@
     <string name="camp_find_campsites" formatted="false">"Find campsites"</string>
     <string name="camp_make_it_yours" formatted="false">"Make it yours"</string>
     <string name="camp_car_camping" formatted="false">"Car camping"</string>
-    <string name="camp_places_to_slow_down" formatted="false">"Campsites %1$s"</string>
-    <string name="camp_discover_a_place_that_makes_car_camping" formatted="false">"Discover a place that makes car camping feel special."</string>
     <string name="camp_external_data_connected" formatted="false">"External data connected"</string>
     <string name="camp_demo_campsite_collection" formatted="false">"Demo campsites"</string>
     <string name="camp_no_campsites_match_these_filters" formatted="false">"No campsites match these filters"</string>
@@ -439,4 +451,44 @@
     <string name="request_error_order_conflict">"The same order reference was used for different details. Review a new order."</string>
     <string name="request_error_order_not_found">"The order was not found."</string>
     <string name="camp_brand_name">"Camp Room"</string>
+    <string name="camp_photo_loading">Loading photo</string>
+    <string name="camp_photo_failed">Photo could not be loaded</string>
+    <string name="camp_photo_missing">No photo provided</string>
+    <string name="camp_photo_illustration">Fallback illustration</string>
+    <string name="camp_date_confirm">Confirm</string>
+    <string name="camp_date_cancel">Cancel</string>
+    <string name="camp_cart_item_count">Cart, %1$d items</string>
+    <string name="camp_facilities_conditions">Facilities &amp; preferences</string>
+    <string name="camp_availability_check_needed">Confirm availability</string>
+    <string name="camp_rain_probability">Chance of rain %1$s%%</string>
+    <string name="camp_route_not_ready">Route information is not available yet.</string>
+    <string name="camp_region_unknown">Confirm region</string>
+    <string name="camp_region_seoul">Seoul</string>
+    <string name="camp_region_busan">Busan</string>
+    <string name="camp_region_daegu">Daegu</string>
+    <string name="camp_region_incheon">Incheon</string>
+    <string name="camp_region_gwangju">Gwangju</string>
+    <string name="camp_region_daejeon">Daejeon</string>
+    <string name="camp_region_ulsan">Ulsan</string>
+    <string name="camp_region_sejong">Sejong</string>
+    <string name="camp_region_chungnam">Chungnam</string>
+    <string name="camp_region_jeonbuk">Jeonbuk</string>
+    <string name="camp_region_jeonnam">Jeonnam</string>
+    <string name="camp_region_gyeongnam">Gyeongnam</string>
+    <string name="camp_other_facility">Other facilities</string>
+    <string name="camp_add_to_trip">Add</string>
+    <string name="camp_call_campsite">Call</string>
+    <string name="camp_campsite_phone_unavailable">No campsite phone number provided</string>
+    <string name="camp_voice_permission_needed">Allow access to the vehicle voice service.</string>
+    <string name="camp_tts_completed">Trip briefing playback is complete.</string>
+    <string name="camp_tts_engine_unavailable">The selected language voice engine is unavailable. Check the language and voice service, then reopen the app.</string>
+    <string name="camp_tts_failed">The briefing did not finish. Please try again.</string>
+    <string name="camp_tts_timeout">Playback was stopped because completion could not be confirmed.</string>
+    <string name="camp_voice_cancelled">The voice operation was stopped.</string>
+    <string name="camp_stt_no_result">No speech result was received. Check microphone input or type instead.</string>
+    <string name="camp_stt_final_result">Review the vehicle speech recognition result before continuing.</string>
+    <string name="camp_stt_unavailable">Check the vehicle speech service and microphone input.</string>
+    <string name="camp_voice_cleanup_pending">The previous voice operation could not be fully closed. Reopen the app.</string>
+    <string name="camp_voice_in_progress">The voice operation is in progress.</string>
+    <string name="camp_voice_unavailable_reopen">Voice is currently unavailable. Reopen the app, then check again.</string>
 </resources>

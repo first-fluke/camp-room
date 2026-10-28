@@ -21,8 +21,20 @@ for binding in bindings:
 
 sdk_methods = {item["name"] for item in declarations.values()}
 sources = list((root / "apps/pleos/app/src/pleos").rglob("*.kt"))
+sdk_sources = []
 for source in sources:
-    for method in re.findall(r"\.((?:get|set|register|unregister|select|request|initialize|release)[A-Z]?[A-Za-z0-9]*)\(", source.read_text()):
+    content = source.read_text()
+    # Android Car UX policy and app-only interfaces are not Pleos SDK contracts.
+    if not re.search(r"^import ai[.]pleos[.]playground[.]", content, re.MULTILINE):
+        continue
+    sdk_sources.append(source)
+    # Android framework calls remain Android calls with fully-qualified imports.
+    content = re.sub(r"\bandroid[.]os[.]Looper[.]getMainLooper\(\)", "", content)
+    if re.search(r"^import android[.]os[.]Looper$", content, re.MULTILINE):
+        content = re.sub(r"\bLooper[.]getMainLooper\(\)", "", content)
+    # A prefix must end or continue in CamelCase: app diagnostics.requested()
+    # is not the SDK's request(), while requestRoute() still needs a declaration.
+    for method in re.findall(r"\.((?:get|set|register|unregister|select|request|initialize|release)(?:[A-Z][A-Za-z0-9]*)?)\(", content):
         if method in {"get", "getJSONObject", "getJSONArray", "setLanguage"}:  # Domain map / org.json, not SDK APIs.
             continue
         if method not in sdk_methods:
@@ -34,5 +46,5 @@ for forbidden in ["getEvChargePercentLimit", "getCurrentSpeed", "getGear"]:
         errors.append(f"Unsupported native API used: {forbidden}")
 assert not errors, "\n".join(errors)
 assert sources and bindings, "Empty native scaffold"
-print(f"PASS: {len(bindings)} exact SDK declarations and {len(sources)} Kotlin sources checked")
+print(f"PASS: {len(bindings)} exact SDK declarations and {len(sdk_sources)} SDK-importing Kotlin sources checked; {len(sources)} native seam files checked for forbidden APIs")
 print("LIMIT: this check audits source contracts only; see separate Gradle/APK/emulator evidence for native execution")

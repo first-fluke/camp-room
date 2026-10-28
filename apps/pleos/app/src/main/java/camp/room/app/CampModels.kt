@@ -78,6 +78,7 @@ data class Campsite(
     val sourceMode: String,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val imageUrl: String = "",
 ) {
     companion object {
         fun parse(j: JSONObject): Campsite {
@@ -103,6 +104,7 @@ data class Campsite(
                 j.obj("source").text("mode", "demo"),
                 j.nullNumber("latitude"),
                 j.nullNumber("longitude"),
+                j.text("imageUrl"),
             )
         }
     }
@@ -184,7 +186,30 @@ data class Vehicle(
     val layoutSource: String = "unknown",
     val controlAreas: List<CabinControlGroup> = emptyList(),
     val unknownFeatures: List<String> = emptyList(),
+    val connectionConfirmed: Boolean = false,
 ) {
+    /** Only a real vehicle adapter may expose observations or accept vehicle commands. */
+    val isConnected: Boolean
+        get() = mode == "pleos" && connectionConfirmed
+
+    fun disconnected(): Vehicle = copy(
+        soc = null,
+        measuredTemperature = null,
+        targetTemperature = null,
+        front = CabinZone(null, null, null),
+        rear = CabinZone(null, null, null),
+        doorsClosed = null,
+        windowsClosed = null,
+        motionState = "unknown",
+        sceneId = "",
+        updatedAt = "",
+        mode = "unknown",
+        layoutSource = "unknown",
+        controlAreas = emptyList(),
+        unknownFeatures = emptyList(),
+        connectionConfirmed = false,
+    )
+
     companion object {
         fun parse(j: JSONObject) =
             Vehicle(
@@ -205,7 +230,8 @@ data class Vehicle(
                         group.text("feature"), group.optBoolean("readable"), group.optBoolean("writable"), group.nullNumber("observed"))
                 },
                 j.strings("unknownFeatures"),
-            )
+                j.optBoolean("connected", false),
+            ).let { vehicle -> if (vehicle.isConnected) vehicle else vehicle.disconnected() }
     }
 }
 
@@ -370,6 +396,7 @@ data class Bootstrap(
     val cart: Cart,
     val orders: List<Order>,
     val providers: List<ProviderStatus>,
+    val tripCampsite: Campsite? = null,
 ) {
     companion object {
         fun parse(j: JSONObject) =
@@ -390,6 +417,7 @@ data class Bootstrap(
                         it.text("message"),
                     )
                 },
+                j.optJSONObject("tripCampsite")?.let(Campsite::parse),
             )
     }
 }

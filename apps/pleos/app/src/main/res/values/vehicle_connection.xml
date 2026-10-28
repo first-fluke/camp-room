@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vehicle_disconnected">Vehicle not connected</string>
+    <string name="vehicle_connected">Vehicle connected</string>
+    <string name="vehicle_connection_needed">Connect your vehicle</string>
+    <string name="vehicle_connection_details">Connect your vehicle to view its status and adjust the cabin. You can keep exploring campsites and planning your trip.</string>
+    <string name="vehicle_route_connection_needed">Connect your vehicle to check the route and arrival battery.</string>
+    <string name="vehicle_control_connection_needed">Connect your vehicle before using this feature.</string>
+    <string name="vehicle_value_unknown">—</string>
+    <string name="vehicle_layout_waiting">Your vehicle layout will appear here</string>
+    <string name="vehicle_layout_waiting_details">The cabin layout and supported controls are checked after connection.</string>
+    <string name="vehicle_layout_outline_description">Vehicle outline. Actual cabin layout has not been checked.</string>
+    <string name="vehicle_scene_walkthrough">Explore cabin settings</string>
+    <string name="vehicle_scene_walkthrough_details">You can browse each setting. Applying it requires a connected vehicle.</string>
+    <string name="vehicle_scene_voice_walkthrough">View “%1$s” on the cabin screen. Connect your vehicle to apply it.</string>
+    <string name="vehicle_scene_observations">Supported commands and observed vehicle state are checked separately.</string>
+    <string name="vehicle_departure_unconnected">Check the doors, windows and battery in your vehicle before leaving.</string>
+    <string name="vehicle_voice_help">Preview a cabin setting or open your travel plan. Vehicle control and navigation require a connected vehicle.</string>
+    <string name="camp_example_campsite_context">This is an example campsite. Confirm the actual facilities, prices and booking information with the operator.</string>
+    <string name="camp_booking_check_with_operator">Check availability with the campsite operator.</string>
+    <string name="camp_save_trip_context">Saving a trip does not make a campsite reservation.</string>
+    <string name="camp_checkout_unavailable">Ordering is not available yet</string>
+    <string name="camp_checkout_example_context">Products, prices, stock and delivery estimates are examples. Payment and delivery are not available.</string>
+    <string name="camp_delivery_estimate_preview">Preview delivery estimate</string>
+</resources>

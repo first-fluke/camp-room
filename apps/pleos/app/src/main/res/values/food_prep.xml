@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camp_food_prep_title">Meal prep checklist</string>
+    <string name="camp_food_prep_disclosure">AI generated images and suggested portions. Check the sets you want to prepare.</string>
+    <string name="camp_food_prep_pork_title">Pork belly set</string>
+    <string name="camp_food_prep_beef_title">Beef grill set</string>
+    <string name="camp_food_prep_ribs_title">Marinated ribs set</string>
+    <string name="camp_food_prep_mixed_title">BBQ mixed set</string>
+    <string name="camp_food_prep_serves_2_3">Serves 2–3</string>
+    <string name="camp_food_prep_serves_3_4">Serves 3–4</string>
+    <string name="camp_food_prep_serves_4">Serves 4</string>
+    <string name="camp_food_prep_pork_contents">Pork belly 600g · Leafy wraps · Mushrooms</string>
+    <string name="camp_food_prep_beef_contents">Beef 600g · Mushrooms · Vegetables</string>
+    <string name="camp_food_prep_ribs_contents">Marinated ribs 800g · Onion · Green onion</string>
+    <string name="camp_food_prep_mixed_contents">Meat and sausages 1.2kg · Vegetables</string>
+    <string name="camp_food_prep_select">Add to prep list</string>
+    <string name="camp_food_prep_selected">Added to prep list</string>
+    <string name="camp_food_prep_image_loading">Loading suggested set image…</string>
+    <string name="camp_food_prep_image_unavailable">Suggested set image unavailable</string>
+    <string name="camp_food_prep_pork_image">Suggested pork belly set with leafy wraps and mushrooms</string>
+    <string name="camp_food_prep_beef_image">Suggested beef grilling set with mushrooms and vegetables</string>
+    <string name="camp_food_prep_ribs_image">Suggested marinated ribs set with onion and green onion</string>
+    <string name="camp_food_prep_mixed_image">Suggested mixed BBQ set with meat, sausages, and vegetables</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camp_expand_menu">메뉴 펼치기</string>
+    <string name="camp_collapse_menu">메뉴 접기</string>
+    <string name="camp_menu_expanded">메뉴 펼쳐짐</string>
+    <string name="camp_menu_collapsed">메뉴 접힘</string>
+</resources>

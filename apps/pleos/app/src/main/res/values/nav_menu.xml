@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camp_expand_menu">Expand menu</string>
+    <string name="camp_collapse_menu">Collapse menu</string>
+    <string name="camp_menu_expanded">Menu expanded</string>
+    <string name="camp_menu_collapsed">Menu collapsed</string>
+</resources>
