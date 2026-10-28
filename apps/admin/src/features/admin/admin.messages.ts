@@ -1,5 +1,7 @@
 export const adminMessages = {
   "en": {
+    "provider_explicit_demo": "Explicit demo mode is enabled.",
+    "provider_vehicle_demo": "Simulator only. No real vehicle control, reservations, payments or deliveries are performed.",
     "brand_name": "Camp Room",
     "provider_vehicle_services": "Vehicle · Navigation · Orders",
     "provider_status_ready": "Connected",
@@ -138,6 +140,8 @@ export const adminMessages = {
     "error_server": "The server could not complete this action. Please try again."
   },
   "ko": {
+    "provider_explicit_demo": "명시적 데모 모드입니다.",
+    "provider_vehicle_demo": "명시적 시뮬레이터 · 실제 차량 제어/예약/결제/배송은 수행하지 않습니다.",
     "brand_name": "캠프룸",
     "provider_vehicle_services": "차량 · 길안내 · 주문",
     "provider_status_ready": "연결됨",

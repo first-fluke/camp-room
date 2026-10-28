@@ -36,10 +36,13 @@ p{text-wrap:pretty}
 @media(max-width:570px){
   .admin-sidebar nav{margin-top:20px}
   .admin-sidebar nav>button{min-width:0;flex-direction:column;gap:5px}
-  .admin-sidebar nav>button>span{font-size:12px;white-space:nowrap}
+  .admin-sidebar nav>button>span{font-size:12px;white-space:normal;width:100%;line-height:1.35;text-align:center}
   .admin-topbar{min-height:57px}
   .section-heading>div{flex-basis:100%}
   .section-heading .provider-refresh-button{font-size:12px;padding:10px 12px}
   .order-summary>div{flex-wrap:wrap;gap:4px 16px}
   .order-summary strong{min-width:0;flex:1 1 180px}
 }
+
+/* Keep wrapped header actions at the inline end on narrow screens. */
+.admin-topbar>.admin-topbar-actions{margin-inline-start:auto;justify-content:flex-end}
