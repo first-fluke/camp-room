@@ -1,96 +1,105 @@
 # Camp Room · 캠프룸
 
-캠프룸은 캠핑장을 찾고 이동한 뒤 차 안에서 쉬는 시간을 돕는 **Pleos 차량용 Kotlin·Jetpack Compose 앱**입니다. 찾기, 내 캠핑, 차박의 세 메뉴가 같은 장소와 일정을 공유합니다. 필요한 캠핑용품을 담고 자택 또는 캠핑장으로 받을 준비도 한 앱에서 이어갑니다.
+캠프룸은 Pleos 차량의 큰 화면에서 캠핑장을 찾고, 여행 일정과 준비물을 정리하며 차량 상태를 확인하는 Kotlin·Jetpack Compose 앱입니다. **찾기 · 내 캠핑 · 차박** 메뉴를 제공합니다.
 
-## 문서 안내
+## 현재 구현 범위
 
-| 문서 | 내용 |
+- **찾기:** 지역·날짜·인원·시설 조건, 위치 기반 주변 찾기, 캠핑장 사진과 상세 정보, 검색 결과와 전체 개수 구분, 다음/이전 목록. 서버 커서는 필터·정렬·카탈로그 세대에 묶이며 목록 간 중복과 오래된 요청을 처리합니다.
+- **내 캠핑:** 장소와 일정 저장·복원, 시설 정보, 해당 지역·기간의 시간별 예보, 여행 준비 목록. 담기는 여행에 장소를 저장하는 기능입니다.
+- **차박:** Pleos SDK가 실제로 제공한 배터리·온도 등 관측값을 표시합니다. 미지원·결측·오래된 값과 요청 목표를 구분하고, 안전 조건을 확인할 수 없는 제어는 비활성화합니다.
+- **식사와 준비물:** 삼겹살·소고기·갈비·바비큐 모둠의 예시 이미지, 구성·인분 안내와 준비 체크리스트를 제공합니다. 고기 사진은 AI 생성 예시이며 실제 판매 상품의 사진이 아닙니다.
+- **화면:** 접고 펼칠 수 있는 오른쪽 메뉴, 한국어·영어, 주야간 테마, 큰 글씨·좁은 폭 대응, 사진 로딩·실패·빈 URL 대체 표시를 지원합니다.
+
+고캠핑 캠핑장 정보·사진과 기상청 예보는 서버의 실제 API 연결로 확인했습니다. 새 설치에서는 각자 발급받은 서버용 키가 필요하며, 이 저장소에 키를 포함하지 않습니다. 예약·결제·재고·배송 사업자 연동은 제공하지 않습니다. 준비물 선택을 구매나 예약 완료로 처리하지 않습니다.
+
+## 실행 환경과 SDK 검증 범위
+
+| 항목 | 환경 / 범위 |
 | --- | --- |
-| [제품 요구사항](docs/PRD.md) | 사용자, 해결할 문제, 제공 범위와 후속 확장 |
-| [기능명세서](docs/FUNCTIONAL_SPEC.md) | 화면 동작, 상태, 오류와 인수 기준 |
-| [서버 구조도](docs/architecture/SERVER_ARCHITECTURE.md) | 차량 앱·관리자·워커·API·Turso의 Mermaid 구조도 |
-| [DB ERD](docs/database/ERD.md) | 32개 테이블의 키와 관계, 영역별 Mermaid ERD |
-| [독립 DB 검토](docs/database/SCHEMA_REVIEW.md) | 3NF 검토, 제약조건과 트랜잭션 검증 |
-| [실행 안내](docs/USAGE.ko.md) | 앱, API, 관리자, 워커 실행 및 검증 명령 |
-| [Pleos 디자인 적용](docs/DESIGN_SYSTEM.md) | 테마·글꼴·공통 컴포넌트와 검증 범위 |
-| [새 디자인·앱 실행 검증](docs/verification/pleos-design-runtime.md) | C1 APK·화면·시연·로컬 관측성 검사 결과 |
-| [앱 진단과 분석](docs/OBSERVABILITY.md) | 로컬 로그, Sentry·PostHog 설정과 수집 범위 |
-| [인증과 비밀값](docs/AUTH.ko.md) | 관리자 세션, 서버 인증, 현재 프로필 범위 |
-| [외부 데이터](docs/INTEGRATIONS.md) | 공급자 어댑터, 환경변수, 연결 상태 |
-| [SDK 적용표](docs/product/SDK_CAPABILITY_MATRIX.md) | 사용자 제공 명세에 따른 5개 SDK의 역할 |
+| Android 앱 | JDK 17, Gradle 8.11.1, AGP 8.9.2, Kotlin 2.1.20, compileSdk/targetSdk 35 |
+| Pleos 런타임 | 공식 Pleos Connect v2.1.0, Android 14/API 34 ARM64 에뮬레이터, cold boot, RAM 4GB, minSdk 28 |
+| API·worker | Python 3.14 이상, uv, FastAPI, SQLite 또는 선택적 Turso |
+| 관리자 웹 | Node.js 24, Next.js |
+| 데이터 | 고캠핑·기상청 실응답 및 두 페이지 이상 목록, 사진·예보 표시를 로컬에서 검증 |
+| SDK | Vehicle 2.3.2, vehicle-data 1.1.11, NaviHelper 3.0.5, FusedLocation 1.1.3, STT/TTS 3.3.1 |
 
-## 사용 흐름
+공식 에뮬레이터에서 차량 상태 읽기·콜백과 위치 관련 로그를 조사했습니다. 내비 경로 응답의 지연·목적지 판정, SmartGlass 조회 오류, 음성 인식 품질 및 최신 빌드의 TTS 재검증 공백이 남아 있습니다. 이 소스에는 목적지 일치 정책, 세션 세대·오래된 응답 차단, 읽기 오류 분류·backoff, 음성 입력 진단 개선이 포함됩니다. 단위 테스트 통과를 해당 SDK의 런타임 성공으로 취급하지 않습니다. **실차 제어, 실제 길안내 시작, 전체 SDK 성공은 검증하지 않았습니다.**
 
-1. **찾기**에서 지역·날짜·인원·시설을 고르고 캠핑장의 규칙과 예약 가능 정보의 출처를 확인합니다.
-2. **내 캠핑**에 장소를 저장하면 일정·날씨·이동 예상이 모입니다. 주변 장소 찾기, 도착 알림, 여행 안내 듣기도 이 흐름에서 사용합니다.
-3. **차박**에서 짐 정리, 함께 쉬기, 앞좌석 독서·뒷좌석 휴식, 취침, 출발 준비를 선택합니다. 설정을 적용한 결과와 실제 관측값을 구분해 확인합니다.
-4. 준비물을 장바구니에 담고 **자택 또는 캠핑장 수령**을 선택합니다. 수령 조건과 도착 예정일을 확인한 뒤 데모 주문을 저장합니다.
-
-한국어·영어 UI와 시스템 언어 따르기를 지원합니다. 날짜·금액 표시와 음성 언어도 선택한 언어를 반영합니다. 공급자가 보낸 장소명·주소·원문 설명은 원래 언어로 보존합니다.
-
-## 코드 구성
-
-| 경로 | 역할 |
-| --- | --- |
-| `apps/pleos/app` | Compose 화면, Hilt 의존성 주입, ViewModel/StateFlow, 실행 환경별 SDK 연결 |
-| `apps/pleos/api-client` | OpenAPI로 생성한 Kotlin `jvm-ktor` 클라이언트와 DTO, 직렬화 검증 |
-| `apps/api` | Python 3.14·FastAPI, 공급자 어댑터, 여행·상품·주문 API, 관계형 저장소 |
-| `apps/admin` | Next.js 운영 화면과 서버 BFF, 공급자·수령 조건·데모 주문 관리 |
-| `apps/worker` | 캠핑장·날씨 캐시를 갱신하는 Python 3.14 배치 실행기 |
-| `docs/product` | 제공받은 SDK JSONL, 선언 검토, 공모전 신청서 |
-
-[first-fluke/fullstack-starter](https://github.com/first-fluke/fullstack-starter)를 바탕으로 만들었습니다. Flutter·Terraform 앱은 제외했고 캐시 갱신에 필요한 워커는 복구했습니다.
-
-앱은 FastAPI의 `apps/api/openapi.json`에서 생성한 클라이언트를 사용합니다. OpenAPI Generator 7.26.0의 `kotlin`/`jvm-ktor`, Ktor 3.1.3, kotlinx.serialization 1.8.1을 사용하며 생성 파일을 직접 수정하지 않습니다. Hilt 2.56.2가 API, 저장소, ViewModel과 실행 환경별 SDK 어댑터를 연결합니다.
-
-| Pleos SDK | 버전 | 앱에서 맡는 일 |
-| --- | --- | --- |
-| Vehicle | 2.3.2 | 차량 상태, 지원 범위 조회, 차박 장면과 제어 |
-| NaviHelper | 3.0.5 | 예상 이동 정보, 목적지, 길안내 상태 |
-| FusedLocation | 1.1.3 | 최근 위치, 주변 장소 정렬, 캠핑장 진입·이탈 알림 |
-| TextToSpeech | 3.3.1 | 여행 안내 읽기 |
-| SpeechToText | 3.3.1 | 인식한 문장을 명령 미리보기로 전달 |
-
-`pleos` 실행 환경은 이 SDK들을 차량 안에서 직접 호출합니다. `demo`는 같은 Android 화면에서 차량·내비 시뮬레이터와 기기의 위치·음성 서비스를 사용합니다.
+`pleos` flavor가 실제 Pleos SDK를 사용합니다. `demo` flavor는 일반 Android 에뮬레이터에서 UI 개발용 시뮬레이터를 사용하며 Pleos 서비스 연결의 대체 검증 수단이 아닙니다. 전용 이미지·SDK 이용 약관은 설치자가 공식 배포 경로에서 확인해야 하며 이미지나 SDK 바이너리를 이 저장소에서 재배포하지 않습니다.
 
 ## 빠른 실행
 
-Python 3.14, uv, JDK 17, Android SDK 35가 필요합니다. 관리자 화면에는 Node.js 24를 사용합니다. 처음 환경을 준비할 때만 `.env.example`을 `.env`로 복사하고 서버 설정을 채웁니다. 기존 `.env`는 덮어쓰지 않습니다.
+### 1. 서버 설정
+
+기존 설정은 덮어쓰지 말고, 처음 준비할 때만 예시 파일을 복사합니다.
 
 ```bash
+cp -n .env.example .env
 uv sync --all-packages --frozen
 .venv/bin/python -m uvicorn app.main:app --app-dir apps/api --host 127.0.0.1 --port 8000
 ```
 
-기본 데이터 모드는 `demo`입니다. Turso URL·토큰이 있으면 Turso를 사용하고 `CAMP_DB_PATH`를 지정하면 독립된 로컬 SQLite 파일을 사용합니다. 두 저장소는 같은 32개 STRICT 테이블과 제약조건을 적용합니다. 설정 항목은 [외부 데이터 문서](docs/INTEGRATIONS.md)를 참고합니다.
+`.env`의 주요 설정은 다음과 같습니다. 실제 값은 로컬 비공개 설정이나 서버의 비밀 저장소에만 둡니다.
 
-별도 터미널에서 앱을 빌드하고 에뮬레이터에 설치합니다.
+| 변수 | 용도 |
+| --- | --- |
+| `CAMP_DATA_MODE` | `demo`는 예시 데이터, `live`는 실제 공급자만 사용, `auto`는 공급자 실패 시 예시 대체가 가능한 개발 모드 |
+| `GOCAMPING_SERVICE_KEY` | 공공데이터포털 고캠핑 활용신청 키 |
+| `KMA_SERVICE_KEY` | 공공데이터포털 기상청 단기예보 키 |
+| `KMA_API_HUB_KEY` | 별도 기상청 API허브를 쓰는 경우에만 사용하며 포털 키와 혼용하지 않음 |
+| `CAMP_DB_PATH` | 독립 로컬 SQLite 파일 경로 |
+| `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN` | 선택적 원격 저장소; 둘을 함께 설정 |
+| `CAMP_ADMIN_TOKEN`, `CAMP_ADMIN_PASSWORD`, `CAMP_ADMIN_SESSION_SECRET` | 관리자/API 인증; 비공개 서버 값 |
+
+기본값은 `demo`입니다. 실제 데이터 검증에는 `CAMP_DATA_MODE=live`와 승인된 두 공급자 키를 설정합니다. 카탈로그 갱신은 완성된 스냅샷을 게시하며 중간 페이지 실패 시 기존 데이터를 보존합니다. 앱의 페이지 요청마다 전체 공급자 목록을 새로 다운로드하지 않습니다.
+
+### 2. Pleos 앱 빌드와 로컬 실행
+
+Android SDK 위치는 각자의 `apps/pleos/local.properties`에 설정합니다. 이 파일과 빌드 캐시는 Git에서 제외됩니다.
 
 ```bash
-bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug
-adb install -r apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk
-adb shell am start -n camp.room.app.demo/camp.room.app.MainActivity
+bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug \
+  -PcampApiBaseUrl=http://127.0.0.1:8000/api/v1
+adb reverse tcp:8000 tcp:8000
+adb install -r apps/pleos/app/build/outputs/apk/pleos/debug/app-pleos-debug.apk
+adb shell am start -n camp.room.app/camp.room.app.MainActivity
 ```
 
-에뮬레이터 기본 API 주소는 `http://10.0.2.2:8000/api/v1`입니다. 실제 기기용 빌드에서는 `-PcampApiBaseUrl=https://YOUR_BACKEND/api/v1`로 서버 주소를 지정합니다. `pleos` 빌드는 `:app:assemblePleosDebug`를 사용합니다.
+공식 Pleos AVD가 필요하며 일반 Android 이미지에는 Vehicle·Navigation·Speech 서비스가 없습니다. `pleosDebug`에만 로컬 개발용 HTTP 예외가 있습니다. 운영/release에는 실제 접근 가능한 HTTPS API 주소를 전달해야 합니다.
 
-## 검증과 시연
+```bash
+bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosRelease \
+  -PcampApiBaseUrl=https://YOUR_BACKEND/api/v1
+```
 
-최신 한국어 UI의 변경 내용과 검수 범위는 [한국어 UI 검수 기록](docs/verification/korean-ui-copy-review.md)에서 확인할 수 있으며 APK와 시연 영상은 [데모 3 릴리스](https://github.com/first-fluke/camp-room/releases/tag/v1.0.0-demo.3)에서 제공합니다.
+**현재 release 서명 설정이 없으므로 이 명령의 unsigned 결과는 설치 가능한 제출 APK가 아닙니다.** 기존 검증 APK는 debug입니다. 제출용 APK 준비 상태와 경로는 [apk/README.md](apk/README.md)를 확인하세요. 서명키를 새로 만들거나 debug APK를 release로 이름만 바꾸지 않습니다.
 
-배포용 Demo APK는 API 서버를 `127.0.0.1:8000`으로 찾으므로 설치 후 로컬 API 서버를 실행하고 `adb reverse tcp:8000 tcp:8000`을 설정해야 합니다.
+### 3. 관리자·worker
+
+관리자 실행·서버 인증과 worker 갱신 설정은 [실행 안내](docs/USAGE.ko.md), [인증](docs/AUTH.ko.md), [외부 데이터](docs/INTEGRATIONS.md)를 참고하세요. 이전 시연 시점의 문서는 당시 상태를 기록하며 현재 구현 범위와 제출 상태는 이 README와 `apk/README.md`를 기준으로 확인합니다.
+
+## 테스트
 
 ```bash
 .venv/bin/python -m pytest apps/api/tests apps/worker/tests -q
-.venv/bin/python scripts/review-database.py
 .venv/bin/python apps/api/scripts/export_openapi.py --check
-bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:assembleDemoDebug :app:assemblePleosDebug
+bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:testPleosDebugUnitTest
+python3 apps/pleos/verify_contracts.py
 ```
 
-실제 앱 녹화는 API와 에뮬레이터를 실행하고 APK를 설치한 상태에서 `python scripts/record-native-demo.py`로 진행합니다. 앱 입력과 서버 상태를 확인하면서 Android 화면을 녹화합니다. 소스 계약 검사, APK 빌드, 에뮬레이터 동작, 실차 검증은 각각 수행한 범위를 기록합니다.
+서버 테스트는 공급자 페이지 실패·중복·필터·카탈로그 세대와 상세 접근을 확인합니다. Android 테스트는 페이지 상태, 목적지 검증, 세션 수명주기, 조회 실패와 음성 입력 진단을 포함합니다. 관리자 검사 명령은 `apps/admin/package.json`을 따릅니다. 테스트와 APK 빌드, 에뮬레이터 화면 검수, 실차 검증은 별개입니다.
 
-현재 외부 캠핑장·날씨 키는 미설정이며 실시간 예약·결제·배송 사업자도 연결하지 않았습니다. 주문은 실제 결제가 없는 데모 주문입니다. Turso 저장과 원격 트랜잭션은 실제 DB에서 검증했습니다. 자세한 검토와 한계는 [독립 DB 검토](docs/database/SCHEMA_REVIEW.md)와 [SDK 적용표](docs/product/SDK_CAPABILITY_MATRIX.md)에 있습니다.
+## 코드와 문서
 
-## 개발 방식
+| 경로 | 역할 |
+| --- | --- |
+| `apps/pleos/app` | Compose 화면, Hilt, ViewModel/StateFlow, 실행 환경별 SDK 어댑터 |
+| `apps/pleos/api-client` | 서버 OpenAPI에서 생성하는 Kotlin jvm-ktor 클라이언트 |
+| `apps/api` | 공급자·검색·여행·준비물 API와 관계형 저장소 |
+| `apps/admin` | Next.js 관리자/BFF |
+| `apps/worker` | 공유 캐시 갱신 |
+| `apk/` | 제출용 signed release APK 안내; debug/unsigned 미포함 |
+| `docs/PRD.md`, `docs/FUNCTIONAL_SPEC.md` | 제품 요구사항과 기능 명세 |
+| `docs/architecture`, `docs/database` | 서버 구조·ERD·저장소 검토 |
 
-oh-my-agent 20.13.0의 33개 스킬을 설치하고 PRD·기능명세·API 계약을 기준으로 병렬 구현했습니다. 한국어 문서는 사용자가 지정한 [im-not-ai](https://github.com/epoko77-ai/im-not-ai)의 `humanize-korean`으로 검수합니다. 실제 `.env`, DB 파일, 빌드 결과와 실행 중간 기록은 Git에 넣지 않습니다.
+`.env`, API 키, 서명키, SDK 이미지·바이너리, 로컬 DB, 녹화 원본·렌더 중간물·진단 로그는 원격에 포함하지 않습니다. 예시 환경설정에는 실제 credential을 넣지 않습니다. [first-fluke/fullstack-starter](https://github.com/first-fluke/fullstack-starter)를 바탕으로 개발했습니다.

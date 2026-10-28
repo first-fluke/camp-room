@@ -137,3 +137,24 @@ apps/pleos/app/libs/*.jar
 !docs/plans/work/002-native-kotlin-correction.md
 
 !docs/plans/contracts/admin-api.md
+
+# Local Pleos ANR regression captures and diagnostic artifacts
+/review-runtime/pleos-sdk-anr-fixed-20261027/
+
+# Local captures, render intermediates, SDK images, private settings and audits
+/review-runtime/
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.apk
+!apk/*.apk
+
+# Build directory symlinks and private diagnostics are local-only
+**/build
+/diagnostics/
+
+# Original contest application contains personal information; retain locally
+/docs/product/Camp_Room_Contest_Application.docx

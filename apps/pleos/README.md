@@ -9,17 +9,25 @@ bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:assembleDemoDebug
 bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug -PcampApiBaseUrl=https://YOUR_BACKEND/api/v1
 ```
 
-JDK17, Gradle8.11.1, AGP8.9.2, Kotlin2.1.20, compileSdk/targetSdk35를 사용한다. `demo`는 `http://10.0.2.2:8000/api/v1`에 연결하며 데모 sourceSet에서만 cleartext를 허용한다. `pleos`에는 실제 배포한 HTTPS API 주소를 전달해야 한다.
+JDK17, Gradle8.11.1, AGP8.9.2, Kotlin2.1.20, compileSdk/targetSdk35를 사용한다. Pleos 앱의 minSdk는 28이다. `demo`는 `http://10.0.2.2:8000/api/v1`에 연결한다. `pleos`에는 실제 배포한 HTTPS API 주소를 전달해야 한다. 로컬 SDK 검증용 `pleosDebug`에 한해 `localhost`, `127.0.0.1`, `10.0.2.2`의 HTTP를 허용하며 다른 호스트와 release의 HTTP는 허용하지 않는다.
 
 ### ADB로 로컬 API에 연결하기
 
-에뮬레이터의 `10.0.2.2` 경로에서 연결이 끊기거나 USB 장치로 시연할 때는 ADB 포트 연결을 사용할 수 있다. 호스트에서 API를 8000번 포트로 실행한 뒤 다음 명령을 사용한다. 이 설정은 데모 APK에만 적용하며 실제 Pleos 빌드의 HTTPS 주소는 별도로 지정한다.
+에뮬레이터의 `10.0.2.2` 경로에서 연결이 끊기거나 USB 장치로 시연할 때는 ADB 포트 연결을 사용할 수 있다. 호스트에서 API를 8000번 포트로 실행한 뒤 다음 명령을 사용한다. 배포용 Pleos 빌드의 HTTPS 주소는 별도로 지정한다.
 
 ```bash
 adb reverse tcp:8000 tcp:8000
 bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug -PcampApiBaseUrl=http://127.0.0.1:8000/api/v1
 adb install -r apps/pleos/app/build/outputs/apk/demo/debug/app-demo-debug.apk
 ```
+
+Pleos SDK 런타임 검증은 일반 Android 이미지가 아닌 Pleos Connect v2.1.0/API34 ARM64 전용 이미지에서 수행한다. Cold boot와 RAM 4GB를 사용하고 실제 Vehicle/Navi/Speech/Location 서비스 결과를 확인한다. `initialize`가 예외 없이 반환한 것만으로 서비스 연결 성공으로 판단하지 않는다. 로컬 API를 사용하는 빌드는 다음과 같다.
+
+```bash
+bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug -PcampApiBaseUrl=http://10.0.2.2:8000/api/v1
+```
+
+SDK·이미지 설치와 빌드는 호스트의 정상 승인 절차를 따른다. 위 명령은 빌드 성공이나 서비스 연결을 입증하는 기록이 아니다.
 
 공식 Maven 의존성은 Vehicle2.3.2, NaviHelper3.0.5, TextToSpeech3.3.1, SpeechToText3.3.1, FusedLocation1.1.3의 다섯 모듈이다. 사용자 제공 `docs/product/pleos-sdk.spec.jsonl`이 SDK 계약 기준이며 [전체 모듈 사용표](../../docs/product/SDK_CAPABILITY_MATRIX.md)에 각 사용 범위를 기록했다. 실제 Gradle 빌드/앱 실행 결과는 별도 검증 기록을 따른다. 실제 차량에서 검증했다고 주장하지 않는다.
 
