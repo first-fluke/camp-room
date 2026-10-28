@@ -162,13 +162,18 @@ class NormalizedRepository:
         receiving = {row["campsite_id"]: {"acceptsParcels": bool(row["accepts_parcels"]), "location": row["location"], "instructions": row["instructions"], **({"source": "admin", "updatedAt": row["updated_at"]} if row["source"] == "admin" else {})} for row in rows["receiving_policies"]}
         availability = {row["campsite_id"]: {"status": row["status"],"remaining": row["remaining"],"coverage": row["coverage"],"checkedAt": row["checked_at"],"provider": providers[row["provider_id"]]["name"],"demo": bool(row["demo"])} for row in rows["campsite_availability_overviews"]}
         catalog = []
+        facilities_by_site, rules_by_site = {}, {}
+        for child in rows["campsite_facilities"]:
+            facilities_by_site.setdefault(child["campsite_id"], []).append(child["facility_code"])
+        for child in sorted(rows["campsite_rules"], key=lambda r: r["position"]):
+            rules_by_site.setdefault(child["campsite_id"], []).append(child["rule_text"])
         for row in rows["campsites"]:
             if not row["active"]: continue
             site_id = row["campsite_id"]
             source = {"name": providers[row["provider_id"]]["name"], "updatedAt": row["source_updated_at"], "mode": row["source_mode"]}
             for column, key in [("provider_modified_at","providerModifiedAt"),("coverage","coverage"),("fallback_reason","fallbackReason")]:
                 if row[column] is not None: source[key] = row[column]
-            catalog.append({"id": site_id,"name": row["name"],"region": row["region"],"address": row["address"],"latitude": row["latitude"],"longitude": row["longitude"],"nightlyPrice": row["nightly_price"],"facilities": [r["facility_code"] for r in rows["campsite_facilities"] if r["campsite_id"] == site_id],"carCampingAllowed": flag(row["car_camping_allowed"]),"evChargingAllowed": flag(row["ev_charging_allowed"]),"delivery": receiving[site_id],"description": row["description"],"imageUrl": row["image_url"],"checkInTime": row["check_in_time"],"checkOutTime": row["check_out_time"],"rules": [r["rule_text"] for r in sorted(rows["campsite_rules"],key=lambda r:r["position"]) if r["campsite_id"]==site_id],"availability": availability[site_id],"source": source})
+            catalog.append({"id": site_id,"name": row["name"],"region": row["region"],"address": row["address"],"latitude": row["latitude"],"longitude": row["longitude"],"nightlyPrice": row["nightly_price"],"facilities": facilities_by_site.get(site_id, []),"carCampingAllowed": flag(row["car_camping_allowed"]),"evChargingAllowed": flag(row["ev_charging_allowed"]),"delivery": receiving[site_id],"description": row["description"],"imageUrl": row["image_url"],"checkInTime": row["check_in_time"],"checkOutTime": row["check_out_time"],"rules": rules_by_site.get(site_id, []),"availability": availability[site_id],"source": source})
         trip = rows["trips"][0] if rows["trips"] else None
         trip = {"campsiteId": trip["campsite_id"],"checkIn": trip["check_in"],"checkOut": trip["check_out"],"guests": trip["guests"],"navigationStarted": bool(trip["navigation_started"]),"updatedAt": trip["updated_at"]} if trip else None
         v = rows["vehicle_states"][0]
@@ -280,16 +285,16 @@ class NormalizedRepository:
         result=session.run([Statement("SELECT lease_owner FROM cr_refresh_leases WHERE scope_id=? AND job_key=? AND lease_owner=? AND expires_at>?",(self.namespace,job_key,owner,now()))])[0]
         if not result.rows: raise DomainError("갱신 작업의 임대 시간이 만료되었습니다.",409)
 
-    def store_provider_status(self, name, kind, status, variant, *, lease=None):
-        self._write(self._status_statements(name, kind, status, variant, 300), lease=lease)
+    def store_provider_status(self, name, kind, status, variant, *, lease=None, ttl_seconds=300):
+        self._write(self._status_statements(name, kind, status, variant, ttl_seconds), lease=lease)
 
-    def store_catalog(self, sites, status, variant, *, lease=None):
+    def store_catalog(self, sites, status, variant, *, lease=None, ttl_seconds=600):
         self.initialize()
         session=self.sql.session()
         try:
             session.begin(True)
             self._lease_check(session,lease)
-            session.run(self._catalog_statements(sites)+self._status_statements("catalog","catalog",status,variant,600))
+            session.run(self._catalog_statements(sites)+self._status_statements("catalog","catalog",status,variant,ttl_seconds))
             session.commit()
         finally: session.close()
 

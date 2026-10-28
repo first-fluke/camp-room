@@ -203,6 +203,16 @@
               }
             ]
           },
+          "tripCampsite": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Campsite"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "vehicle": {
             "$ref": "#/components/schemas/Vehicle"
           },
@@ -364,6 +374,14 @@
       "CampsiteSearch": {
         "additionalProperties": false,
         "properties": {
+          "catalogGeneration": {
+            "title": "Cataloggeneration",
+            "type": "string"
+          },
+          "hasMore": {
+            "title": "Hasmore",
+            "type": "boolean"
+          },
           "items": {
             "items": {
               "$ref": "#/components/schemas/Campsite"
@@ -379,8 +397,27 @@
             "title": "Mode",
             "type": "string"
           },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nextcursor"
+          },
+          "numOfRows": {
+            "title": "Numofrows",
+            "type": "integer"
+          },
           "source": {
             "$ref": "#/components/schemas/ProviderStatus"
+          },
+          "sourceTotal": {
+            "title": "Sourcetotal",
+            "type": "integer"
           },
           "total": {
             "title": "Total",
@@ -391,7 +428,12 @@
           "items",
           "total",
           "source",
-          "mode"
+          "mode",
+          "numOfRows",
+          "sourceTotal",
+          "hasMore",
+          "nextCursor",
+          "catalogGeneration"
         ],
         "title": "CampsiteSearch",
         "type": "object"
@@ -2776,6 +2818,35 @@
               "maxLength": 150,
               "title": "Facilities",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 2048,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "numOfRows",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Numofrows",
+              "type": "integer"
             }
           }
         ],

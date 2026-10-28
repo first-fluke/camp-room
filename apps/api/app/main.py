@@ -15,8 +15,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     service = CampService(settings or Settings.from_env())
     @asynccontextmanager
     async def lifespan(app):
-        yield
-        service.repo.close()
+        service.ensure_catalog_refresh()
+        try:
+            yield
+        finally:
+            await service.stop_catalog_refresh()
+            service.repo.close()
 
     application = FastAPI(lifespan=lifespan, title="Camp Room API", version="1.0.0", description="명시적 데모 여행/차박/주문과 서버 데이터 공급자 어댑터", responses={400: {"model": dto.ErrorResponse}, 401: {"model": dto.ErrorResponse}, 404: {"model": dto.ErrorResponse}, 409: {"model": dto.ErrorResponse}, 503: {"model": dto.ErrorResponse}})
     application.state.service = service
@@ -59,8 +63,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return await service.bootstrap()
 
     @application.get("/api/v1/campsites", response_model=dto.CampsiteSearch, response_model_exclude_unset=True, operation_id="searchCampsites")
-    async def campsites(region: str = Query("", max_length=80), checkIn: date | None = None, checkOut: date | None = None, guests: int = Query(2, ge=1, le=8), carCamping: bool | None = None, facilities: str = Query("", max_length=150)):
-        return await service.search(region, checkIn, checkOut, guests, carCamping, facilities)
+    async def campsites(region: str = Query("", max_length=80), checkIn: date | None = None, checkOut: date | None = None, guests: int = Query(2, ge=1, le=8), carCamping: bool | None = None, facilities: str = Query("", max_length=150), cursor: str | None = Query(None, max_length=2048), numOfRows: int = Query(20, ge=1, le=100)):
+        return await service.search(region, checkIn, checkOut, guests, carCamping, facilities, cursor, numOfRows)
 
     @application.get("/api/v1/campsites/{site_id}", response_model=dto.Campsite, response_model_exclude_unset=True, operation_id="getCampsite")
     async def campsite(site_id: str):

@@ -70,6 +70,11 @@ class CampsiteSearch(Response):
     total: int
     source: ProviderStatus
     mode: Literal["demo", "live"]
+    numOfRows: int
+    sourceTotal: int
+    hasMore: bool
+    nextCursor: str | None
+    catalogGeneration: str
 
 
 class Trip(Response):
@@ -249,6 +254,7 @@ class Bootstrap(Response):
     cart: Cart
     orders: list[Order]
     providers: list[ProviderStatus]
+    tripCampsite: Campsite | None = None
 
 
 class DatabaseStatus(Response):

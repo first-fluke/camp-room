@@ -70,13 +70,54 @@ class GoCampingAdapter:
 
     def __init__(self, key: str):
         self.key = unquote(key)  # Portal keys may be supplied encoded or decoded.
+        self.requests_made = 0
 
     async def fetch(self) -> list[dict]:
+        return (await self.fetch_page(1, 20))["items"]
+
+    async def fetch_page(self, page_no: int, page_size: int) -> dict:
+        self.requests_made += 1
         payload = await request_json(self.BASE + "/basedList", {
             "serviceKey": self.key, "MobileOS": "ETC", "MobileApp": "CampRoom",
-            "_type": "json", "numOfRows": 100, "pageNo": 1,
+            "_type": "json", "numOfRows": page_size, "pageNo": page_no,
         })
-        return [self.normalize(row) for row in extract_items(payload) if row.get("contentId")]
+        rows = extract_items(payload)
+        raw_total = payload["response"]["body"].get("totalCount")
+        try:
+            total = max(0, int(raw_total)) if raw_total is not None else None
+        except (TypeError, ValueError):
+            total = None
+        more = bool(rows) and (page_no * page_size < total if total is not None else len(rows) == page_size)
+        return {"items": [self.normalize(row) for row in rows if row.get("contentId")],
+                "sourceTotal": total, "pageNo": page_no, "numOfRows": page_size,
+                "providerRows": len(rows), "hasMore": more, "nextPageNo": page_no + 1 if more else None}
+
+    async def fetch_snapshot(self) -> tuple[list[dict], int, int]:
+        """Background synchronization only; publish nothing until every page succeeds."""
+        first = await self.fetch_page(1, 100)
+        total = first["sourceTotal"]
+        if total is None:
+            raise ProviderFailure("고캠핑 전체 건수가 없어 완전한 목록을 확인할 수 없습니다.")
+        count = max(1, math.ceil(total / 100))
+        if count > 100:
+            raise ProviderFailure("고캠핑 목록이 현재 갱신 작업의 호출 예산을 초과했습니다.")
+        semaphore = asyncio.Semaphore(3)
+        async def page(number):
+            async with semaphore:
+                return await self.fetch_page(number, 100)
+        pending = [asyncio.create_task(page(n)) for n in range(2, count + 1)]
+        try:
+            others = await asyncio.gather(*pending)
+        except BaseException:
+            for task in pending:
+                task.cancel()
+            await asyncio.gather(*pending, return_exceptions=True)
+            raise
+        pages = [first, *others]
+        if any(p["sourceTotal"] != total for p in pages) or sum(p["providerRows"] for p in pages) != total:
+            raise ProviderFailure("갱신 중 고캠핑 목록이 변경되었습니다. 이전 목록을 보존했습니다.")
+        unique = {site["id"]: site for p in pages for site in p["items"]}
+        return sorted(unique.values(), key=lambda s: s["id"]), total, count
 
     @staticmethod
     def normalize(row: dict) -> dict:
@@ -107,7 +148,7 @@ class GoCampingAdapter:
             "checkInTime": "운영자 확인", "checkOutTime": "운영자 확인",
             "delivery": {"acceptsParcels": False, "location": "운영자 확인 필요", "instructions": "공공 장소 데이터에 택배 수령 조건이 없어 캠핑장 배송을 사용할 수 없습니다."},
             "availability": {"status": "unknown", "remaining": None, "coverage": "예약 공급자 미연결", "checkedAt": now(), "provider": "예약 정보 미제공", "demo": False},
-            "source": {"name": "한국관광공사 고캠핑", "updatedAt": now(), "mode": "live", "providerModifiedAt": row.get("modifiedtime"), "coverage": "기본 목록 1페이지, 최대 100곳"},
+            "source": {"name": "한국관광공사 고캠핑", "updatedAt": now(), "mode": "live", "providerModifiedAt": row.get("modifiedtime"), "coverage": "고캠핑 기본 목록 · 페이지별 조회"},
         }
 
 def grid_for(latitude: float, longitude: float) -> tuple[int, int]:
@@ -179,12 +220,26 @@ class Providers:
         self._catalog = None
         self._catalog_at = 0
         self._catalog_lock = asyncio.Lock()
+        self._catalog_pages = {}
+        self.catalog_ttl = 3600
+        self.catalog_retry_seconds = 120
         self.catalog_status = self._status("GoCamping", bool(settings.gocamping_key))
         self.weather_status = self._status("KMA", bool(settings.kma_hub_key or settings.kma_service_key))
         self._weather_cache = {}
 
     def _status(self, name, configured):
         return {"name": name, "configured": configured, "status": "demo" if self.settings.mode == "demo" else "ready" if configured else "missing_credentials", "mode": "demo" if self.settings.mode == "demo" else "live", "message": "명시적 데모 모드입니다." if self.settings.mode == "demo" else "서버 인증키가 설정되어 있습니다." if configured else "서버 인증키가 아직 설정되지 않았습니다."}
+
+    async def catalog_page(self, page_no: int, page_size: int):
+        cached = self._catalog_pages.get((page_no, page_size))
+        if cached and time.monotonic() - cached[0] < 600:
+            return deepcopy(cached[1])
+        if not self.settings.gocamping_key:
+            raise ProviderFailure("GoCamping 인증키가 설정되지 않았습니다.")
+        page = await GoCampingAdapter(self.settings.gocamping_key).fetch_page(page_no, page_size)
+        self._catalog_pages[(page_no, page_size)] = (time.monotonic(), deepcopy(page))
+        self.catalog_status.update(status="available", mode="live", message="고캠핑 페이지별 기본 목록 · 예약 재고·택배 수령 조건 미제공")
+        return page
 
     async def catalog(self):
         async with self._catalog_lock:
@@ -196,8 +251,13 @@ class Providers:
                 try:
                     if not self.settings.gocamping_key:
                         raise ProviderFailure("GoCamping 인증키 미설정 · 활용 신청 후 서버 .env에 설정해 주세요.")
-                    items = await GoCampingAdapter(self.settings.gocamping_key).fetch()
-                    self.catalog_status.update(status="available", mode="live", message="고캠핑 기본 목록 1페이지(최대100곳), 예약 재고·택배 수령 조건 미제공")
+                    adapter = GoCampingAdapter(self.settings.gocamping_key)
+                    try:
+                        items, total, requests = await adapter.fetch_snapshot()
+                    finally:
+                        self.catalog_retry_seconds = max(120, math.ceil(adapter.requests_made * 86400 / 900))
+                    self.catalog_ttl = max(3600, math.ceil(requests * 86400 / 900))
+                    self.catalog_status.update(status="available", mode="live", message=f"고캠핑 전체 {total}건 갱신 완료 · 예약 재고·택배 수령 조건 미제공")
                 except ProviderFailure as exc:
                     fallback = self.settings.mode == "auto"
                     items = campsites() if fallback else []

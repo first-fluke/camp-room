@@ -10,9 +10,9 @@ load_dotenv(ROOT / ".env", override=False)
 class Settings:
     mode: str = "demo"
     db_path: Path = ROOT / "apps/api/data/camp-room.sqlite3"
-    gocamping_key: str = ""
-    kma_hub_key: str = ""
-    kma_service_key: str = ""
+    gocamping_key: str = field(default="", repr=False)
+    kma_hub_key: str = field(default="", repr=False)
+    kma_service_key: str = field(default="", repr=False)
     turso_url: str = ""
     turso_token: str = field(default="", repr=False)
     db_namespace: str = "camp-room"

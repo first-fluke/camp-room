@@ -4,6 +4,9 @@ import hashlib
 import json
 import math
 import uuid
+import asyncio
+import base64
+import time
 from .config import Settings
 from .errors import DomainError
 from .fixtures import now, trip_dates
@@ -17,7 +20,45 @@ class CampService:
         self.settings = settings
         self.repo = repository if repository is not None else repository_for(settings)
         self.providers = Providers(settings)
-        self.cache_variant = f"{settings.mode}:g{int(bool(settings.gocamping_key))}:w{int(bool(settings.kma_hub_key or settings.kma_service_key))}"
+        self.cache_variant = f"paged-v1:{settings.mode}:g{int(bool(settings.gocamping_key))}:w{int(bool(settings.kma_hub_key or settings.kma_service_key))}"
+        self._catalog_job = None
+        self._next_catalog_attempt = 0.0
+
+    def ensure_catalog_refresh(self):
+        if self.settings.mode == "demo" or time.monotonic() < self._next_catalog_attempt:
+            return
+        if self._catalog_job is None or self._catalog_job.done():
+            self._catalog_job = asyncio.create_task(self._background_catalog())
+
+    async def stop_catalog_refresh(self):
+        if self._catalog_job is not None and not self._catalog_job.done():
+            self._catalog_job.cancel()
+            try:
+                await self._catalog_job
+            except asyncio.CancelledError:
+                pass
+
+    async def _background_catalog(self):
+        state = await self._read()
+        cached = state["providerStatuses"].get("status-catalog")
+        if cached and cached["variant"] == self.cache_variant and cached["expiresAt"] > now():
+            return
+        owner = await run_in_threadpool(self.repo.begin_refresh)
+        if owner is None:
+            return
+        lease = ("provider-cache", owner)
+        try:
+            async with asyncio.timeout(50):
+                await self._catalog(force=True, lease=lease)
+            failed = self.providers.catalog_status["status"] in {"unavailable", "fallback"}
+            self._next_catalog_attempt = time.monotonic() + (self.providers.catalog_retry_seconds if failed else self.providers.catalog_ttl)
+            await run_in_threadpool(self.repo.finish_refresh, owner, "failed" if failed else "succeeded", "catalog_unavailable" if failed else None)
+        except (Exception, asyncio.CancelledError):
+            self._next_catalog_attempt = time.monotonic() + self.providers.catalog_retry_seconds
+            try:
+                await run_in_threadpool(self.repo.finish_refresh, owner, "failed", "catalog_sync_failed")
+            except DomainError:
+                pass
 
     async def _read(self):
         return await run_in_threadpool(self.repo.read)
@@ -35,19 +76,32 @@ class CampService:
 
     async def _catalog(self, state=None, *, force=False, lease=None):
         state = state if state is not None else await self._read()
+        if self.settings.mode != "demo" and not self.settings.gocamping_key:
+            sites = await self.providers.catalog()
+            return [] if self.settings.mode == "live" else sites
         cached = state["providerStatuses"].get("status-catalog")
         if not force and cached and cached["variant"] == self.cache_variant and cached["expiresAt"] > now():
             self.providers.catalog_status = deepcopy(cached["status"])
             return self._catalog_warning(state["catalog"])
+        if self.settings.mode != "demo" and not force and lease is None:
+            self.ensure_catalog_refresh()
+            if cached and cached["variant"] == self.cache_variant and state["catalog"]:
+                self.providers.catalog_status = deepcopy(cached["status"])
+                return self._catalog_warning(state["catalog"])
+            raise DomainError("공공데이터 목록을 갱신하고 있습니다. 잠시 후 다시 시도해 주세요.", 503)
         if force:
             self.providers._catalog = None
         sites = await self.providers.catalog()
         failed = self.providers.catalog_status["status"] in {"unavailable", "fallback"}
         preserve = failed and cached and cached["variant"] == self.cache_variant and state["catalog"]
         if preserve:
-            await run_in_threadpool(self.repo.store_provider_status, "catalog", "catalog", self.providers.catalog_status, self.cache_variant, lease=lease)
+            await run_in_threadpool(self.repo.store_provider_status, "catalog", "catalog", self.providers.catalog_status, self.cache_variant, lease=lease,
+                                    ttl_seconds=self.providers.catalog_retry_seconds)
             return self._catalog_warning(state["catalog"])
-        await run_in_threadpool(self.repo.store_catalog, sites, self.providers.catalog_status, self.cache_variant, lease=lease)
+        if failed and self.settings.mode == "live":
+            raise DomainError(self.providers.catalog_status["message"], 503)
+        await run_in_threadpool(self.repo.store_catalog, sites, self.providers.catalog_status, self.cache_variant, lease=lease,
+                                ttl_seconds=self.providers.catalog_ttl if self.settings.mode != "demo" else 600)
         return (await self._read())["catalog"]
 
     def _catalog_warning(self, sites):
@@ -78,7 +132,7 @@ class CampService:
             raise DomainError("캠핑장을 찾을 수 없습니다. 데이터 공급자와 검색 조건을 확인해 주세요.", 404)
         return site
 
-    async def search(self, region="", checkin=None, checkout=None, guests=2, car_camping=None, facilities=""):
+    async def search(self, region="", checkin=None, checkout=None, guests=2, car_camping=None, facilities="", cursor=None, page_size=20):
         if checkin is not None or checkout is not None:
             if checkin is None or checkout is None:
                 raise DomainError("체크인과 체크아웃을 함께 선택해 주세요.", 422)
@@ -88,11 +142,39 @@ class CampService:
         known_facilities = {"shower", "electricity", "pets", "toilet", "water"}
         if not wanted <= known_facilities:
             raise DomainError("지원하지 않는 시설 필터입니다.", 422)
-        items = [s for s in all_items if (not region or region in s["region"] or region in s["name"]) and (car_camping is None or s["carCampingAllowed"] is car_camping) and wanted <= set(s["facilities"])]
+        if not 1 <= page_size <= 100:
+            raise DomainError("목록 크기는 1–100 사이여야 합니다.", 422)
+        region = region.strip()
+        all_items = sorted({s["id"]: s for s in all_items}.values(), key=lambda s: s["id"])
+        generation = hashlib.sha256(json.dumps([(s["id"], s["source"]["updatedAt"], s["source"].get("providerModifiedAt")) for s in all_items], separators=(",", ":")).encode()).hexdigest()[:24]
+        normalized = [region.casefold(), str(checkin), str(checkout), guests, car_camping, sorted(wanted), page_size, "id_asc"]
+        query_hash = hashlib.sha256(json.dumps(normalized, separators=(",", ":")).encode()).hexdigest()[:24]
+        items = [s for s in all_items if (not region or region.casefold() in s["region"].casefold() or region.casefold() in s["name"].casefold()) and (car_camping is None or s["carCampingAllowed"] is car_camping) and wanted <= set(s["facilities"])]
+        total = len(items)
+        last_id = None
+        if cursor:
+            try:
+                value = json.loads(base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4)))
+                if value["g"] != generation:
+                    raise DomainError("목록이 갱신되었습니다. 처음부터 다시 검색해 주세요.", 409)
+                if value["f"] != query_hash or value["v"] != 1:
+                    raise ValueError()
+                last_id = value["last"]
+                if not isinstance(last_id, str) or not any(s["id"] == last_id for s in items):
+                    raise ValueError()
+            except DomainError:
+                raise
+            except (ValueError, TypeError, KeyError, UnicodeDecodeError):
+                raise DomainError("검색 조건이 변경되었거나 목록 위치가 올바르지 않습니다. 다시 검색해 주세요.", 422) from None
+        remaining = [s for s in items if last_id is None or s["id"] > last_id]
+        page = remaining[:page_size]
+        more = len(remaining) > len(page)
+        next_cursor = base64.urlsafe_b64encode(json.dumps({"v": 1, "g": generation, "f": query_hash, "last": page[-1]["id"]}, separators=(",", ":")).encode()).decode().rstrip("=") if more else None
         if checkin and checkout:
-            for site in items:
+            for site in page:
                 site["availability"] = self.availability_for(site, checkin, checkout, guests)
-        return {"items": items, "total": len(items), "source": deepcopy(self.providers.catalog_status), "mode": self.providers.catalog_status["mode"]}
+        return {"items": page, "total": total, "sourceTotal": len(all_items), "source": deepcopy(self.providers.catalog_status), "mode": self.providers.catalog_status["mode"],
+                "numOfRows": page_size, "hasMore": more, "nextCursor": next_cursor, "catalogGeneration": generation}
 
     def availability_for(self, site, checkin, checkout, guests):
         result = deepcopy(site["availability"])
@@ -160,7 +242,8 @@ class CampService:
             trip = None
         weather = await self.weather(trip["campsiteId"] if trip else None)
         provider_modes = {self.providers.catalog_status["mode"], "demo", "demo" if weather["demo"] else "live"}
-        return {"mode": "mixed" if len(provider_modes) > 1 else "demo", "campsites": sites, "trip": trip, "weather": weather, "vehicle": state["vehicle"], "products": self.product_list(state), "cart": self.cart_view(state), "orders": state["orders"], "providers": [deepcopy(self.providers.catalog_status), deepcopy(self.providers.weather_status), {"name": "Vehicle / Navigation / Commerce", "configured": True, "status": "demo", "mode": "demo", "message": "명시적 시뮬레이터 · 실제 차량 제어/예약/결제/배송은 수행하지 않습니다."}]}
+        trip_site = next((site for site in sites if trip and site["id"] == trip["campsiteId"]), None)
+        return {"mode": "mixed" if len(provider_modes) > 1 else "demo", "campsites": sites[:20], "tripCampsite": trip_site, "trip": trip, "weather": weather, "vehicle": state["vehicle"], "products": self.product_list(state), "cart": self.cart_view(state), "orders": state["orders"], "providers": [deepcopy(self.providers.catalog_status), deepcopy(self.providers.weather_status), {"name": "Vehicle / Navigation / Commerce", "configured": True, "status": "demo", "mode": "demo", "message": "명시적 시뮬레이터 · 실제 차량 제어/예약/결제/배송은 수행하지 않습니다."}]}
 
     async def navigation(self, campsite_id, start=False):
         site = await self.campsite(campsite_id)
