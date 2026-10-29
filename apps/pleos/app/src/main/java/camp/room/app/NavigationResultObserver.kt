@@ -23,7 +23,11 @@ internal class NavigationResultObserver<T>(
         Unit
     },
 ) {
-    private data class Window(val completed: Boolean, val elapsedMillis: Long?, val waitMillis: Long?)
+    private data class Window(
+        val completed: Boolean,
+        val elapsedMillis: Long?,
+        val waitMillis: Long?,
+    )
 
     suspend fun await(): T? {
         var returnedCompleted = false
@@ -53,19 +57,29 @@ internal class NavigationResultObserver<T>(
         }
     }
 
-    private fun window(initial: Boolean, allowWait: Boolean): Window = synchronized(lock) {
-        val elapsed = state.elapsedMillis(token)
-        val remaining = state.remainingMillis(token, currentEpoch())
-        // remaining is zero for a successful claim because it is terminal. Inspect completion
-        // AFTER computing remaining, so a callback accepted during that calculation is recovered.
-        if (result.isCompleted) return@synchronized Window(true, elapsed, null)
-        if (remaining <= 0L || !allowWait) {
-            state.finish(token)
-            return@synchronized Window(false, elapsed, null)
+    private fun window(
+        initial: Boolean,
+        allowWait: Boolean,
+    ): Window =
+        synchronized(lock) {
+            val elapsed = state.elapsedMillis(token)
+            val remaining = state.remainingMillis(token, currentEpoch())
+            // remaining is zero for a successful claim because it is terminal. Inspect completion
+            // AFTER computing remaining, so a callback accepted during that calculation is recovered.
+            if (result.isCompleted) return@synchronized Window(true, elapsed, null)
+            if (remaining <= 0L || !allowWait) {
+                state.finish(token)
+                return@synchronized Window(false, elapsed, null)
+            }
+            val millis =
+                if (initial) {
+                    minOf(
+                        (NavigationRequestState.INITIAL_OBSERVATION_MS - (elapsed ?: 0L)).coerceAtLeast(0L),
+                        remaining,
+                    )
+                } else {
+                    remaining
+                }
+            Window(false, elapsed, millis)
         }
-        val millis = if (initial) minOf(
-            (NavigationRequestState.INITIAL_OBSERVATION_MS - (elapsed ?: 0L)).coerceAtLeast(0L), remaining,
-        ) else remaining
-        Window(false, elapsed, millis)
-    }
 }

@@ -1,0 +1,317 @@
+{
+  "recordedAtUtc": "2026-10-28T15:43:29.593270+00:00",
+  "status": "source_tests_install_and_read_observations_verified; explicit_lifecycle_reconnect_incomplete",
+  "baseCommit": "8f4a213c7bbed9e08f45608e4cce5c1d4712baf1",
+  "sdkFollowupOnRemoteMain": false,
+  "localSdkSourceFiles": [
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampModels.kt",
+      "bytes": 14264,
+      "sha256": "0f68c483d9b9487016a32ed44bcc27a2e0e16a1dc313059ce07310ea4716c0d0"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/SdkReadAvailability.kt",
+      "bytes": 8213,
+      "sha256": "5974bc46761126d2f7674bccc2caf2344f775521270596a83768911f3d2ea1e6"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/VehicleAreaObservations.kt",
+      "bytes": 10211,
+      "sha256": "af837b030ae7b98bd975754d96b7548721dcafe784e7a6a624c8d5128ec7704c"
+    },
+    {
+      "path": "apps/pleos/app/src/test/java/camp/room/app/VehicleAreaObservationsTest.kt",
+      "bytes": 15596,
+      "sha256": "5f90feb1652488a35218b7d7cd38bb887fee53d32e8dd9756ecb18fa359e439a"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/app/PlatformBridge.kt",
+      "bytes": 74723,
+      "sha256": "290895ea0cecb29521be8aa3675bf903746632904ecb4011bb76480b817d026c"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/app/di/PleosSdkModule.kt",
+      "bytes": 1615,
+      "sha256": "3ad289584490f5d40258e1fc3efc16f0422e89d3ec24ff151b76175972d98434"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/AndroidManifest.xml",
+      "bytes": 1311,
+      "sha256": "d564e2f7470182a90935fcd20cd7054fa85dc3a6a490c2a82007af38f212c31e"
+    },
+    {
+      "path": "apps/pleos/app/build.gradle.kts",
+      "bytes": 5769,
+      "sha256": "a1691fdd4343502e62bdaeac20d5fb773e4ea22895a4d15d584bb455dbbb6887"
+    },
+    {
+      "path": "apps/pleos/app/src/pleos/java/camp/room/app/CampUxMonitor.kt",
+      "bytes": 10998,
+      "sha256": "92588b8171d408ec7c9027717eca20b30963aba50106007dd403f8b4fcc0dc82"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampUxCallbackEpoch.kt",
+      "bytes": 2608,
+      "sha256": "210e8dc048f68fa9d9fa41f50cfb303bb5e1d851ca87c8168b634525220c30c3"
+    },
+    {
+      "path": "apps/pleos/app/src/main/java/camp/room/app/CampUxSerialWorker.kt",
+      "bytes": 1279,
+      "sha256": "9101fd783942fbffdccc40d1a74639c6ae3b8c94c2864248e5ce0d269bdef4d6"
+    },
+    {
+      "path": "apps/pleos/app/src/test/java/camp/room/app/CampUxCallbackEpochTest.kt",
+      "bytes": 5445,
+      "sha256": "9c4a16575bae9a51c79a8bd4894a65c11739cd307aa3f255f5b9fcb149310e19"
+    },
+    {
+      "path": "apps/pleos/app/src/test/java/camp/room/app/CampUxSerialWorkerTest.kt",
+      "bytes": 2950,
+      "sha256": "c7f4dc8076cf25062118ff8b25c5e2395d65700a6c786b5abd32a57f05109b1e"
+    }
+  ],
+  "tests": {
+    "count": 141,
+    "failures": 0,
+    "errors": 0,
+    "xmlHashes": [
+      {
+        "sha256": "7bb3e11adda02162e1d175e791ea50f37376bc43454b9a787ca39c532be64188",
+        "mtimeUtc": "2026-10-28T15:05:09.483145+00:00",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.CabinTopologyTest.xml"
+      },
+      {
+        "sha256": "0a1191dd23a79662c6d8cb0f2d38329b0a1b50ca459e6abc4d033ec7c2438ff8",
+        "mtimeUtc": "2026-10-28T15:05:09.482618+00:00",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.CampInteractionStateTest.xml"
+      },
+      {
+        "sha256": "d565fe32eda8ed4403b8d98aeb2fbcda8b20c5255d4299f50ed1b25a4f955ca0",
+        "mtimeUtc": "2026-10-28T15:05:09.482546+00:00",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.CampPaginationTest.xml"
+      },
+      {
+        "sha256": "f44867da1159dbedd7a30055b8dc2bedf9a412f7985ae2bcb652a2ee3cc2a6ef",
+        "mtimeUtc": "2026-10-28T15:05:09.482222+00:00",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.CampUxCallbackEpochTest.xml"
+      },
+      {
+        "sha256": "780c9087d511addfb2fd68fedc3da7b7b250152c3c38959b7e5d2aaf27fd29f0",
+        "mtimeUtc": "2026-10-28T15:05:09.485304+00:00",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.CampUxSerialWorkerTest.xml"
+      },
+      {
+        "sha256": "636820dc206ded5833c134adcbf49074c0c694cb813425302d5801e1a9c7c4fb",
+        "mtimeUtc": "2026-10-28T15:05:09.482167+00:00",
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.CampUxStateTest.xml"
+      },
+      {
+        "sha256": "d5508280a4b6d5c643acce20ba5e50ec4fd0e1466fc8a4e0a621232b67ecf85f",
+        "mtimeUtc": "2026-10-28T15:05:09.478909+00:00",
+        "tests": 19,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.NavigationRequestStateTest.xml"
+      },
+      {
+        "sha256": "1afdf545002db18e5b5a2fc9f3023e72c73f2e67bb2488f0c1b22d1332dd9e75",
+        "mtimeUtc": "2026-10-28T15:05:09.484365+00:00",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.NavigationResultObserverTest.xml"
+      },
+      {
+        "sha256": "2e67c1a621c5060c651cfd325c9592b477493beca503292ead28aa00fad3544b",
+        "mtimeUtc": "2026-10-28T15:05:09.485563+00:00",
+        "tests": 17,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.SdkDestinationMatcherTest.xml"
+      },
+      {
+        "sha256": "207d76c687f089a25cf658d55238866f3f6946889d91bf7008545a6408154639",
+        "mtimeUtc": "2026-10-28T15:05:09.483011+00:00",
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.SdkReadAvailabilityTest.xml"
+      },
+      {
+        "sha256": "a6f3416bcf8480af6246c83ea13b920dab90792d7ced50ba58191b8e528d680c",
+        "mtimeUtc": "2026-10-28T15:05:09.483440+00:00",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.SdkVehicleReadFailureTest.xml"
+      },
+      {
+        "sha256": "7bee0afb6efbd26e6440e5626b2781915e01198054cba21109100f6782bb34b6",
+        "mtimeUtc": "2026-10-28T15:05:09.481851+00:00",
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.SpeechRecognitionDiagnosticsTest.xml"
+      },
+      {
+        "sha256": "5edb9ce3fea0a30e356fe7d1b47138184b70ff36510f3211ea8e9915ffa72fda",
+        "mtimeUtc": "2026-10-28T15:05:09.479803+00:00",
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.SpeechSessionStateTest.xml"
+      },
+      {
+        "sha256": "f982590268c24bf2a61d2c56e20de9582a661dcecf93002625b691ebe40d9a71",
+        "mtimeUtc": "2026-10-28T15:05:09.481383+00:00",
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.VehicleAreaObservationsTest.xml"
+      },
+      {
+        "sha256": "2f138c0178fa04258f8bf712e5e3eb551ab905aabfd8282960b7f56cfa2293fc",
+        "mtimeUtc": "2026-10-28T15:05:09.478042+00:00",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.VehicleConnectionTest.xml"
+      },
+      {
+        "sha256": "faa1241aa16a8b224bbf80fdff6f5e23754938c7c4dde0e630dab97eeeb7ec62",
+        "mtimeUtc": "2026-10-28T15:05:09.485812+00:00",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "name": "TEST-camp.room.app.observability.TelemetryPrivacyTest.xml"
+      }
+    ]
+  },
+  "apk": {
+    "sha256": "8a175bfe5fb0aaacaf0faab3342cabd753fb58b11d99305b483a95e19e0b574f",
+    "bytes": 76024425,
+    "flavor": "pleosDebug",
+    "releaseApk": false,
+    "signatureVerified": true,
+    "installedSha256": "8a175bfe5fb0aaacaf0faab3342cabd753fb58b11d99305b483a95e19e0b574f"
+  },
+  "runtime": {
+    "avd": "camp-pleos-review",
+    "serial": "emulator-5564",
+    "imageDeclared": "Pleos Connect v2.1.0 ARM64",
+    "androidApi": 34,
+    "androidUser": 10,
+    "vehicleServiceVersion": "2.3.22",
+    "vehicleServiceVersionCode": 74,
+    "readPermissionsGranted": [
+      "CAR_DOORS",
+      "CAR_WINDOWS"
+    ],
+    "doorCapabilityAreas": 6,
+    "windowCapabilityAreas": 4,
+    "positionRegistrations": 10,
+    "acceptedPositionEvents": 18,
+    "acceptedGetters": 67,
+    "uniqueGetterAreas": 10,
+    "sdkReadInvocations": 134,
+    "mainThreadSdkReadInvocations": 0,
+    "fusedChangedCallbacks": 43,
+    "positionUnregistersObserved": 0,
+    "rawPositionValuesObserved": [
+      0
+    ],
+    "closureSemanticsVerified": false,
+    "actualPositionChangeTested": false,
+    "carUxWorkerOffMainVerified": true,
+    "carUxUnregistersObserved": 1,
+    "uiPixelEvidence": "CampRoom Find screen rendered after CarService recovery; SDK test backend has6demo sites and is not live-provider proof",
+    "backendScope": "isolated demo API for SDK validation only",
+    "tripContextWorkflowValidatedInThisRun": false
+  },
+  "fixes": [
+    "getter cancellation releases only its own current token",
+    "listener identity and epoch check atomic with event update",
+    "stable area identity and native composite areas preserved",
+    "Car UX Binder operations moved offMain to bounded process-wide worker",
+    "same-binding event revision invalidates initial read atomically"
+  ],
+  "remaining": [
+    {
+      "item": "position listener unregister/reconnect",
+      "reason": "First working VM exited before controlled teardown. Recovered VM capability calls timed out; no registrations were admitted after fresh client reset, so clearTask was not executed. BACK did not demonstrate a stop transition.",
+      "lastAction": "normal own-app process restart",
+      "lastLaunch": "Starting: Intent { cmp=camp.room.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: camp.room.app/.MainActivity\nTotalTime: 1727\nWaitTime: 1728\nComplete",
+      "lastRegisteredAreas": 0
+    },
+    {
+      "item": "SmartGlass",
+      "evidence": "ERROR_NOT_SUPPORTED_PROPERTY 60001 for this emulator property; regular windows read successfully"
+    },
+    {
+      "item": "HVAC target",
+      "evidence": "GET_HVAC_TARGET generic Exception with no public error code in successful-read session; not marked success"
+    },
+    {
+      "item": "trusted stationary source",
+      "evidence": "MotionProvider remains UNKNOWN; setter guard preserved"
+    },
+    {
+      "item": "other SDK and product gates",
+      "evidence": "No new guidance/mic/speaker/physical controls; latest all-audio/navigation/real-car validation and signed release APK are not claimed"
+    },
+    {
+      "item": "four criteria acceptance",
+      "evidence": "No customer research, partner agreements, measured MAU/retention/payment evidence; no5/5claim"
+    }
+  ],
+  "evidenceFiles": {
+    "build": "review-runtime/door-window-20261028/BUILD_UX_ORDER_FIX.json",
+    "source": "review-runtime/door-window-20261028/SOURCE_INPUT_FINAL_SHA256.json",
+    "sdkReadLogSha256": "100bff760a1a8a1478f92b85048e78590939db3aa68753b50123c3af620812b6",
+    "readSummary": "review-runtime/door-window-20261028/after-reboot/SDK_READ_OBSERVATIONS.json",
+    "runtimeLimits": "review-runtime/door-window-20261028/after-reboot/CLIENT_RESET_LIFECYCLE.json"
+  },
+  "restrictionsRespected": [
+    "CLI/ADB only; no MacGUI/CUA",
+    "no physical controls or navigation start",
+    "no actual mic/speaker",
+    "no root/security changes or credential exposure"
+  ],
+  "resourceHandoff": {
+    "at": "2026-10-28T15:46:33.556217+00:00",
+    "preserveExistingVmAsRequested": true,
+    "avd": {
+      "pid": 36242,
+      "pgid": 36242,
+      "serial": "emulator-5564",
+      "record": "EMULATOR_LIFECYCLE_RECOVERY.json"
+    },
+    "isolatedSdkTestApi": {
+      "pid": 45689,
+      "pgid": 45689,
+      "port": 8000,
+      "dataMode": "demo",
+      "record": "OWNED_PROCESSES.json"
+    },
+    "buildsAndLogMonitors": "completed/stopped; no pending build or capture",
+    "remainingOwnership": "Retained for parent continuation; no cleanup claim for position listeners"
+  }
+}

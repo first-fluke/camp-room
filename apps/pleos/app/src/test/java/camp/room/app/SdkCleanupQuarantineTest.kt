@@ -1,15 +1,28 @@
 package camp.room.app
 
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import org.junit.Assert.*
-import org.junit.Test
 
 class SdkCleanupQuarantineTest {
-    private class Resource(val name: String) {
+    private class Resource(
+        val name: String,
+    ) {
         // Vendor objects may have value equality; admission must still use native identity.
         override fun equals(other: Any?) = other is Resource && name == other.name
+
         override fun hashCode() = name.hashCode()
     }
 
@@ -21,6 +34,7 @@ class SdkCleanupQuarantineTest {
         val binding = SdkReleaseLease(sdk)
         binding.markAcquired()
         var failureCount = 0
+
         fun close() {
             binding.requestRelease()
             quarantine.retain(sdk, this, {
@@ -57,7 +71,10 @@ class SdkCleanupQuarantineTest {
         assertThrows(IllegalStateException::class.java) { binding.markAcquired() }
         binding.requestRelease()
         assertThrows(IllegalStateException::class.java) {
-            binding.releaseIfRequested { assertSame(sdk, it); throw IllegalStateException("first release failed") }
+            binding.releaseIfRequested {
+                assertSame(sdk, it)
+                throw IllegalStateException("first release failed")
+            }
         }
         assertTrue(binding.hasResource())
         assertTrue(binding.releaseIfRequested { assertSame(sdk, it) })
@@ -74,7 +91,10 @@ class SdkCleanupQuarantineTest {
         val owner = Any()
         var releases = 0
         var shouldFail = true
-        val cleanup = { releases++; if (shouldFail) throw IllegalStateException("pending") }
+        val cleanup = {
+            releases++
+            if (shouldFail) throw IllegalStateException("pending")
+        }
         quarantine.retain(sdk, owner, cleanup, { _, _ -> }, {})
         assertFalse(quarantine.drain(sdk))
         quarantine.retain(sdk, owner, { fail("must not replace exact cleanup") }, { _, _ -> }, {})
@@ -96,6 +116,7 @@ class SdkCleanupQuarantineTest {
             events += "release-old"
             if (failed) throw IllegalStateException("still bound")
         }, { _, _ -> }, {})
+
         fun start(resource: Resource): Boolean {
             if (!quarantine.drain(resource)) return false
             events += if (resource === oldSdk) "initialize-same" else "initialize-other"
@@ -123,8 +144,16 @@ class SdkCleanupQuarantineTest {
         }, { _, task -> scheduled += task }, {})
         assertFalse(quarantine.drain(sdk))
         assertTrue(quarantine.drain(sdk))
-        quarantine.retain(sdk, owner, { replacementCalls++; throw IllegalStateException("new pending") },
-            { _, task -> scheduled += task }, {})
+        quarantine.retain(
+            sdk,
+            owner,
+            {
+                replacementCalls++
+                throw IllegalStateException("new pending")
+            },
+            { _, task -> scheduled += task },
+            {},
+        )
         val oldRetry = scheduled.removeAt(0)
         oldRetry()
         assertEquals(0, replacementCalls)
@@ -140,8 +169,16 @@ class SdkCleanupQuarantineTest {
         val scheduled = mutableListOf<() -> Unit>()
         var calls = 0
         var fail = true
-        quarantine.retain(sdk, Any(), { calls++; if (fail) throw IllegalStateException("failed") },
-            { _, task -> scheduled += task }, {})
+        quarantine.retain(
+            sdk,
+            Any(),
+            {
+                calls++
+                if (fail) throw IllegalStateException("failed")
+            },
+            { _, task -> scheduled += task },
+            {},
+        )
         assertFalse(quarantine.drain(sdk))
         while (scheduled.isNotEmpty()) scheduled.removeAt(0).invoke()
         assertEquals(3, calls)
@@ -151,7 +188,8 @@ class SdkCleanupQuarantineTest {
         assertEquals(4, calls)
     }
 
-    @Test(timeout = 6000) fun blockedNativeCleanupDoesNotHoldRegistryMonitorAndSameObjectAdmissionFailsClosed() {
+    @Test(timeout = 6000)
+    fun blockedNativeCleanupDoesNotHoldRegistryMonitorAndSameObjectAdmissionFailsClosed() {
         val quarantine = SdkCleanupQuarantine<Resource>()
         val sdk = Resource("sdk")
         val other = Resource("other")
@@ -165,12 +203,20 @@ class SdkCleanupQuarantineTest {
         quarantine.retain(sdk, Any(), {
             lease.releaseIfRequested { exact ->
                 assertSame(sdk, exact)
-                calls.incrementAndGet(); entered.countDown(); release.await(3, TimeUnit.SECONDS)
+                calls.incrementAndGet()
+                entered.countDown()
+                release.await(3, TimeUnit.SECONDS)
             }
             check(!lease.hasResource())
         }, { _, _ -> }, {})
-        Thread { try { quarantine.drain(sdk) } finally { finished.countDown() } }
-            .apply { isDaemon = true }.start()
+        Thread {
+            try {
+                quarantine.drain(sdk)
+            } finally {
+                finished.countDown()
+            }
+        }.apply { isDaemon = true }
+            .start()
         assertTrue(entered.await(2, TimeUnit.SECONDS))
         try {
             assertTrue(quarantine.hasPending(sdk))
@@ -179,7 +225,9 @@ class SdkCleanupQuarantineTest {
             assertFalse(quarantine.drain(sdk))
             assertTrue(quarantine.drain(other))
             assertEquals(1, calls.get())
-        } finally { release.countDown() }
+        } finally {
+            release.countDown()
+        }
         assertTrue(finished.await(2, TimeUnit.SECONDS))
         assertFalse(quarantine.hasPending(sdk))
         assertFalse(lease.hasResource())
@@ -205,9 +253,13 @@ class SdkCleanupQuarantineTest {
         val quarantine = SdkCleanupQuarantine<Resource>()
         val sdk = Resource("sdk")
         var fail = true
-        quarantine.retain(sdk, Any(), { if (fail) throw IllegalStateException("native") },
+        quarantine.retain(
+            sdk,
+            Any(),
+            { if (fail) throw IllegalStateException("native") },
             { _, _ -> throw IllegalStateException("scheduler unavailable") },
-            { throw IllegalStateException("diagnostic failed") })
+            { throw IllegalStateException("diagnostic failed") },
+        )
         assertFalse(quarantine.drain(sdk))
         assertTrue(quarantine.hasPending(sdk))
         fail = false
@@ -230,6 +282,7 @@ class SdkCleanupQuarantineTest {
         var releases = 0
         var initializes = 1
         var failNative = true
+
         fun retainClose() {
             quarantine.retain(sdk, owner, {
                 listeners.drain({ exact ->
@@ -238,7 +291,10 @@ class SdkCleanupQuarantineTest {
                     if (failNative) throw IllegalStateException("native unregister failed")
                 }, {})
                 check(!listeners.hasPending())
-                lease.releaseIfRequested { exact -> assertSame(sdk, exact); releases++ }
+                lease.releaseIfRequested { exact ->
+                    assertSame(sdk, exact)
+                    releases++
+                }
                 check(!lease.hasResource())
             }, { delay, task -> scheduled += delay to task }, {}, listeners::rearmExhausted)
         }

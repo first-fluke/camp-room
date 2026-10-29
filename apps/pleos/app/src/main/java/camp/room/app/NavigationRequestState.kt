@@ -1,6 +1,7 @@
 package camp.room.app
 
 internal enum class NavigationRequestKind { PREVIEW, START }
+
 internal enum class NavigationCallbackAdmission { CURRENT, STALE, EXPIRED, TERMINAL }
 
 /** Only the exact token returned by begin can own a callback. */
@@ -10,8 +11,7 @@ internal data class NavigationRequestToken internal constructor(
     val kind: NavigationRequestKind,
     val request: SdkDestinationRequest,
 ) {
-    override fun toString(): String =
-        "NavigationRequestToken(id=$id, connectionEpoch=$connectionEpoch, kind=$kind)"
+    override fun toString(): String = "NavigationRequestToken(id=$id, connectionEpoch=$connectionEpoch, kind=$kind)"
 }
 
 /** Bounds observation of one SDK request without creating or retrying SDK requests. */
@@ -34,7 +34,11 @@ internal class NavigationRequestState(
     private var active: Entry? = null
 
     @Synchronized
-    fun begin(kind: NavigationRequestKind, request: SdkDestinationRequest, epoch: Int): NavigationRequestToken {
+    fun begin(
+        kind: NavigationRequestKind,
+        request: SdkDestinationRequest,
+        epoch: Int,
+    ): NavigationRequestToken {
         check(nextId < Long.MAX_VALUE) { "Navigation request identifiers exhausted" }
         val startedAtMillis = clockMillis()
         val token = NavigationRequestToken(++nextId, epoch, kind, request)
@@ -43,24 +47,33 @@ internal class NavigationRequestState(
     }
 
     @Synchronized
-    fun admission(token: NavigationRequestToken, currentEpoch: Int): NavigationCallbackAdmission =
-        admissionAt(token, currentEpoch, clockMillis())
+    fun admission(
+        token: NavigationRequestToken,
+        currentEpoch: Int,
+    ): NavigationCallbackAdmission = admissionAt(token, currentEpoch, clockMillis())
 
     /** The successful claimant owns the only terminal result for this request. */
     @Synchronized
-    fun claim(token: NavigationRequestToken, currentEpoch: Int): NavigationCallbackAdmission {
+    fun claim(
+        token: NavigationRequestToken,
+        currentEpoch: Int,
+    ): NavigationCallbackAdmission {
         val result = admissionAt(token, currentEpoch, clockMillis())
-        if (result == NavigationCallbackAdmission.CURRENT) active?.let {
-            it.terminal = true
-            it.claimed = true
+        if (result == NavigationCallbackAdmission.CURRENT) {
+            active?.let {
+                it.terminal = true
+                it.claimed = true
+            }
         }
         return result
     }
 
     /** Receipt before the deadline remains eligible until the request or lifecycle ends. */
     @Synchronized
-    fun canPublishClaimedResult(token: NavigationRequestToken, currentEpoch: Int): Boolean =
-        active?.let { it.token === token && token.connectionEpoch == currentEpoch && it.claimed } == true
+    fun canPublishClaimedResult(
+        token: NavigationRequestToken,
+        currentEpoch: Int,
+    ): Boolean = active?.let { it.token === token && token.connectionEpoch == currentEpoch && it.claimed } == true
 
     @Synchronized
     fun finish(token: NavigationRequestToken) {
@@ -77,18 +90,24 @@ internal class NavigationRequestState(
 
     /** Retains elapsed time for terminal/expired requests until superseded or invalidated. */
     @Synchronized
-    fun elapsedMillis(token: NavigationRequestToken): Long? =
-        active?.takeIf { it.token === token }?.let { elapsed(it, clockMillis()) }
+    fun elapsedMillis(token: NavigationRequestToken): Long? = active?.takeIf { it.token === token }?.let { elapsed(it, clockMillis()) }
 
     @Synchronized
-    fun remainingMillis(token: NavigationRequestToken, currentEpoch: Int): Long {
+    fun remainingMillis(
+        token: NavigationRequestToken,
+        currentEpoch: Int,
+    ): Long {
         val now = clockMillis()
         if (admissionAt(token, currentEpoch, now) != NavigationCallbackAdmission.CURRENT) return 0
         val entry = active ?: return 0
         return observationLimit(token.kind) - elapsed(entry, now)
     }
 
-    private fun admissionAt(token: NavigationRequestToken, currentEpoch: Int, now: Long): NavigationCallbackAdmission {
+    private fun admissionAt(
+        token: NavigationRequestToken,
+        currentEpoch: Int,
+        now: Long,
+    ): NavigationCallbackAdmission {
         val entry = active
         return when {
             entry == null || entry.token !== token || token.connectionEpoch != currentEpoch -> NavigationCallbackAdmission.STALE
@@ -98,12 +117,16 @@ internal class NavigationRequestState(
         }
     }
 
-    private fun observationLimit(kind: NavigationRequestKind): Long = when (kind) {
-        NavigationRequestKind.PREVIEW -> PREVIEW_MAX_OBSERVATION_MS
-        NavigationRequestKind.START -> INITIAL_OBSERVATION_MS
-    }
+    private fun observationLimit(kind: NavigationRequestKind): Long =
+        when (kind) {
+            NavigationRequestKind.PREVIEW -> PREVIEW_MAX_OBSERVATION_MS
+            NavigationRequestKind.START -> INITIAL_OBSERVATION_MS
+        }
 
-    private fun elapsed(entry: Entry, now: Long): Long {
+    private fun elapsed(
+        entry: Entry,
+        now: Long,
+    ): Long {
         if (now <= entry.startedAtMillis) return 0
         val difference = now - entry.startedAtMillis
         return if (difference < 0) Long.MAX_VALUE else difference

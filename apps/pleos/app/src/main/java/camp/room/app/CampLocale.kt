@@ -32,13 +32,25 @@ object CampLocale {
     fun language(context: Context): String =
         when (val value = selection(context)) {
             "ko",
-            "en" -> value
-            else ->
-                if (Resources.getSystem().configuration.locales[0].language == "ko") "ko" else "en"
+            "en",
+            -> {
+                value
+            }
+
+            else -> {
+                if (Resources
+                        .getSystem()
+                        .configuration.locales[0]
+                        .language == "ko"
+                ) {
+                    "ko"
+                } else {
+                    "en"
+                }
+            }
         }
 
-    fun locale(context: Context): Locale =
-        if (language(context) == "ko") Locale.KOREAN else Locale.ENGLISH
+    fun locale(context: Context): Locale = if (language(context) == "ko") Locale.KOREAN else Locale.ENGLISH
 
     fun wrap(context: Context): Context {
         val locale = locale(context)
@@ -48,7 +60,10 @@ object CampLocale {
         return context.createConfigurationContext(config)
     }
 
-    fun select(context: Context, value: String) {
+    fun select(
+        context: Context,
+        value: String,
+    ) {
         require(value in setOf("system", "ko", "en"))
         context
             .getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
@@ -82,54 +97,69 @@ object CampText {
 
     fun locale(): Locale = CampLocale.locale(application)
 
-    fun get(@StringRes id: Int, vararg arguments: Any?): String {
+    fun get(
+        @StringRes id: Int,
+        vararg arguments: Any?,
+    ): String {
         val context = context()
-        return if (arguments.isEmpty()) context.getString(id)
-        else context.getString(id, *arguments.map { it ?: "—" }.toTypedArray())
+        return if (arguments.isEmpty()) {
+            context.getString(id)
+        } else {
+            context.getString(id, *arguments.map { it ?: "—" }.toTypedArray())
+        }
     }
 
-    fun quantity(id: Int, count: Int): String =
-        context().resources.getQuantityString(id, count, count)
+    fun quantity(
+        id: Int,
+        count: Int,
+    ): String = context().resources.getQuantityString(id, count, count)
 
     fun currency(value: Int?): String {
         if (value == null) return get(R.string.camp_check_price)
-        return NumberFormat.getCurrencyInstance(locale())
+        return NumberFormat
+            .getCurrencyInstance(locale())
             .apply {
                 currency = Currency.getInstance("KRW")
                 maximumFractionDigits = 0
                 minimumFractionDigits = 0
-            }
-            .format(value)
+            }.format(value)
     }
 
     fun date(value: String): String =
         runCatching {
-                LocalDate.parse(value)
-                    .format(
-                        DateTimeFormatter.ofPattern(
-                            if (locale().language == "ko") "M.d (EEE)" else "MMM d (EEE)",
-                            locale(),
-                        )
-                    )
-            }
-            .getOrDefault(value)
+            LocalDate
+                .parse(value)
+                .format(
+                    DateTimeFormatter.ofPattern(
+                        if (locale().language == "ko") "M.d (EEE)" else "MMM d (EEE)",
+                        locale(),
+                    ),
+                )
+        }.getOrDefault(value)
 
     fun timestamp(value: String): String =
         runCatching {
-                OffsetDateTime.parse(value)
-                    .atZoneSameInstant(ZoneId.systemDefault())
-                    .format(
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .withLocale(locale())
-                    )
-            }
-            .getOrDefault(value)
+            OffsetDateTime
+                .parse(value)
+                .atZoneSameInstant(ZoneId.systemDefault())
+                .format(
+                    DateTimeFormatter
+                        .ofLocalizedDateTime(FormatStyle.SHORT)
+                        .withLocale(locale()),
+                )
+        }.getOrDefault(value)
 }
 
 @Composable
-fun tr(@StringRes id: Int, vararg arguments: Any?): String =
-    if (arguments.isEmpty()) stringResource(id)
-    else stringResource(id, *arguments.map { it ?: "—" }.toTypedArray())
+fun tr(
+    @StringRes id: Int,
+    vararg arguments: Any?,
+): String =
+    if (arguments.isEmpty()) {
+        stringResource(id)
+    } else {
+        stringResource(id, *arguments.map { it ?: "—" }.toTypedArray())
+    }
 
 @Composable
 fun guestCount(count: Int): String = pluralStringResource(R.plurals.camp_guest_count, count, count)

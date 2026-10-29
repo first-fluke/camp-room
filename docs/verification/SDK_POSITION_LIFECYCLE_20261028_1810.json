@@ -1,0 +1,413 @@
+{
+  "at": "2026-10-28T18:37:40.290833+00:00",
+  "status": "requested_position_lifecycle_fixes_verified",
+  "sourceBase": "8f4a213c7bbed9e08f45608e4cce5c1d4712baf1",
+  "sdkFollowupLocalOnly": true,
+  "previous155RecordPreserved": "docs/verification/SDK_ADAPTER_RECOVERY_20261028_1655.json",
+  "previous155SafetyConclusionCorrectedBy": "review-runtime/door-window-20261028/resume-1810/CORRECTION_155.json",
+  "correction": {
+    "oldPositionUnregisterCount": 10,
+    "oldPositionUnregisterOnMain": 10,
+    "oldPidEqualsTid": 10,
+    "oldCarUxSeparateCorrected": 2,
+    "oldCarUxSeparateIncorrectSummary": 0,
+    "oldSourceBuildAndReadEvidenceStillValid": true,
+    "oldOffMainTeardownCompletionConclusionWithdrawn": true
+  },
+  "cause": {
+    "mainThread": "UNDISPATCHED executes on the caller until suspension; uncontended Mutex plus sameIO withContext fastpath did not dispatch",
+    "listenerLoss": "clearing Door/Window maps before unregister forgot exact binding when native call failed",
+    "primarySource": "https://raw.githubusercontent.com/Kotlin/kotlinx.coroutines/1.10.2/kotlinx-coroutines-core/common/src/Builders.common.kt"
+  },
+  "fixes": [
+    "DEFAULT-dispatched single FIFO lifecycle consumer, bounded3pendingstatekeys, finalCLOSE admitted after cleanup and not dropped",
+    "Immediate metadata epoch invalidation; native unregister/release occurs on worker outside metadata locks",
+    "Retain exact kind/area/listener/epoch across failed unregister; bounded5attempts/backoff and explicit retained-exhausted state",
+    "Process-shared exact-entry ownership prevents another ViewModel registering same area before old successful cleanup",
+    "Native invocation stage separates known-never-called cancellation from uncertain registration failure",
+    "Reconcile cached topology and missing bindings without churning healthy current registrations",
+    "Reject stale STOP sideeffects after a new ensure session wins discoveryGuard; still drain old cleanup",
+    "Retire no-longer-readable or invalid-bounds topology rather than retaining old native subscriptions"
+  ],
+  "sourceFilesVerified": 24,
+  "sourceManifest": "SOURCE_BUILD_INPUT.json",
+  "appTests": {
+    "tests": 176,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "newAppRegressionTests": 21,
+  "evidenceVerifierTests": {
+    "at": "2026-10-28T18:18:50.754850+00:00",
+    "tests": 6,
+    "returnCode": 0,
+    "scope": "evidenceparserregressions,notAndroidSDKtests"
+  },
+  "apk": {
+    "apk": "review-runtime/door-window-20261028/resume-1810/camp-room-position-lifecycle-fixed-pleos-debug.apk",
+    "apkBytes": 76072833,
+    "apkSha256": "bf93fcb9777592765e219bd76516fb27f6b3d64b8b2af9edb61930ff87933b7f",
+    "signatureVerifyReturnCode": 0,
+    "variant": "PleosDebug; debug-signed, not release"
+  },
+  "installedSha256": "bf93fcb9777592765e219bd76516fb27f6b3d64b8b2af9edb61930ff87933b7f",
+  "actualSdkRuntime": {
+    "records": 802,
+    "positionRegister": 20,
+    "positionRegisterOnMain": 0,
+    "positionUnregister": 10,
+    "positionUnregisterOnMain": 0,
+    "positionUnregisterThreadUnknown": 0,
+    "positionUnregisterPidEqualsTid": 0,
+    "positionAcceptedEvents": 22,
+    "acceptedPositionGetters": 110,
+    "readInvoked": 234,
+    "readOnMain": 0,
+    "carUxUnregisterSeparate": 2,
+    "carUxUnregisterOnMain": 0,
+    "socRecords": [
+      {
+        "module": "Vehicle",
+        "event": "soc.request",
+        "attempt": 1,
+        "retryDelayMs": null,
+        "_pid": 6210,
+        "_tid": 6657,
+        "_line": 14,
+        "_time": "10-29 05:31:05.890"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.request",
+        "attempt": 1,
+        "retryDelayMs": null,
+        "_pid": 6210,
+        "_tid": 6657,
+        "_line": 29,
+        "_time": "10-29 05:31:13.576"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.capability",
+        "attempt": 1,
+        "retryDelayMs": null,
+        "_pid": 6210,
+        "_tid": 6271,
+        "_line": 30,
+        "_time": "10-29 05:31:13.803"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.subscription",
+        "value": 100,
+        "current": true,
+        "_pid": 6210,
+        "_tid": 6251,
+        "_line": 33,
+        "_time": "10-29 05:31:14.304"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.initialRead",
+        "value": 100,
+        "current": true,
+        "supersededBySubscription": true,
+        "_pid": 6210,
+        "_tid": 6251,
+        "_line": 34,
+        "_time": "10-29 05:31:14.460"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.request",
+        "attempt": 1,
+        "retryDelayMs": null,
+        "_pid": 6210,
+        "_tid": 7224,
+        "_line": 550,
+        "_time": "10-29 05:32:10.711"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.capability",
+        "attempt": 1,
+        "retryDelayMs": null,
+        "_pid": 6210,
+        "_tid": 10792,
+        "_line": 554,
+        "_time": "10-29 05:32:10.886"
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.initialRead",
+        "value": 100,
+        "current": true,
+        "supersededBySubscription": false,
+        "_pid": 6210,
+        "_tid": 7439,
+        "_line": 560,
+        "_time": "10-29 05:32:10.916"
+      }
+    ]
+  },
+  "actualNewEpoch": {
+    "epoch": 1,
+    "acceptedEvents": 14,
+    "eventAreas": 10,
+    "acceptedGetters": 20,
+    "getterAreas": 10
+  },
+  "rawLogSha256": "ec05bff66b61adbd9e1b7af5a0356ec115518890ebc091c023fcebe36d9899f5",
+  "unregisterThreadRows": [
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "door",
+      "areaId": "door:ROW_2_LEFT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 704,
+      "_time": "10-29 05:32:18.246"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "door",
+      "areaId": "door:ROW_2_RIGHT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 705,
+      "_time": "10-29 05:32:18.251"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "door",
+      "areaId": "door:REAR",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 706,
+      "_time": "10-29 05:32:18.252"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "door",
+      "areaId": "door:HOOD",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 707,
+      "_time": "10-29 05:32:18.254"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "door",
+      "areaId": "door:ROW_1_LEFT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 708,
+      "_time": "10-29 05:32:18.254"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "door",
+      "areaId": "door:ROW_1_RIGHT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 709,
+      "_time": "10-29 05:32:18.262"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "window",
+      "areaId": "window:ROW_1_LEFT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 710,
+      "_time": "10-29 05:32:18.265"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "window",
+      "areaId": "window:ROW_1_RIGHT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 711,
+      "_time": "10-29 05:32:18.266"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "window",
+      "areaId": "window:ROW_2_LEFT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 712,
+      "_time": "10-29 05:32:18.266"
+    },
+    {
+      "module": "Vehicle",
+      "event": "position.unregister.returned",
+      "kind": "window",
+      "areaId": "window:ROW_2_RIGHT",
+      "epoch": 3,
+      "onMainThread": false,
+      "_pid": 6210,
+      "_tid": 6656,
+      "_line": 713,
+      "_time": "10-29 05:32:18.267"
+    }
+  ],
+  "carUxUnregisterRows": [
+    {
+      "module": "CarUx",
+      "event": "unregister.returned",
+      "onMainThread": false,
+      "session": 1,
+      "_pid": 6210,
+      "_tid": 6478,
+      "_line": 17,
+      "_time": "10-29 05:31:07.474"
+    },
+    {
+      "module": "CarUx",
+      "event": "unregister.returned",
+      "onMainThread": false,
+      "session": 1,
+      "_pid": 6210,
+      "_tid": 6478,
+      "_line": 535,
+      "_time": "10-29 05:32:09.724"
+    }
+  ],
+  "normalHandoff": {
+    "registerDeferred": 10,
+    "unregisterErrors": 0,
+    "cleanupExhausted": 0
+  },
+  "failureEvidenceSeparation": {
+    "mockedProductionPaths": "PositionSubscriptionLedgerTest16 + SdkLifecycleQueueTest5; plus previous SOC/helper regressions remain in176suite",
+    "mockedScenarios": [
+      "failed-unregister retry",
+      "finite exhaustion/retention",
+      "old callback admission",
+      "cross-ViewModel blocked registration",
+      "old token cannot release new claim",
+      "stop before native invocation",
+      "late stale STOP versus fresh ensure",
+      "blocked native cleanup without metadata lock"
+    ],
+    "actualSdkRun": "normal reads,callbacks,ownership deferral,unregister-return and re-registration only; no injected SDK failure or forced stale event"
+  },
+  "remainingReadErrors": [
+    {
+      "operation": "CAP_HVAC_TARGET",
+      "outcome": "timeout",
+      "errorCode": null,
+      "count": 1
+    },
+    {
+      "operation": "CAP_SMART_GLASS",
+      "outcome": "callback_error",
+      "errorCode": "ERROR_NOT_SUPPORTED_PROPERTY",
+      "count": 7
+    },
+    {
+      "operation": "GET_HVAC_TARGET",
+      "outcome": "callback_error",
+      "errorCode": null,
+      "count": 14
+    }
+  ],
+  "serviceDiagnosis": {
+    "preExistingVm": "18:13directCarServicedump3000mstimeout before newpositionlifecycleAPK",
+    "normalGuestReboot": {
+      "startedAt": "2026-10-28T18:29:13.819277+00:00",
+      "qemuPidBefore": 36242,
+      "scope": "one normal guest Android reboot in existing official AVD; preserve AVD data and QEMU; no app controls/audio/guidance",
+      "reason": "CarService dump3000ms timeout reproduced18:13 before new position-lifecycle APK; one controlled same-VM guest recovery for new runtime verification",
+      "rebootExecuted": true,
+      "deviceBefore": "crp_avd_arm64",
+      "rebootReturnCode": 0,
+      "rebootResult": "",
+      "bootCompletedAt": "2026-10-28T18:29:52.721778+00:00",
+      "carService": {
+        "returnCode": 0,
+        "bytes": 307607,
+        "dumpTimeout": false
+      },
+      "status": "boot_completed",
+      "endedAt": "2026-10-28T18:29:53.632851+00:00"
+    },
+    "sameHostVmRetained": true,
+    "carServiceNormalBeforeNewApkInstall": true,
+    "carServiceDumpTimeoutAfterRecreation": false,
+    "longTermVmStabilityNotEstablished": true
+  },
+  "independentReview": {
+    "reviewer": "/root/lifecycle_dispatch_review",
+    "method": "independent raw parser, not runtime_evidence.py",
+    "records": 802,
+    "parseFailures": 0,
+    "countsMatch": true,
+    "unregisterPid": 6210,
+    "unregisterTid": 6656,
+    "unregisterAllOffMain": true,
+    "carUxUnregisterSeparate": 2,
+    "newEpochEventAreas": 10,
+    "newEpochGetterAreas": 10,
+    "noOldAcceptedPositionAfterFirstUnregisterObserved": true,
+    "negativeSdkFailureInjectionPerformed": false
+  },
+  "limits": [
+    "Raw position0 only; closed semantics and actual position change not validated",
+    "Returned public unregister calls plus fresh callbacks observed; no privileged inspection of service listener internals",
+    "Failure/retry/stale-response scenarios are mocked production regressions, not claims of injected real-SDK failures",
+    "Truly blocked native IPC is not forcibly cancelled; bounded cleanup failures remain quarantined rather than being reported successful",
+    "SmartGlass60001 and target-temperature errors remain; do not infer all Vehicle properties work",
+    "No trusted PARKED host contract; UNKNOWN setters stay blocked",
+    "No actual vehicle control, guidance start, microphone/speaker use, new permissions, MacGUI or new recording",
+    "Isolated demo backend is SDK-test infrastructure, not live campsite-provider evidence",
+    "No wholeSDK-success or official5/5score claim"
+  ],
+  "resources": {
+    "qemuPid": 36242,
+    "apiPid": 45689,
+    "sameProcessesConfirmed": true,
+    "keptForContinuation": true,
+    "newVmStarted": false,
+    "normalGuestRebootsThisContinuation": 1,
+    "logcatPid": 35382,
+    "logcatReturnCode": -15,
+    "buildExited": true
+  },
+  "previousArtifactsUntouched": [
+    "141testAPK/ZIP",
+    "155testAPK/ZIP/rawlog",
+    "existingvideos"
+  ],
+  "noCommitPushPrPublishOrUpload": true
+}

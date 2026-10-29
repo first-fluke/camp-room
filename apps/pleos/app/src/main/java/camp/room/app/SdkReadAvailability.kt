@@ -20,7 +20,10 @@ enum class SdkReadOperation {
     GET_WINDOW_POSITION,
 }
 
-data class SdkReadKey(val operation: SdkReadOperation, val context: String)
+data class SdkReadKey(
+    val operation: SdkReadOperation,
+    val context: String,
+)
 
 enum class SdkReadOutcome {
     SUCCESS,
@@ -40,8 +43,14 @@ data class SdkReadAttempt(
 )
 
 sealed class SdkReadAdmission {
-    data class Allowed(val attempt: SdkReadAttempt) : SdkReadAdmission()
-    data class Deferred(val reason: String, val retryAfterMillis: Long) : SdkReadAdmission()
+    data class Allowed(
+        val attempt: SdkReadAttempt,
+    ) : SdkReadAdmission()
+
+    data class Deferred(
+        val reason: String,
+        val retryAfterMillis: Long,
+    ) : SdkReadAdmission()
 }
 
 data class SdkReadState(
@@ -50,6 +59,8 @@ data class SdkReadState(
     val retryAfterMillis: Long,
     val inFlight: Boolean,
 )
+
+enum class SdkReadCompletionAdmission { ACCEPTED, STALE_EPOCH, RESET, REPLACED, DUPLICATE }
 
 /** Temporary per-key availability, using a monotonic clock and no SDK types. */
 class SdkReadAvailability(
@@ -67,6 +78,7 @@ class SdkReadAvailability(
         var lastOutcome: SdkReadOutcome? = null,
         var consecutiveFailures: Int = 0,
         var retryAtMillis: Long? = null,
+        var completedAttemptId: Long? = null,
     )
 
     private var currentEpoch = 0
@@ -81,7 +93,10 @@ class SdkReadAvailability(
     }
 
     @Synchronized
-    fun begin(key: SdkReadKey, epoch: Int): SdkReadAdmission {
+    fun begin(
+        key: SdkReadKey,
+        epoch: Int,
+    ): SdkReadAdmission {
         if (epoch != currentEpoch) return SdkReadAdmission.Deferred("stale_epoch", 0)
         val entry = entries.getOrPut(key) { Entry() }
         if (entry.attempt != null) return SdkReadAdmission.Deferred("in_flight", 0)
@@ -97,32 +112,59 @@ class SdkReadAvailability(
 
     /** Returns false for an old epoch, a reset, or an already completed/replaced attempt. */
     @Synchronized
-    fun finish(attempt: SdkReadAttempt, outcome: SdkReadOutcome): Boolean {
-        if (attempt.epoch != currentEpoch) return false
-        val entry = entries[attempt.key] ?: return false
-        if (entry.attempt != attempt) return false
+    fun finish(
+        attempt: SdkReadAttempt,
+        outcome: SdkReadOutcome,
+    ): Boolean = complete(attempt, outcome) == SdkReadCompletionAdmission.ACCEPTED
+
+    /** Classification and state mutation are one operation, so logging cannot race a new request. */
+    @Synchronized
+    fun complete(
+        attempt: SdkReadAttempt,
+        outcome: SdkReadOutcome,
+    ): SdkReadCompletionAdmission {
+        if (attempt.epoch != currentEpoch) return SdkReadCompletionAdmission.STALE_EPOCH
+        val entry = entries[attempt.key] ?: return SdkReadCompletionAdmission.RESET
+        if (entry.attempt != attempt) {
+            return if (entry.attempt == null && entry.completedAttemptId == attempt.id) {
+                SdkReadCompletionAdmission.DUPLICATE
+            } else {
+                SdkReadCompletionAdmission.REPLACED
+            }
+        }
         entry.attempt = null
+        entry.completedAttemptId = attempt.id
         entry.lastOutcome = outcome
         entry.retryAtMillis = null
         when (outcome) {
-            SdkReadOutcome.SUCCESS -> entry.consecutiveFailures = 0
-            SdkReadOutcome.CANCELLED -> Unit
+            SdkReadOutcome.SUCCESS -> {
+                entry.consecutiveFailures = 0
+            }
+
+            SdkReadOutcome.CANCELLED -> {
+                Unit
+            }
+
             SdkReadOutcome.EMPTY,
             SdkReadOutcome.INVALID_VALUE,
             SdkReadOutcome.CALLBACK_ERROR,
             SdkReadOutcome.SYNCHRONOUS_ERROR,
-            SdkReadOutcome.TIMEOUT -> {
+            SdkReadOutcome.TIMEOUT,
+            -> {
                 if (entry.consecutiveFailures < Int.MAX_VALUE) entry.consecutiveFailures++
                 val delay = backoffMillis(entry.consecutiveFailures)
                 val now = clockMillis()
                 entry.retryAtMillis = if (now > Long.MAX_VALUE - delay) Long.MAX_VALUE else now + delay
             }
         }
-        return true
+        return SdkReadCompletionAdmission.ACCEPTED
     }
 
     @Synchronized
-    fun state(key: SdkReadKey, epoch: Int): SdkReadState? {
+    fun state(
+        key: SdkReadKey,
+        epoch: Int,
+    ): SdkReadState? {
         if (epoch != currentEpoch) return null
         val entry = entries[key] ?: return null
         return SdkReadState(
@@ -133,7 +175,10 @@ class SdkReadAvailability(
         )
     }
 
-    private fun remainingBackoff(entry: Entry, now: Long): Long {
+    private fun remainingBackoff(
+        entry: Entry,
+        now: Long,
+    ): Long {
         val retryAt = entry.retryAtMillis ?: return 0
         if (now >= retryAt) return 0
         val difference = retryAt - now
@@ -151,7 +196,11 @@ class SdkReadAvailability(
     }
 }
 
-data class SdkDestinationRequest(val poiId: String, val latitude: Double, val longitude: Double)
+data class SdkDestinationRequest(
+    val poiId: String,
+    val latitude: Double,
+    val longitude: Double,
+)
 
 data class SdkRouteDestinationPoint(
     val poiId: String,
@@ -173,6 +222,7 @@ enum class SdkDestinationMatch {
 object SdkDestinationMatcher {
     const val MAX_DESTINATION_DISTANCE_METERS = 20.0
     private const val EARTH_RADIUS_METERS = 6_371_008.8
+
     // Application policy; this epsilon only accommodates numeric boundary rounding.
     private const val DISTANCE_NUMERIC_EPSILON_METERS = 1e-6
 
@@ -193,30 +243,48 @@ object SdkDestinationMatcher {
         return if (
             destination.poiId == request.poiId &&
             isWithinDestinationDistance(distanceMeters(request, destination))
-        ) SdkDestinationMatch.MATCH else SdkDestinationMatch.MISMATCH
+        ) {
+            SdkDestinationMatch.MATCH
+        } else {
+            SdkDestinationMatch.MISMATCH
+        }
     }
 
-    fun distanceMeters(request: SdkDestinationRequest, destination: SdkRouteDestinationPoint): Double? {
+    fun distanceMeters(
+        request: SdkDestinationRequest,
+        destination: SdkRouteDestinationPoint,
+    ): Double? {
         if (!validCoordinates(request.latitude, request.longitude) ||
-            !validCoordinates(destination.latitude, destination.longitude)) return null
+            !validCoordinates(destination.latitude, destination.longitude)
+        ) {
+            return null
+        }
         val radiansPerDegree = kotlin.math.PI / 180.0
         val latitude = request.latitude * radiansPerDegree
         val destinationLatitude = destination.latitude * radiansPerDegree
         val halfLatitudeSine = kotlin.math.sin(abs(destination.latitude - request.latitude) * radiansPerDegree / 2.0)
         val halfLongitudeSine = kotlin.math.sin(abs(destination.longitude - request.longitude) * radiansPerDegree / 2.0)
-        val haversine = (halfLatitudeSine * halfLatitudeSine +
-            kotlin.math.cos(latitude) * kotlin.math.cos(destinationLatitude) *
-            halfLongitudeSine * halfLongitudeSine).coerceIn(0.0, 1.0)
-        return 2.0 * EARTH_RADIUS_METERS * kotlin.math.atan2(
-            kotlin.math.sqrt(haversine), kotlin.math.sqrt(1.0 - haversine),
-        )
+        val haversine =
+            (
+                halfLatitudeSine * halfLatitudeSine +
+                    kotlin.math.cos(latitude) * kotlin.math.cos(destinationLatitude) *
+                    halfLongitudeSine * halfLongitudeSine
+            ).coerceIn(0.0, 1.0)
+        return 2.0 * EARTH_RADIUS_METERS *
+            kotlin.math.atan2(
+                kotlin.math.sqrt(haversine),
+                kotlin.math.sqrt(1.0 - haversine),
+            )
     }
 
     fun isWithinDestinationDistance(distanceMeters: Double?): Boolean =
         distanceMeters != null && distanceMeters.isFinite() && distanceMeters >= 0.0 &&
             distanceMeters <= MAX_DESTINATION_DISTANCE_METERS + DISTANCE_NUMERIC_EPSILON_METERS
 
-    private fun validCoordinates(latitude: Double, longitude: Double): Boolean =
+    private fun validCoordinates(
+        latitude: Double,
+        longitude: Double,
+    ): Boolean =
         latitude.isFinite() && longitude.isFinite() &&
             latitude in -90.0..90.0 && longitude in -180.0..180.0
 }

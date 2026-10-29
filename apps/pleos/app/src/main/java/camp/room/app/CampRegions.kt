@@ -4,7 +4,10 @@ package camp.room.app
 object CampRegions {
     const val ALL = "전체"
 
-    data class Option(val apiValue: String, val titleResource: Int)
+    data class Option(
+        val apiValue: String,
+        val titleResource: Int,
+    )
 
     val options =
         listOf(

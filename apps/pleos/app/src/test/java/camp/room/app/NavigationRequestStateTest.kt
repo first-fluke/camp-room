@@ -1,8 +1,5 @@
 package camp.room.app
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -10,9 +7,14 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class NavigationRequestStateTest {
-    private class Clock(var now: Long = 100_000L)
+    private class Clock(
+        var now: Long = 100_000L,
+    )
 
     private val request = SdkDestinationRequest("requested-destination", 37.5, 127.0)
     private val epoch = 7
@@ -120,13 +122,14 @@ class NavigationRequestStateTest {
         val ready = CountDownLatch(8)
         val start = CountDownLatch(1)
         try {
-            val claims = (1..8).map {
-                executor.submit<NavigationCallbackAdmission> {
-                    ready.countDown()
-                    check(start.await(5, TimeUnit.SECONDS))
-                    state.claim(token, epoch)
+            val claims =
+                (1..8).map {
+                    executor.submit<NavigationCallbackAdmission> {
+                        ready.countDown()
+                        check(start.await(5, TimeUnit.SECONDS))
+                        state.claim(token, epoch)
+                    }
                 }
-            }
             assertTrue(ready.await(5, TimeUnit.SECONDS))
             start.countDown()
             val results = claims.map { it.get(5, TimeUnit.SECONDS) }
@@ -247,8 +250,10 @@ class NavigationRequestStateTest {
         val token = state.begin(NavigationRequestKind.PREVIEW, invalid, epoch)
 
         assertEquals(NavigationCallbackAdmission.CURRENT, state.admission(token, epoch))
-        assertEquals(SdkDestinationMatch.INVALID_REQUEST,
-            SdkDestinationMatcher.match(token.request, emptyList(), token.connectionEpoch, epoch))
+        assertEquals(
+            SdkDestinationMatch.INVALID_REQUEST,
+            SdkDestinationMatcher.match(token.request, emptyList(), token.connectionEpoch, epoch),
+        )
     }
 
     @Test
@@ -268,14 +273,18 @@ class NavigationRequestStateTest {
         assertEquals(0L, state.remainingMillis(extreme, epoch))
     }
 
-    private fun latitudeOffset(metres: Double): SdkRouteDestinationPoint = SdkRouteDestinationPoint(
-        request.poiId,
-        request.latitude + metres / 6_371_008.8 * 180.0 / kotlin.math.PI,
-        request.longitude,
-        true,
-    )
+    private fun latitudeOffset(metres: Double): SdkRouteDestinationPoint =
+        SdkRouteDestinationPoint(
+            request.poiId,
+            request.latitude + metres / 6_371_008.8 * 180.0 / kotlin.math.PI,
+            request.longitude,
+            true,
+        )
 
-    private fun match(kind: NavigationRequestKind, point: SdkRouteDestinationPoint): SdkDestinationMatch {
+    private fun match(
+        kind: NavigationRequestKind,
+        point: SdkRouteDestinationPoint,
+    ): SdkDestinationMatch {
         val state = NavigationRequestState { 0L }
         val token = state.begin(kind, request, epoch)
         assertEquals(NavigationCallbackAdmission.CURRENT, state.admission(token, epoch))

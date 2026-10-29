@@ -11,5 +11,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class TelemetryModule {
-    @Binds @Singleton abstract fun bindTelemetry(value:CampTelemetry):Telemetry
+    @Binds @Singleton
+    abstract fun bindTelemetry(value: CampTelemetry): Telemetry
 }

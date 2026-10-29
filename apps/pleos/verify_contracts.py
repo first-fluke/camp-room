@@ -30,6 +30,9 @@ for source in sources:
     sdk_sources.append(source)
     # Android framework calls remain Android calls with fully-qualified imports.
     content = re.sub(r"\bandroid[.]os[.]Looper[.]getMainLooper\(\)", "", content)
+    # This receiver is the app's SdkReleaseLease, not a Pleos SDK object.
+    if source.name == "PleosVehicleAdapter.kt":
+        content = re.sub(r"\bnativeRelease[.]requestRelease\(\)", "", content)
     if re.search(r"^import android[.]os[.]Looper$", content, re.MULTILINE):
         content = re.sub(r"\bLooper[.]getMainLooper\(\)", "", content)
     # A prefix must end or continue in CamelCase: app diagnostics.requested()

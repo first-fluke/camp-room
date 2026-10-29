@@ -9,14 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineBreak
-import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -26,13 +26,15 @@ object CampDesign {
     val SecondaryHeight = 56.dp
     val IconTarget = 48.dp
     val Font = FontFamily(Font(R.font.asta_sans))
+
     // Locale-aware phrase boundaries complement sufficient width and responsive layout.
     // Android's line breaker may still use emergency breaks for overlong tokens.
-    val TextLineBreak = LineBreak(
-        strategy = LineBreak.Strategy.HighQuality,
-        strictness = LineBreak.Strictness.Strict,
-        wordBreak = LineBreak.WordBreak.Phrase,
-    )
+    val TextLineBreak =
+        LineBreak(
+            strategy = LineBreak.Strategy.HighQuality,
+            strictness = LineBreak.Strictness.Strict,
+            wordBreak = LineBreak.WordBreak.Phrase,
+        )
 }
 
 data class CampColors(
@@ -146,54 +148,118 @@ fun CampTheme(content: @Composable () -> Unit) {
     val type =
         Typography(
             headlineLarge =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 32.sp, lineHeight = 40.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 32.sp,
+                    lineHeight = 40.sp,
+                ),
             headlineMedium =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 28.sp, lineHeight = 36.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 28.sp,
+                    lineHeight = 36.sp,
+                ),
             headlineSmall =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 24.sp, lineHeight = 32.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 24.sp,
+                    lineHeight = 32.sp,
+                ),
             titleLarge =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None,
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
                     fontFamily = CampDesign.Font,
                     fontSize = 24.sp,
                     lineHeight = 32.sp,
                     fontWeight = FontWeight.SemiBold,
                 ),
             titleMedium =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None,
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
                     fontFamily = CampDesign.Font,
                     fontSize = 22.sp,
                     lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             titleSmall =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None,
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
                     fontFamily = CampDesign.Font,
                     fontSize = 22.sp,
                     lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             bodyLarge =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
+                ),
             bodyMedium =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
+                ),
             bodySmall =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
+                ),
             labelLarge =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None,
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
                     fontFamily = CampDesign.Font,
                     fontSize = 22.sp,
                     lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             labelMedium =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None,
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
                     fontFamily = CampDesign.Font,
                     fontSize = 22.sp,
                     lineHeight = 28.sp,
                     fontWeight = FontWeight.Medium,
                 ),
             labelSmall =
-                TextStyle(localeList = textLocales, lineBreak = CampDesign.TextLineBreak, hyphens = Hyphens.None, fontFamily = CampDesign.Font, fontSize = 22.sp, lineHeight = 28.sp),
+                TextStyle(
+                    localeList = textLocales,
+                    lineBreak = CampDesign.TextLineBreak,
+                    hyphens = Hyphens.None,
+                    fontFamily = CampDesign.Font,
+                    fontSize = 22.sp,
+                    lineHeight = 28.sp,
+                ),
         )
     CompositionLocalProvider(LocalCampColors provides colors) {
         MaterialTheme(

@@ -1,8 +1,18 @@
 package camp.room.app
 
-import java.util.concurrent.Executor
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
+import java.util.concurrent.Executor
 
 class VehicleSdkIoTest {
     @Test fun oneWorkerAndBoundedPendingCallbacksCoalesceByIdentityKey() {
@@ -30,10 +40,14 @@ class VehicleSdkIoTest {
         val queue = mutableListOf<Runnable>()
         val errors = mutableListOf<Exception>()
         var reject = true
-        val io = VehicleSdkIo(Executor {
-            if (reject) throw java.util.concurrent.RejectedExecutionException("test")
-            queue += it
-        }, onFailure = { errors += it })
+        val io =
+            VehicleSdkIo(
+                Executor {
+                    if (reject) throw java.util.concurrent.RejectedExecutionException("test")
+                    queue += it
+                },
+                onFailure = { errors += it },
+            )
         assertFalse(io.request("initial") { fail("rejected") })
         reject = false
         var done = false

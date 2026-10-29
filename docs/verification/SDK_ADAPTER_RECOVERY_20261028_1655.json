@@ -1,0 +1,233 @@
+{
+  "at": "2026-10-28T18:00:24.354305+00:00",
+  "status": "adapter_fixes_and_read_only_lifecycle_verified",
+  "remoteSubmissionMainUnchanged": "8f4a213c7bbed9e08f45608e4cce5c1d4712baf1",
+  "sdkFollowupLocalOnly": true,
+  "fixes": [
+    "Separate short state lock from serialized vendor IO; Main timeout does not wait the SDK-held state monitor",
+    "Synchronous initialization remains before Bridge capability discovery",
+    "SOC capability maximum5attempts with2/4/8/15second backoff, epoch cancellation, terminal unsupported/permission failures",
+    "Retain exact failed listener cleanup identity, maximum5cleanupattempts with backoff, block registration while unresolved",
+    "Existing trusted PARKED and current-command validation retained; no new controls or permissions"
+  ],
+  "sourceFilesVerified": 20,
+  "sourceManifest": "SOURCE_BUILD_INPUT.json",
+  "tests": {
+    "tests": 155,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "newRegressionTests": 14,
+  "testsAreProductionHelperRegressionsNotNativeSdkProof": true,
+  "apk": {
+    "apk": "review-runtime/door-window-20261028/resume-1655/camp-room-adapter-fixed-pleos-debug.apk",
+    "apkBytes": 76045869,
+    "apkSha256": "861954dd0994d05509259e2b4d2babb261d6eb350aa41cb0d4ebd32fd9c40bab",
+    "signatureVerifyReturnCode": 0,
+    "variant": "PleosDebug; debug-signed, not release"
+  },
+  "installedSha256": "861954dd0994d05509259e2b4d2babb261d6eb350aa41cb0d4ebd32fd9c40bab",
+  "runtime": {
+    "records": 252,
+    "positionRegister": 20,
+    "positionUnregister": 10,
+    "positionAcceptedEvents": 29,
+    "acceptedPositionGetters": 20,
+    "readInvoked": 47,
+    "readOnMain": 0,
+    "carUxUnregisterSeparate": 0,
+    "socRecords": [
+      {
+        "module": "Vehicle",
+        "event": "soc.request",
+        "attempt": 1,
+        "retryDelayMs": null
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.request",
+        "attempt": 1,
+        "retryDelayMs": null
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.capability",
+        "attempt": 1,
+        "retryDelayMs": null
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.initialRead",
+        "value": 100,
+        "current": true,
+        "supersededBySubscription": false
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.subscription",
+        "value": 100,
+        "current": true
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.request",
+        "attempt": 1,
+        "retryDelayMs": null
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.capability",
+        "attempt": 1,
+        "retryDelayMs": null
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.subscription",
+        "value": 100,
+        "current": true
+      },
+      {
+        "module": "Vehicle",
+        "event": "soc.initialRead",
+        "value": 100,
+        "current": true,
+        "supersededBySubscription": true
+      }
+    ]
+  },
+  "runtimeStatus": "read_and_lifecycle_observed",
+  "launch": "Starting: Intent { cmp=camp.room.app/.MainActivity }\nStatus: ok\nLaunchState: COLD\nActivity: camp.room.app/.MainActivity\nTotalTime: 5538\nWaitTime: 5581\nComplete",
+  "activityRecreation": "Starting: Intent { flg=0x10008000 cmp=camp.room.app/.MainActivity }\nStatus: ok\nLaunchState: WARM\nActivity: camp.room.app/.MainActivity\nTotalTime: 1543\nWaitTime: 1756\nComplete",
+  "serviceDiagnosis": {
+    "before": "sameVM alive, Fused callbacks active, CarService direct dump3000ms timeout; capability calls timeout2200ms",
+    "oneNormalGuestReboot": {
+      "startedAt": "2026-10-28T17:09:42.146035+00:00",
+      "qemuPidBefore": 36242,
+      "scope": "one normal guest Android reboot in existing official AVD; preserve AVD data and QEMU; no app controls/audio/guidance",
+      "reason": "repeated independent CarService dump3000ms timeout while Fused callbacks and Main idle; compare service recovery separately from pending app fix",
+      "rebootExecuted": true,
+      "deviceBefore": "crp_avd_arm64",
+      "rebootReturnCode": 0,
+      "rebootResult": "",
+      "bootCompletedAt": "2026-10-28T17:10:14.782560+00:00",
+      "carService": {
+        "returnCode": 0,
+        "bytes": 311127,
+        "dumpTimeout": false
+      },
+      "status": "boot_completed",
+      "endedAt": "2026-10-28T17:10:16.259713+00:00"
+    },
+    "appWasNotRunningAfterRebootBeforeNewApk": true,
+    "carServiceRecoveredBeforeNewApkInstall": true,
+    "carServiceDumpTimeoutAfterNewApk": false,
+    "conclusion": "VM service fault and static app defects are separate findings; no claim app patch alone repaired CarService"
+  },
+  "remainingObservedReadFailures": [
+    {
+      "module": "Vehicle",
+      "event": "read.result",
+      "operation": "CAP_HVAC_TARGET",
+      "correlationId": 1,
+      "areaOrdinal": null,
+      "epoch": 3,
+      "elapsedMs": 2216,
+      "outcome": "timeout",
+      "current": true,
+      "accepted": true,
+      "continuationActive": false,
+      "_logTime": "10-29 04:17:56.115"
+    },
+    {
+      "module": "Vehicle",
+      "event": "read.result",
+      "operation": "CAP_SMART_GLASS",
+      "correlationId": 6,
+      "areaOrdinal": null,
+      "epoch": 3,
+      "elapsedMs": 270,
+      "outcome": "callback_error",
+      "current": true,
+      "accepted": true,
+      "errorCode": "ERROR_NOT_SUPPORTED_PROPERTY",
+      "errorCodeId": 60001,
+      "failureClass": "unsupported_property",
+      "_logTime": "10-29 04:17:57.994"
+    },
+    {
+      "module": "Vehicle",
+      "event": "read.result",
+      "operation": "CAP_SMART_GLASS",
+      "correlationId": 6,
+      "areaOrdinal": null,
+      "epoch": 1,
+      "elapsedMs": 5,
+      "outcome": "callback_error",
+      "current": true,
+      "accepted": true,
+      "errorCode": "ERROR_NOT_SUPPORTED_PROPERTY",
+      "errorCodeId": 60001,
+      "failureClass": "unsupported_property",
+      "_logTime": "10-29 04:18:04.451"
+    },
+    {
+      "module": "Vehicle",
+      "event": "read.result",
+      "operation": "GET_HVAC_TARGET",
+      "correlationId": 19,
+      "areaOrdinal": 0,
+      "epoch": 1,
+      "elapsedMs": 281,
+      "outcome": "callback_error",
+      "current": true,
+      "accepted": true,
+      "errorCode": null,
+      "errorCodeId": null,
+      "failureClass": "non_vehicle_exception",
+      "_logTime": "10-29 04:18:06.862"
+    },
+    {
+      "module": "Vehicle",
+      "event": "read.result",
+      "operation": "GET_HVAC_TARGET",
+      "correlationId": 20,
+      "areaOrdinal": 1,
+      "epoch": 1,
+      "elapsedMs": 44,
+      "outcome": "callback_error",
+      "current": true,
+      "accepted": true,
+      "errorCode": null,
+      "errorCodeId": null,
+      "failureClass": "non_vehicle_exception",
+      "_logTime": "10-29 04:18:07.102"
+    }
+  ],
+  "limits": [
+    "Raw position0 only; closed semantics and actual position changes are not validated",
+    "SDK unregister API returned10times; no privileged inspection of native listener internals",
+    "Transient blocked-IPC SOC retry was unit-regression tested; healthy runtime SOC callbacks succeeded without a forced timeout",
+    "Initial CAP_HVAC_TARGET timeout1, SmartGlass unsupported60001 twice, target-temperature generic callback errors2 remain visible in raw evidence",
+    "Native IO itself is not forcibly cancellable; stop/close IO caller can wait for a truly blocked vendor call",
+    "No physical control, navigation start, actual microphone/speaker, new recording, or new permission used",
+    "Isolated demo backend is SDK-test infrastructure, not live campsite/API evidence",
+    "No trusted PARKED host contract; setters remain blocked for UNKNOWN",
+    "No overall SDK-success or official5/5score claim"
+  ],
+  "resources": {
+    "qemuPid": 36242,
+    "apiPid": 45689,
+    "reusedAndRetained": true,
+    "newVmStarted": false,
+    "logcatPid": 5108,
+    "logcatReturnCode": -15,
+    "buildExited": true,
+    "guestRebootProcessExited": true
+  },
+  "prior141EvidencePreserved": {
+    "apkSha256": "8a175bfe5fb0aaacaf0faab3342cabd753fb58b11d99305b483a95e19e0b574f",
+    "zip": "review-runtime/door-window-20261028/SDK_SOURCE_AND_EVIDENCE_20261028.zip",
+    "zipSha256": "5e2cd2443a04a14f8074e3ab8b8433092344703faa7edbf822f9d99ac79ff355"
+  }
+}

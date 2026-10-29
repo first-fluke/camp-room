@@ -1,23 +1,43 @@
 package camp.room.app
 
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
-import org.junit.Assert.*
-import org.junit.Test
 
 class SocCapabilityReaderTest {
     private class Clock {
-        data class Entry(val due: Long, val action: () -> Unit, var cancelled: Boolean = false)
+        data class Entry(
+            val due: Long,
+            val action: () -> Unit,
+            var cancelled: Boolean = false,
+        )
+
         var now = 0L
         val tasks = mutableListOf<Entry>()
-        fun schedule(delay: Long, action: () -> Unit): VehicleScheduledTask {
+
+        fun schedule(
+            delay: Long,
+            action: () -> Unit,
+        ): VehicleScheduledTask {
             val entry = Entry(now + delay, action)
             tasks += entry
             return VehicleScheduledTask { entry.cancelled = true }
         }
+
         fun advance(delay: Long) {
             val target = now + delay
             while (true) {
@@ -29,6 +49,7 @@ class SocCapabilityReaderTest {
             now = target
         }
     }
+
     private class Harness {
         val clock = Clock()
         val calls = mutableListOf<Pair<(Boolean) -> Unit, (Exception) -> Unit>>()
@@ -36,15 +57,22 @@ class SocCapabilityReaderTest {
         val ready = mutableListOf<Int>()
         val failures = mutableListOf<Pair<Int, Exception>>()
         var activeEpoch = 1
-        val reader = SocCapabilityReader(
-            check = { done, fail -> calls += done to fail },
-            schedule = clock::schedule,
-            dispatch = { dispatched += it; true },
-            onReadable = { ready += it },
-            onError = { epoch, error -> failures += epoch to error },
-            isActive = { it == activeEpoch },
-        )
-        fun drain() { while (dispatched.isNotEmpty()) dispatched.removeAt(0)() }
+        val reader =
+            SocCapabilityReader(
+                check = { done, fail -> calls += done to fail },
+                schedule = clock::schedule,
+                dispatch = {
+                    dispatched += it
+                    true
+                },
+                onReadable = { ready += it },
+                onError = { epoch, error -> failures += epoch to error },
+                isActive = { it == activeEpoch },
+            )
+
+        fun drain() {
+            while (dispatched.isNotEmpty()) dispatched.removeAt(0)()
+        }
     }
 
     @Test fun timeoutRecoversWithoutRestartAndOldSuccessCannotDoubleSubscribe() {
@@ -139,7 +167,8 @@ class SocCapabilityReaderTest {
         assertEquals(1, h.failures.size)
     }
 
-    @Test(timeout = 4000) fun blockedVendorDoesNotBlockTimeoutStopOrDispatchAndLateResultIsIgnored() {
+    @Test(timeout = 4000)
+    fun blockedVendorDoesNotBlockTimeoutStopOrDispatchAndLateResultIsIgnored() {
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
         val finished = CountDownLatch(1)
@@ -147,19 +176,24 @@ class SocCapabilityReaderTest {
         val failures = AtomicInteger()
         val clock = Clock()
         val io = VehicleSdkIo()
-        val reader = SocCapabilityReader(
-            check = { done, _ ->
-                entered.countDown()
-                release.await(3, TimeUnit.SECONDS)
-                done(true)
-            },
-            schedule = clock::schedule,
-            dispatch = { io.request("soc.retry", it) },
-            onReadable = { ready.incrementAndGet() },
-            onError = { _, _ -> failures.incrementAndGet() },
-        )
+        val reader =
+            SocCapabilityReader(
+                check = { done, _ ->
+                    entered.countDown()
+                    release.await(3, TimeUnit.SECONDS)
+                    done(true)
+                },
+                schedule = clock::schedule,
+                dispatch = { io.request("soc.retry", it) },
+                onReadable = { ready.incrementAndGet() },
+                onError = { _, _ -> failures.incrementAndGet() },
+            )
         Thread {
-            try { io.run { reader.start(1) } } finally { finished.countDown() }
+            try {
+                io.run { reader.start(1) }
+            } finally {
+                finished.countDown()
+            }
         }.apply { isDaemon = true }.start()
         assertTrue(entered.await(1, TimeUnit.SECONDS))
         try {
@@ -167,7 +201,9 @@ class SocCapabilityReaderTest {
             assertEquals(1, failures.get())
             reader.stop(1)
             assertFalse(finished.await(20, TimeUnit.MILLISECONDS))
-        } finally { release.countDown() }
+        } finally {
+            release.countDown()
+        }
         assertTrue(finished.await(1, TimeUnit.SECONDS))
         assertEquals(0, ready.get())
     }
@@ -176,16 +212,55 @@ class SocCapabilityReaderTest {
         val clock = Clock()
         val errors = mutableListOf<Exception>()
         var calls = 0
-        val reader = SocCapabilityReader(
-            check = { _, _ -> calls++; throw IllegalStateException("temporary service failure") },
-            schedule = clock::schedule,
-            dispatch = { false },
-            onReadable = { fail("must not be readable") },
-            onError = { _, error -> errors += error },
-        )
+        val reader =
+            SocCapabilityReader(
+                check = { _, _ ->
+                    calls++
+                    throw IllegalStateException("temporary service failure")
+                },
+                schedule = clock::schedule,
+                dispatch = { false },
+                onReadable = { fail("must not be readable") },
+                onError = { _, error -> errors += error },
+            )
         reader.start(1)
         clock.advance(60000)
         assertEquals(1, calls)
         assertEquals(2, errors.size)
+    }
+}
+
+class SocCapabilityTraceAttributionTest {
+    @Test fun anOldCapabilityCallbackKeepsItsOriginalEpochAndAttemptAfterRetryOrRestart() {
+        val calls = mutableListOf<Pair<(Boolean) -> Unit, (Exception) -> Unit>>()
+        val timers = mutableListOf<() -> Unit>()
+        val traces = mutableListOf<Triple<String, Int, Int>>()
+        val reader =
+            SocCapabilityReader(
+                check = { done, failed -> calls += done to failed },
+                schedule = { _, action ->
+                    timers += action
+                    VehicleScheduledTask {}
+                },
+                dispatch = {
+                    it()
+                    true
+                },
+                onReadable = {},
+                onError = { _, _ -> },
+                traceContext = { event, epoch, attempt, _ -> traces += Triple(event, epoch, attempt) },
+            )
+        reader.start(3)
+        timers[0]()
+        timers[1]()
+        calls[0].first(true)
+        assertEquals(Triple("ignored", 3, 1), traces.last())
+        calls[0].second(IllegalStateException("late old failure"))
+        assertEquals(Triple("ignored", 3, 1), traces.last())
+        reader.start(4)
+        calls[1].first(true)
+        assertEquals(Triple("ignored", 3, 2), traces.last())
+        calls[2].first(true)
+        assertEquals(Triple("capability", 4, 1), traces.last())
     }
 }

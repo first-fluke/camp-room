@@ -6,16 +6,37 @@
 
 package camp.room.app
 
-import camp.room.app.icons.CampIcons
-
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -28,9 +49,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import camp.room.app.icons.CampIcons
 
 @Composable
-fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
+fun CampsiteDetailDialog(
+    s: CampUiState,
+    vm: CampViewModel,
+) {
     val site = s.selectedSite ?: return
     val screen = LocalConfiguration.current
     val height = (screen.screenHeightDp * .9f).dp
@@ -40,7 +65,8 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
     ) {
         Surface(
             modifier =
-                Modifier.semantics { testTagsAsResourceId = true }
+                Modifier
+                    .semantics { testTagsAsResourceId = true }
                     .widthIn(max = 790.dp)
                     .fillMaxWidth(.92f)
                     .height(height),
@@ -49,14 +75,16 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
         ) {
             Column {
                 Box(
-                    Modifier.fillMaxWidth()
-                        .height(if (screen.screenHeightDp < 700) 142.dp else 205.dp)
+                    Modifier
+                        .fillMaxWidth()
+                        .height(if (screen.screenHeightDp < 700) 142.dp else 205.dp),
                 ) {
                     CampCampsiteImage(site, Modifier.fillMaxSize())
                     IconButton(
                         onClick = { vm.detail(null) },
                         modifier =
-                            Modifier.align(Alignment.TopEnd)
+                            Modifier
+                                .align(Alignment.TopEnd)
                                 .padding(12.dp)
                                 .background(CampPalette.Paper.copy(alpha = .9f), CircleShape)
                                 .size(CampDesign.IconTarget),
@@ -67,7 +95,6 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                             Modifier.size(24.dp),
                         )
                     }
-
                 }
                 Column(
                     Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(25.dp),
@@ -94,17 +121,23 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
                     )
-                    if (site.sourceMode == "demo") Text(
-                        tr(R.string.camp_example_campsite_context),
-                        fontSize = 22.sp,
-                        color = CampPalette.Muted,
-                        lineHeight = 28.sp,
-                    )
+                    if (site.sourceMode == "demo") {
+                        Text(
+                            tr(R.string.camp_example_campsite_context),
+                            fontSize = 22.sp,
+                            color = CampPalette.Muted,
+                            lineHeight = 28.sp,
+                        )
+                    }
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                         site.facilities.take(5).forEach { CampPill(facilityName(it)) }
                     }
                     HorizontalDivider(color = CampPalette.Line)
-                    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                    FlowRow(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
+                    ) {
                         DetailFact(
                             tr(camp.room.app.R.string.camp_sleeping_in_the_car),
                             when (site.carCamping) {
@@ -115,9 +148,11 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                         )
                         DetailFact(
                             tr(camp.room.app.R.string.camp_camping_power_212),
-                            if ("electricity" in site.facilities)
+                            if ("electricity" in site.facilities) {
                                 tr(camp.room.app.R.string.camp_provided)
-                            else tr(camp.room.app.R.string.camp_check_needed),
+                            } else {
+                                tr(camp.room.app.R.string.camp_check_needed)
+                            },
                         )
                         DetailFact(
                             tr(camp.room.app.R.string.camp_ev_charging),
@@ -147,7 +182,7 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                 tint = CampPalette.Muted,
                             )
                             Text(
-                                "  ${it}",
+                                "  $it",
                                 fontSize = 22.sp,
                                 color = CampPalette.Muted,
                             )
@@ -165,9 +200,11 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                                 Text(
                                     tr(
                                         camp.room.app.R.string.camp_campsite_parcel_receiving,
-                                        if (site.acceptsParcels)
+                                        if (site.acceptsParcels) {
                                             tr(camp.room.app.R.string.camp_accepted)
-                                        else tr(camp.room.app.R.string.camp_not_accepted),
+                                        } else {
+                                            tr(camp.room.app.R.string.camp_not_accepted)
+                                        },
                                     ),
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Medium,
@@ -218,10 +255,12 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
                     CampSecondary(
                         tr(R.string.camp_call_campsite),
                         enabled = false,
-                        modifier = Modifier.weight(1f)
-                            .heightIn(min = CampDesign.PrimaryHeight)
-                            .testTag("call-campsite")
-                            .semantics { stateDescription = phoneUnavailable },
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .heightIn(min = CampDesign.PrimaryHeight)
+                                .testTag("call-campsite")
+                                .semantics { stateDescription = phoneUnavailable },
                         onClick = {},
                     )
                 }
@@ -231,7 +270,10 @@ fun CampsiteDetailDialog(s: CampUiState, vm: CampViewModel) {
 }
 
 @Composable
-private fun DetailFact(label: String, value: String) {
+private fun DetailFact(
+    label: String,
+    value: String,
+) {
     Column(Modifier.widthIn(min = 180.dp, max = 240.dp)) {
         Text(
             label,
@@ -248,7 +290,10 @@ private fun DetailFact(label: String, value: String) {
 }
 
 @Composable
-fun CartDialog(s: CampUiState, vm: CampViewModel) {
+fun CartDialog(
+    s: CampUiState,
+    vm: CampViewModel,
+) {
     val data = s.data ?: return
     val screen = LocalConfiguration.current
     val height = (screen.screenHeightDp * .92f).dp
@@ -258,7 +303,8 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
     ) {
         Surface(
             modifier =
-                Modifier.semantics { testTagsAsResourceId = true }
+                Modifier
+                    .semantics { testTagsAsResourceId = true }
                     .widthIn(max = 1050.dp)
                     .fillMaxWidth(.96f)
                     .height(height),
@@ -271,7 +317,6 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-
                         Text(
                             tr(camp.room.app.R.string.camp_pack_a_little_rest_a_lot),
                             fontSize = 24.sp,
@@ -281,7 +326,7 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                         Text(
                             tr(
                                 camp.room.app.R.string
-                                    .camp_bring_the_little_things_this_journey_needs
+                                    .camp_bring_the_little_things_this_journey_needs,
                             ),
                             fontSize = 22.sp,
                             color = CampPalette.Muted,
@@ -293,34 +338,45 @@ fun CartDialog(s: CampUiState, vm: CampViewModel) {
                     }
                 }
                 HorizontalDivider(color = CampPalette.Line)
-                if (s.order != null) OrderConfirmation(s.order, vm, Modifier.weight(1f))
-                else
+                if (s.order != null) {
+                    OrderConfirmation(s.order, vm, Modifier.weight(1f))
+                } else {
                     BoxWithConstraints(Modifier.weight(1f)) {
-                        if (maxWidth > 960.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale)
+                        if (maxWidth > 960.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale) {
                             Row(Modifier.fillMaxSize()) {
                                 CartItems(s, vm, Modifier.weight(1.1f).fillMaxHeight())
                                 CheckoutPanel(s, vm, Modifier.weight(1f).fillMaxHeight())
                             }
-                        else
+                        } else {
                             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
                                 CartItemsContent(s, vm, Modifier.fillMaxWidth())
                                 CheckoutContent(s, vm, Modifier.fillMaxWidth())
                             }
+                        }
                     }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun CartItems(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
+private fun CartItems(
+    s: CampUiState,
+    vm: CampViewModel,
+    modifier: Modifier,
+) {
     Column(modifier.verticalScroll(rememberScrollState())) {
         CartItemsContent(s, vm, Modifier.fillMaxWidth())
     }
 }
 
 @Composable
-private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
+private fun CartItemsContent(
+    s: CampUiState,
+    vm: CampViewModel,
+    modifier: Modifier,
+) {
     val data = s.data ?: return
     Column(modifier.padding(25.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
@@ -328,7 +384,7 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
             fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
         )
-        if (data.cart.items.isEmpty())
+        if (data.cart.items.isEmpty()) {
             Column(
                 Modifier.fillMaxWidth().padding(vertical = 23.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -352,6 +408,7 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                     modifier = Modifier.padding(top = 5.dp),
                 )
             }
+        }
         data.cart.items.forEach { item ->
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -360,21 +417,33 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                         Text(item.name, fontSize = 22.sp, fontWeight = FontWeight.Medium)
                         Text(won(item.unitPrice), fontSize = 22.sp, color = CampPalette.Muted)
                     }
-                    IconButton(onClick = { vm.quantity(item.id, 0) }, enabled = !s.busy,
-                        modifier = Modifier.size(CampDesign.IconTarget)) {
+                    IconButton(
+                        onClick = { vm.quantity(item.id, 0) },
+                        enabled = !s.busy,
+                        modifier = Modifier.size(CampDesign.IconTarget),
+                    ) {
                         Icon(CampIcons.Trash, tr(R.string.camp_remove, item.name), Modifier.size(24.dp), tint = CampPalette.Muted)
                     }
                 }
-                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                FlowRow(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedIconButton(onClick = { vm.quantity(item.id, item.quantity - 1) },
-                            enabled = !s.busy && item.quantity > 1, modifier = Modifier.size(CampDesign.IconTarget)) {
+                        OutlinedIconButton(
+                            onClick = { vm.quantity(item.id, item.quantity - 1) },
+                            enabled = !s.busy && item.quantity > 1,
+                            modifier = Modifier.size(CampDesign.IconTarget),
+                        ) {
                             Icon(CampIcons.Minus, tr(R.string.camp_decrease_quantity, item.name), Modifier.size(24.dp))
                         }
                         Text(item.quantity.toString(), fontSize = 22.sp, modifier = Modifier.padding(horizontal = 13.dp))
-                        OutlinedIconButton(onClick = { vm.quantity(item.id, item.quantity + 1) },
-                            enabled = !s.busy, modifier = Modifier.size(CampDesign.IconTarget)) {
+                        OutlinedIconButton(
+                            onClick = { vm.quantity(item.id, item.quantity + 1) },
+                            enabled = !s.busy,
+                            modifier = Modifier.size(CampDesign.IconTarget),
+                        ) {
                             Icon(CampIcons.Plus, tr(R.string.camp_increase_quantity, item.name), Modifier.size(24.dp))
                         }
                     }
@@ -407,33 +476,36 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Text(won(product.price), fontSize = 22.sp, color = CampPalette.Muted)
-                    if (product.stock <= 0)
+                    if (product.stock <= 0) {
                         CampSecondary(
                             tr(R.string.camp_out_of_stock),
                             enabled = false,
                             modifier = Modifier.testTag("cart-product-add-${product.id}"),
                             onClick = {},
                         )
-                    else FilledTonalIconButton(
-                        colors =
-                            IconButtonDefaults.filledTonalIconButtonColors(
-                                containerColor = CampPalette.Sage,
-                                contentColor = CampPalette.Forest,
-                                disabledContainerColor = CampPalette.Canvas,
-                                disabledContentColor = CampPalette.Muted,
-                            ),
-                        onClick = { vm.addProduct(product.id) },
-                        enabled = !s.busy && product.stock > 0,
-                        modifier =
-                            Modifier.size(CampDesign.IconTarget)
-                                .testTag("cart-product-add-${product.id}"),
-                        shape = RoundedCornerShape(6.dp),
-                    ) {
-                        Icon(
-                            CampIcons.Plus,
-                            tr(camp.room.app.R.string.camp_add_another, product.name),
-                            Modifier.size(24.dp),
-                        )
+                    } else {
+                        FilledTonalIconButton(
+                            colors =
+                                IconButtonDefaults.filledTonalIconButtonColors(
+                                    containerColor = CampPalette.Sage,
+                                    contentColor = CampPalette.Forest,
+                                    disabledContainerColor = CampPalette.Canvas,
+                                    disabledContentColor = CampPalette.Muted,
+                                ),
+                            onClick = { vm.addProduct(product.id) },
+                            enabled = !s.busy && product.stock > 0,
+                            modifier =
+                                Modifier
+                                    .size(CampDesign.IconTarget)
+                                    .testTag("cart-product-add-${product.id}"),
+                            shape = RoundedCornerShape(6.dp),
+                        ) {
+                            Icon(
+                                CampIcons.Plus,
+                                tr(camp.room.app.R.string.camp_add_another, product.name),
+                                Modifier.size(24.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -442,14 +514,22 @@ private fun CartItemsContent(s: CampUiState, vm: CampViewModel, modifier: Modifi
 }
 
 @Composable
-private fun CheckoutPanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
+private fun CheckoutPanel(
+    s: CampUiState,
+    vm: CampViewModel,
+    modifier: Modifier,
+) {
     Column(modifier.background(CampPalette.Canvas).verticalScroll(rememberScrollState())) {
         CheckoutContent(s, vm, Modifier.fillMaxWidth())
     }
 }
 
 @Composable
-private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
+private fun CheckoutContent(
+    s: CampUiState,
+    vm: CampViewModel,
+    modifier: Modifier,
+) {
     val cart = s.data?.cart ?: return
     val site = s.tripSite
     val trip = s.data.trip
@@ -495,7 +575,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
             shape = RoundedCornerShape(7.dp),
         )
-        if (s.destination == "home")
+        if (s.destination == "home") {
             OutlinedTextField(
                 value = s.address,
                 onValueChange = { vm.delivery(address = it) },
@@ -512,7 +592,7 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                 textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
                 shape = RoundedCornerShape(7.dp),
             )
-        else {
+        } else {
             Surface(color = CampPalette.Sage, shape = RoundedCornerShape(7.dp)) {
                 Row(Modifier.padding(13.dp)) {
                     Icon(
@@ -534,10 +614,11 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
                             modifier = Modifier.padding(top = 4.dp),
                         )
                         Text(
-                            if (site?.acceptsParcels == true)
+                            if (site?.acceptsParcels == true) {
                                 tr(camp.room.app.R.string.camp_parcels_accepted)
-                            else
-                                tr(camp.room.app.R.string.camp_parcels_not_accepted_or_unconfirmed),
+                            } else {
+                                tr(camp.room.app.R.string.camp_parcels_not_accepted_or_unconfirmed)
+                            },
                             fontSize = 22.sp,
                             color = CampPalette.Muted,
                             modifier = Modifier.padding(top = 5.dp),
@@ -584,30 +665,36 @@ private fun CheckoutContent(s: CampUiState, vm: CampViewModel, modifier: Modifie
             ) {
                 Row(Modifier.padding(14.dp)) {
                     Icon(
-                        if (quote.eligible) CampIcons.CheckCircle
-                        else CampIcons.WarningCircle,
+                        if (quote.eligible) {
+                            CampIcons.CheckCircle
+                        } else {
+                            CampIcons.WarningCircle
+                        },
                         null,
                         Modifier.size(24.dp),
                         tint = if (quote.eligible) CampPalette.Muted else CampPalette.Danger,
                     )
                     Column(Modifier.weight(1f).padding(start = 9.dp)) {
                         Text(
-                            if (quote.eligible) tr(camp.room.app.R.string.camp_expected, quote.eta)
-                            else
+                            if (quote.eligible) {
+                                tr(camp.room.app.R.string.camp_expected, quote.eta)
+                            } else {
                                 tr(
                                     camp.room.app.R.string
-                                        .camp_this_delivery_doesn_t_fit_the_receiving
-                                ),
+                                        .camp_this_delivery_doesn_t_fit_the_receiving,
+                                )
+                            },
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Medium,
                         )
-                        if (quote.reason.isNotBlank())
+                        if (quote.reason.isNotBlank()) {
                             Text(
                                 quote.reason,
                                 fontSize = 22.sp,
                                 color = CampPalette.Muted,
                                 modifier = Modifier.padding(top = 5.dp),
                             )
+                        }
                         quote.conditions.forEach {
                             Text(
                                 it,
@@ -674,7 +761,7 @@ private fun DeliveryChoice(
     Surface(
         onClick = { vm.delivery(destination = value) },
         enabled = !s.busy && s.interactionAllowed,
-        modifier = modifier.testTag("delivery-${value}"),
+        modifier = modifier.testTag("delivery-$value"),
         shape = RoundedCornerShape(7.dp),
         color = if (selected) CampPalette.Sage else CampPalette.Paper,
         border =
@@ -690,7 +777,7 @@ private fun DeliveryChoice(
         ) {
             Icon(icon, null, Modifier.size(24.dp), tint = CampPalette.Muted)
             Text(
-                "  ${label}",
+                "  $label",
                 fontSize = 22.sp,
                 color = if (selected) CampPalette.Forest else CampPalette.Muted,
             )
@@ -699,7 +786,10 @@ private fun DeliveryChoice(
 }
 
 @Composable
-private fun PriceRow(label: String, value: String) {
+private fun PriceRow(
+    label: String,
+    value: String,
+) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(label, fontSize = 22.sp, color = CampPalette.Muted)
         Text(value, fontSize = 22.sp, fontWeight = FontWeight.Medium)
@@ -707,7 +797,11 @@ private fun PriceRow(label: String, value: String) {
 }
 
 @Composable
-private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifier) {
+private fun OrderConfirmation(
+    order: Order,
+    vm: CampViewModel,
+    modifier: Modifier,
+) {
     Column(
         modifier
             .fillMaxWidth()
@@ -740,8 +834,11 @@ private fun OrderConfirmation(order: Order, vm: CampViewModel, modifier: Modifie
             PriceRow(tr(camp.room.app.R.string.camp_estimated_arrival), order.eta)
             PriceRow(
                 tr(camp.room.app.R.string.camp_receiving_at),
-                if (order.destination == "home") tr(camp.room.app.R.string.camp_home)
-                else tr(camp.room.app.R.string.camp_campsite),
+                if (order.destination == "home") {
+                    tr(camp.room.app.R.string.camp_home)
+                } else {
+                    tr(camp.room.app.R.string.camp_campsite)
+                },
             )
             Text(
                 order.address,

@@ -1,6 +1,16 @@
 package camp.room.app
 
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 
 class VehicleListenerCleanupTest {
@@ -12,7 +22,12 @@ class VehicleListenerCleanupTest {
         var nativeRegistrations = 1
         cleanup.retain(old)
         cleanup.retain(old)
-        assertFalse(cleanup.drain({ attempted += it; throw IllegalStateException("temporary failure") }, {}))
+        assertFalse(
+            cleanup.drain({
+                attempted += it
+                throw IllegalStateException("temporary failure")
+            }, {}),
+        )
         if (!cleanup.hasPending()) nativeRegistrations++
         assertEquals(1, nativeRegistrations)
         assertFalse(cleanup.drain({ fail("backoff must suppress IPC") }, {}))
@@ -31,7 +46,13 @@ class VehicleListenerCleanupTest {
         cleanup.retain(listener)
         var calls = 0
         for (delay in listOf(2000L, 4000L, 8000L, 15000L, 15000L)) {
-            assertFalse(cleanup.drain({ assertSame(listener, it); calls++; throw IllegalStateException("test") }, {}))
+            assertFalse(
+                cleanup.drain({
+                    assertSame(listener, it)
+                    calls++
+                    throw IllegalStateException("test")
+                }, {}),
+            )
             now += delay
         }
         now += 100000
@@ -41,7 +62,9 @@ class VehicleListenerCleanupTest {
     }
 
     @Test fun equalityCannotSubstituteAnotherListenerIdentity() {
-        data class Listener(val value: Int)
+        data class Listener(
+            val value: Int,
+        )
         val first = Listener(1)
         val second = Listener(1)
         val cleanup = VehicleListenerCleanup<Listener>()
@@ -55,19 +78,29 @@ class VehicleListenerCleanupTest {
     }
 
     @Test fun throwingDiagnosticsCannotStrandOtherReservedExactListenersInFlight() {
-        var now=0L
-        val cleanup=VehicleListenerCleanup<Any>{now}
-        val first=Any();val second=Any()
-        cleanup.retain(first);cleanup.retain(second)
-        val attempted=mutableListOf<Any>()
-        assertFalse(cleanup.drain({listener->
-            attempted.add(listener)
-            if(listener===first)throw IllegalStateException("first native unregister failed")
-        },{throw IllegalStateException("diagnostic sink unavailable")}))
-        assertEquals(2,attempted.size)
-        assertSame(first,attempted[0]);assertSame(second,attempted[1])
-        now=2000
-        assertTrue(cleanup.drain({listener->assertSame(first,listener);attempted.add(listener)},{}))
-        assertEquals(3,attempted.size)
+        var now = 0L
+        val cleanup = VehicleListenerCleanup<Any> { now }
+        val first = Any()
+        val second = Any()
+        cleanup.retain(first)
+        cleanup.retain(second)
+        val attempted = mutableListOf<Any>()
+        assertFalse(
+            cleanup.drain({ listener ->
+                attempted.add(listener)
+                if (listener === first) throw IllegalStateException("first native unregister failed")
+            }, { throw IllegalStateException("diagnostic sink unavailable") }),
+        )
+        assertEquals(2, attempted.size)
+        assertSame(first, attempted[0])
+        assertSame(second, attempted[1])
+        now = 2000
+        assertTrue(
+            cleanup.drain({ listener ->
+                assertSame(first, listener)
+                attempted.add(listener)
+            }, {}),
+        )
+        assertEquals(3, attempted.size)
     }
 }

@@ -1,9 +1,17 @@
 package camp.room.app
 
-internal enum class RecognitionCallback(val traceName: String) {
-    INITIALIZED("initialize.onSuccess"), INITIALIZE_FAILED("initialize.onFailure"), READY("onReady"),
-    STARTED("onStartedRecognition"), ENDED("onEndedRecognition"), PARTIAL_RESULT("onUpdated.partial"),
-    FINAL_RESULT("onUpdated.completed"), ERROR("onError"), RMS("onUpdatedRms"),
+internal enum class RecognitionCallback(
+    val traceName: String,
+) {
+    INITIALIZED("initialize.onSuccess"),
+    INITIALIZE_FAILED("initialize.onFailure"),
+    READY("onReady"),
+    STARTED("onStartedRecognition"),
+    ENDED("onEndedRecognition"),
+    PARTIAL_RESULT("onUpdated.partial"),
+    FINAL_RESULT("onUpdated.completed"),
+    ERROR("onError"),
+    RMS("onUpdatedRms"),
 }
 
 internal enum class RecognitionCallbackDisposition { CURRENT, INACTIVE_HOST, STALE_SESSION, TERMINAL_SESSION }
@@ -13,12 +21,13 @@ internal fun recognitionCallbackDisposition(
     hostActive: Boolean,
     sameRun: Boolean,
     sessionCurrent: Boolean,
-): RecognitionCallbackDisposition = when {
-    !hostActive -> RecognitionCallbackDisposition.INACTIVE_HOST
-    !sameRun -> RecognitionCallbackDisposition.STALE_SESSION
-    !sessionCurrent -> RecognitionCallbackDisposition.TERMINAL_SESSION
-    else -> RecognitionCallbackDisposition.CURRENT
-}
+): RecognitionCallbackDisposition =
+    when {
+        !hostActive -> RecognitionCallbackDisposition.INACTIVE_HOST
+        !sameRun -> RecognitionCallbackDisposition.STALE_SESSION
+        !sessionCurrent -> RecognitionCallbackDisposition.TERMINAL_SESSION
+        else -> RecognitionCallbackDisposition.CURRENT
+    }
 
 internal data class RecognitionCallbackObservation(
     val disposition: RecognitionCallbackDisposition,
@@ -88,8 +97,13 @@ internal class SpeechRecognitionDiagnostics(
             if (observation.current) {
                 currentFinalResults = increment(currentFinalResults)
                 if (blank) blankFinalResults = increment(blankFinalResults)
-                if (finalCharacterCount == null) { finalCharacterCount = characterCount.coerceAtLeast(0); finalBlank = blank }
-            } else ignoredFinalResults = increment(ignoredFinalResults)
+                if (finalCharacterCount == null) {
+                    finalCharacterCount = characterCount.coerceAtLeast(0)
+                    finalBlank = blank
+                }
+            } else {
+                ignoredFinalResults = increment(ignoredFinalResults)
+            }
         } else {
             partialResults = increment(partialResults)
             if (observation.current) {
@@ -100,7 +114,10 @@ internal class SpeechRecognitionDiagnostics(
         return observation
     }
 
-    @Synchronized fun rms(value: Double, disposition: RecognitionCallbackDisposition) {
+    @Synchronized fun rms(
+        value: Double,
+        disposition: RecognitionCallbackDisposition,
+    ) {
         val observation = observe(RecognitionCallback.RMS, disposition)
         rmsCallbacks = increment(rmsCallbacks)
         if (!observation.current) return
@@ -109,7 +126,9 @@ internal class SpeechRecognitionDiagnostics(
             finiteRms = increment(finiteRms)
             rmsMin = rmsMin?.let { minOf(it, value) } ?: value
             rmsMax = rmsMax?.let { maxOf(it, value) } ?: value
-        } else nonfiniteRms = increment(nonfiniteRms)
+        } else {
+            nonfiniteRms = increment(nonfiniteRms)
+        }
     }
 
     @Synchronized fun terminal(phase: SpeechPhase) {
@@ -119,53 +138,62 @@ internal class SpeechRecognitionDiagnostics(
     }
 
     /** A fixed set of scalar fields: no audio, transcript, callback history, or inferred scores. */
-    @Synchronized fun fields(): Array<Pair<String, Any?>> = arrayOf(
-        "sessionEpoch" to sessionEpoch,
-        "elapsedMillis" to now(),
-        "requestAtMillis" to requestAtMillis,
-        "initializedAtMillis" to firstCallbacks[RecognitionCallback.INITIALIZED],
-        "readyAtMillis" to firstCallbacks[RecognitionCallback.READY],
-        "startedAtMillis" to firstCallbacks[RecognitionCallback.STARTED],
-        "endedAtMillis" to firstCallbacks[RecognitionCallback.ENDED],
-        "firstPartialAtMillis" to firstCallbacks[RecognitionCallback.PARTIAL_RESULT],
-        "firstFinalAtMillis" to firstCallbacks[RecognitionCallback.FINAL_RESULT],
-        "terminalAtMillis" to terminalAtMillis,
-        "terminalPhase" to terminalPhase?.name,
-        "callbackCount" to callbacks,
-        "currentCallbackCount" to currentCallbacks,
-        "inactiveCallbackCount" to inactiveCallbacks,
-        "staleCallbackCount" to staleCallbacks,
-        "afterTerminalCallbackCount" to terminalCallbacks,
-        "partialResultCount" to partialResults,
-        "finalResultCount" to finalResults,
-        "currentPartialResultCount" to currentPartialResults,
-        "currentFinalResultCount" to currentFinalResults,
-        "blankFinalResultCount" to blankFinalResults,
-        "ignoredFinalResultCount" to ignoredFinalResults,
-        "lastPartialCharacterCount" to partialCharacterCount,
-        "finalCharacterCount" to finalCharacterCount,
-        "finalBlank" to finalBlank,
-        "characterCountUnit" to "UTF16_CODE_UNITS",
-        "rmsCallbackCount" to rmsCallbacks,
-        "finiteRmsSampleCount" to finiteRms,
-        "nonfiniteRmsSampleCount" to nonfiniteRms,
-        "rmsMin" to rmsMin,
-        "rmsMax" to rmsMax,
-        "firstRmsAtMillis" to firstCallbacks[RecognitionCallback.RMS],
-        "lastRmsAtMillis" to lastRmsAtMillis,
-        "rmsUnit" to "SDK_RAW_UNSPECIFIED",
-        "rmsObservation" to when {
-            finiteRms > 0L -> "FINITE_OBSERVED"
-            nonfiniteRms > 0L -> "NONFINITE_ONLY"
-            else -> "NO_CURRENT_CALLBACKS"
-        },
-        "accuracyAssessment" to "NOT_AVAILABLE",
-    )
+    @Synchronized fun fields(): Array<Pair<String, Any?>> =
+        arrayOf(
+            "sessionEpoch" to sessionEpoch,
+            "elapsedMillis" to now(),
+            "requestAtMillis" to requestAtMillis,
+            "initializedAtMillis" to firstCallbacks[RecognitionCallback.INITIALIZED],
+            "readyAtMillis" to firstCallbacks[RecognitionCallback.READY],
+            "startedAtMillis" to firstCallbacks[RecognitionCallback.STARTED],
+            "endedAtMillis" to firstCallbacks[RecognitionCallback.ENDED],
+            "firstPartialAtMillis" to firstCallbacks[RecognitionCallback.PARTIAL_RESULT],
+            "firstFinalAtMillis" to firstCallbacks[RecognitionCallback.FINAL_RESULT],
+            "terminalAtMillis" to terminalAtMillis,
+            "terminalPhase" to terminalPhase?.name,
+            "callbackCount" to callbacks,
+            "currentCallbackCount" to currentCallbacks,
+            "inactiveCallbackCount" to inactiveCallbacks,
+            "staleCallbackCount" to staleCallbacks,
+            "afterTerminalCallbackCount" to terminalCallbacks,
+            "partialResultCount" to partialResults,
+            "finalResultCount" to finalResults,
+            "currentPartialResultCount" to currentPartialResults,
+            "currentFinalResultCount" to currentFinalResults,
+            "blankFinalResultCount" to blankFinalResults,
+            "ignoredFinalResultCount" to ignoredFinalResults,
+            "lastPartialCharacterCount" to partialCharacterCount,
+            "finalCharacterCount" to finalCharacterCount,
+            "finalBlank" to finalBlank,
+            "characterCountUnit" to "UTF16_CODE_UNITS",
+            "rmsCallbackCount" to rmsCallbacks,
+            "finiteRmsSampleCount" to finiteRms,
+            "nonfiniteRmsSampleCount" to nonfiniteRms,
+            "rmsMin" to rmsMin,
+            "rmsMax" to rmsMax,
+            "firstRmsAtMillis" to firstCallbacks[RecognitionCallback.RMS],
+            "lastRmsAtMillis" to lastRmsAtMillis,
+            "rmsUnit" to "SDK_RAW_UNSPECIFIED",
+            "rmsObservation" to
+                when {
+                    finiteRms > 0L -> "FINITE_OBSERVED"
+                    nonfiniteRms > 0L -> "NONFINITE_ONLY"
+                    else -> "NO_CURRENT_CALLBACKS"
+                },
+            "accuracyAssessment" to "NOT_AVAILABLE",
+        )
 
-    private fun observe(callback: RecognitionCallback, disposition: RecognitionCallbackDisposition): RecognitionCallbackObservation {
+    private fun observe(
+        callback: RecognitionCallback,
+        disposition: RecognitionCallbackDisposition,
+    ): RecognitionCallbackObservation {
         // Defensive guard: a diagnostic call cannot overwrite terminal facts even with a stale caller check.
-        val actual = if (disposition == RecognitionCallbackDisposition.CURRENT && terminalPhase != null)
-            RecognitionCallbackDisposition.TERMINAL_SESSION else disposition
+        val actual =
+            if (disposition == RecognitionCallbackDisposition.CURRENT && terminalPhase != null) {
+                RecognitionCallbackDisposition.TERMINAL_SESSION
+            } else {
+                disposition
+            }
         val elapsed = now()
         callbacks = increment(callbacks)
         when (actual) {
@@ -173,9 +201,18 @@ internal class SpeechRecognitionDiagnostics(
                 currentCallbacks = increment(currentCallbacks)
                 if (!firstCallbacks.containsKey(callback)) firstCallbacks[callback] = elapsed
             }
-            RecognitionCallbackDisposition.INACTIVE_HOST -> inactiveCallbacks = increment(inactiveCallbacks)
-            RecognitionCallbackDisposition.STALE_SESSION -> staleCallbacks = increment(staleCallbacks)
-            RecognitionCallbackDisposition.TERMINAL_SESSION -> terminalCallbacks = increment(terminalCallbacks)
+
+            RecognitionCallbackDisposition.INACTIVE_HOST -> {
+                inactiveCallbacks = increment(inactiveCallbacks)
+            }
+
+            RecognitionCallbackDisposition.STALE_SESSION -> {
+                staleCallbacks = increment(staleCallbacks)
+            }
+
+            RecognitionCallbackDisposition.TERMINAL_SESSION -> {
+                terminalCallbacks = increment(terminalCallbacks)
+            }
         }
         // Each callback/rejection pair can log only once per run; RMS is aggregated without sample logs.
         val shouldTrace = callback != RecognitionCallback.RMS && traced.add(callback to actual)

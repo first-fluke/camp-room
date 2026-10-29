@@ -73,10 +73,7 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
           persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          cache: ${{ github.event_name != 'workflow_dispatch' && 'npm' || '' }}
-      - run: npm ci
-      - run: npm --workspace admin run typecheck
-      - run: npm --workspace admin test
+      - uses: jdx/mise-action@v2
+      - run: bun install --frozen-lockfile
+      - run: mise run //apps/admin:typecheck
+      - run: mise run //apps/admin:test

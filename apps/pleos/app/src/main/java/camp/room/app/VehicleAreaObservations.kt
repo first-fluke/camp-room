@@ -3,7 +3,10 @@ package camp.room.app
 enum class VehicleAreaKind { DOOR, WINDOW }
 
 /** The native area remains one identity even when it represents several members. */
-data class VehicleAreaKey(val kind: VehicleAreaKind, val nativeAreaId: String)
+data class VehicleAreaKey(
+    val kind: VehicleAreaKind,
+    val nativeAreaId: String,
+)
 
 data class VehicleAreaConfig(
     val key: VehicleAreaKey,
@@ -89,7 +92,10 @@ class VehicleAreaObservations(
 
     /** Replaces the complete capability set; an ambiguous set leaves no old values. */
     @Synchronized
-    fun configure(configs: List<VehicleAreaConfig>, epoch: Int): Boolean {
+    fun configure(
+        configs: List<VehicleAreaConfig>,
+        epoch: Int,
+    ): Boolean {
         if (epoch != currentEpoch) return false
         invalidate()
         if (configs.map { it.key }.toSet().size != configs.size) return false
@@ -97,29 +103,33 @@ class VehicleAreaObservations(
         for (supplied in configs) {
             val config = supplied.copy(members = supplied.members.toSet())
             val unavailable = unavailableReason(config)
-            entries[config.key] = Entry(
-                config,
-                VehicleAreaObservation(
-                    key = config.key,
-                    members = config.members.toSet(),
-                    rawPosition = null,
-                    minPosition = config.minPosition,
-                    maxPosition = config.maxPosition,
-                    access = config.access,
-                    status = if (unavailable != null) VehicleAreaStatus.UNAVAILABLE else VehicleAreaStatus.UNKNOWN,
-                    reason = unavailable ?: "not_observed",
-                    sampledAtMillis = null,
-                    updatedAtMillis = now,
-                    epoch = epoch,
-                ),
-            )
+            entries[config.key] =
+                Entry(
+                    config,
+                    VehicleAreaObservation(
+                        key = config.key,
+                        members = config.members.toSet(),
+                        rawPosition = null,
+                        minPosition = config.minPosition,
+                        maxPosition = config.maxPosition,
+                        access = config.access,
+                        status = if (unavailable != null) VehicleAreaStatus.UNAVAILABLE else VehicleAreaStatus.UNKNOWN,
+                        reason = unavailable ?: "not_observed",
+                        sampledAtMillis = null,
+                        updatedAtMillis = now,
+                        epoch = epoch,
+                    ),
+                )
         }
         return true
     }
 
     /** A second concurrent getter for the same area is not admitted. */
     @Synchronized
-    fun beginRead(key: VehicleAreaKey, epoch: Int): VehicleAreaReadToken? {
+    fun beginRead(
+        key: VehicleAreaKey,
+        epoch: Int,
+    ): VehicleAreaReadToken? {
         if (epoch != currentEpoch) return null
         val entry = entries[key] ?: return null
         if (entry.read != null || unavailableReason(entry.config) != null) return null
@@ -166,7 +176,10 @@ class VehicleAreaObservations(
 
     /** Keeps the last raw evidence and its original sample time, but marks failure. */
     @Synchronized
-    fun fail(token: VehicleAreaReadToken, reason: String): Boolean {
+    fun fail(
+        token: VehicleAreaReadToken,
+        reason: String,
+    ): Boolean {
         val entry = currentEntry(token) ?: return false
         entry.read = null
         markFailure(entry, reason)
@@ -175,7 +188,11 @@ class VehicleAreaObservations(
 
     /** Subscription/service failure, distinct from a getter's token-bound failure. */
     @Synchronized
-    fun failArea(key: VehicleAreaKey, epoch: Int, reason: String): Boolean {
+    fun failArea(
+        key: VehicleAreaKey,
+        epoch: Int,
+        reason: String,
+    ): Boolean {
         if (epoch != currentEpoch) return false
         val entry = entries[key] ?: return false
         entry.read = null
@@ -190,20 +207,31 @@ class VehicleAreaObservations(
         return entries.values.map { entry ->
             val sample = entry.observation
             val sampledAt = sample.sampledAtMillis
-            val displayed = if (sample.status == VehicleAreaStatus.OBSERVED && sampledAt != null) {
-                when {
-                    now < sampledAt -> sample.copy(status = VehicleAreaStatus.STALE, reason = "clock_moved_backwards", closed = null)
-                    ageExceedsLimit(now, sampledAt) -> sample.copy(status = VehicleAreaStatus.STALE, reason = "stale_sample", closed = null)
-                    else -> sample
+            val displayed =
+                if (sample.status == VehicleAreaStatus.OBSERVED && sampledAt != null) {
+                    when {
+                        now < sampledAt -> sample.copy(status = VehicleAreaStatus.STALE, reason = "clock_moved_backwards", closed = null)
+
+                        ageExceedsLimit(
+                            now,
+                            sampledAt,
+                        ) -> sample.copy(status = VehicleAreaStatus.STALE, reason = "stale_sample", closed = null)
+
+                        else -> sample
+                    }
+                } else {
+                    sample
                 }
-            } else sample
             displayed.copy(members = displayed.members.toSet())
         }
     }
 
     /** Empty, partial, invalid, old, or semantically unverified data is unknown. */
     @Synchronized
-    fun allClosed(kind: VehicleAreaKind, epoch: Int): Boolean? {
+    fun allClosed(
+        kind: VehicleAreaKind,
+        epoch: Int,
+    ): Boolean? {
         val areas = snapshot(epoch).filter { it.kind == kind }
         if (areas.isEmpty() || areas.any { it.status != VehicleAreaStatus.OBSERVED || it.closed == null }) return null
         return areas.all { it.closed == true }
@@ -220,16 +248,24 @@ class VehicleAreaObservations(
         return entries[token.key]?.takeIf { it.read == token }
     }
 
-    private fun markFailure(entry: Entry, reason: String) {
-        entry.observation = entry.observation.copy(
-            status = VehicleAreaStatus.ERROR,
-            reason = reason.ifBlank { "read_failed" },
-            updatedAtMillis = clockMillis(),
-            closed = null,
-        )
+    private fun markFailure(
+        entry: Entry,
+        reason: String,
+    ) {
+        entry.observation =
+            entry.observation.copy(
+                status = VehicleAreaStatus.ERROR,
+                reason = reason.ifBlank { "read_failed" },
+                updatedAtMillis = clockMillis(),
+                closed = null,
+            )
     }
 
-    private fun observe(entry: Entry, rawPosition: Int?, sampledAtMillis: Long): Boolean {
+    private fun observe(
+        entry: Entry,
+        rawPosition: Int?,
+        sampledAtMillis: Long,
+    ): Boolean {
         val previousAt = entry.lastOrderedSampleAtMillis
         if (previousAt != null && sampledAtMillis < previousAt) return false
         val now = clockMillis()
@@ -237,36 +273,42 @@ class VehicleAreaObservations(
         val unavailable = unavailableReason(config)
         val min = config.minPosition
         val max = config.maxPosition
-        val (status, reason) = when {
-            sampledAtMillis > now -> VehicleAreaStatus.ERROR to "future_sample_time"
-            unavailable != null -> VehicleAreaStatus.UNAVAILABLE to unavailable
-            rawPosition == null -> VehicleAreaStatus.EMPTY to "null_position"
-            min == null || max == null -> VehicleAreaStatus.INVALID_BOUNDS to "missing_bounds"
-            min >= max -> VehicleAreaStatus.INVALID_BOUNDS to "invalid_bounds"
-            rawPosition < min || rawPosition > max -> VehicleAreaStatus.OUT_OF_RANGE to "position_out_of_range"
-            ageExceedsLimit(now, sampledAtMillis) -> VehicleAreaStatus.STALE to "stale_sample"
-            else -> VehicleAreaStatus.OBSERVED to null
-        }
+        val (status, reason) =
+            when {
+                sampledAtMillis > now -> VehicleAreaStatus.ERROR to "future_sample_time"
+                unavailable != null -> VehicleAreaStatus.UNAVAILABLE to unavailable
+                rawPosition == null -> VehicleAreaStatus.EMPTY to "null_position"
+                min == null || max == null -> VehicleAreaStatus.INVALID_BOUNDS to "missing_bounds"
+                min >= max -> VehicleAreaStatus.INVALID_BOUNDS to "invalid_bounds"
+                rawPosition < min || rawPosition > max -> VehicleAreaStatus.OUT_OF_RANGE to "position_out_of_range"
+                ageExceedsLimit(now, sampledAtMillis) -> VehicleAreaStatus.STALE to "stale_sample"
+                else -> VehicleAreaStatus.OBSERVED to null
+            }
         if (sampledAtMillis <= now) entry.lastOrderedSampleAtMillis = sampledAtMillis
-        entry.observation = entry.observation.copy(
-            rawPosition = rawPosition,
-            status = status,
-            reason = reason,
-            sampledAtMillis = sampledAtMillis,
-            updatedAtMillis = now,
-            closed = null,
-        )
+        entry.observation =
+            entry.observation.copy(
+                rawPosition = rawPosition,
+                status = status,
+                reason = reason,
+                sampledAtMillis = sampledAtMillis,
+                updatedAtMillis = now,
+                closed = null,
+            )
         return true
     }
 
-    private fun unavailableReason(config: VehicleAreaConfig): String? = when {
-        config.key.nativeAreaId.isBlank() -> "missing_native_area_id"
-        config.members.isEmpty() || config.members.any { it.isBlank() } -> "missing_area_members"
-        !config.readable -> "read_not_supported"
-        else -> null
-    }
+    private fun unavailableReason(config: VehicleAreaConfig): String? =
+        when {
+            config.key.nativeAreaId.isBlank() -> "missing_native_area_id"
+            config.members.isEmpty() || config.members.any { it.isBlank() } -> "missing_area_members"
+            !config.readable -> "read_not_supported"
+            else -> null
+        }
 
-    private fun ageExceedsLimit(now: Long, sampledAtMillis: Long): Boolean {
+    private fun ageExceedsLimit(
+        now: Long,
+        sampledAtMillis: Long,
+    ): Boolean {
         val age = now - sampledAtMillis
         return age < 0 || age > maxAgeMillis
     }

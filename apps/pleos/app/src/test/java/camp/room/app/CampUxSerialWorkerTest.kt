@@ -1,31 +1,40 @@
 package camp.room.app
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class CampUxSerialWorkerTest {
-    @Test(timeout = 3000) fun blockedBinderDoesNotBlockRequestersOrSpawnMoreWorkers() {
+    @Test(timeout = 3000)
+    fun blockedBinderDoesNotBlockRequestersOrSpawnMoreWorkers() {
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
         val latestDone = CountDownLatch(1)
         val launches = AtomicInteger()
         val executed = mutableListOf<Int>()
-        val worker = CampUxSerialWorker(Executor { task ->
-            launches.incrementAndGet()
-            Thread(task, "ux-worker-test").apply { isDaemon = true }.start()
-        })
-        worker.request { entered.countDown(); release.await(2, TimeUnit.SECONDS) }
+        val worker =
+            CampUxSerialWorker(
+                Executor { task ->
+                    launches.incrementAndGet()
+                    Thread(task, "ux-worker-test").apply { isDaemon = true }.start()
+                },
+            )
+        worker.request {
+            entered.countDown()
+            release.await(2, TimeUnit.SECONDS)
+        }
         assertTrue(entered.await(1, TimeUnit.SECONDS))
         try {
-            for (i in 1..1000) worker.request {
-                synchronized(executed) { executed += i }
-                latestDone.countDown()
+            for (i in 1..1000) {
+                worker.request {
+                    synchronized(executed) { executed += i }
+                    latestDone.countDown()
+                }
             }
             assertEquals(1, launches.get())
             assertFalse(latestDone.await(20, TimeUnit.MILLISECONDS))
@@ -66,10 +75,13 @@ class CampUxSerialWorkerTest {
     @Test fun rejectedDispatchDoesNotPermanentlyBlockRetry() {
         val queue = mutableListOf<Runnable>()
         var rejected = true
-        val worker = CampUxSerialWorker(Executor {
-            if (rejected) throw java.util.concurrent.RejectedExecutionException("test")
-            queue += it
-        })
+        val worker =
+            CampUxSerialWorker(
+                Executor {
+                    if (rejected) throw java.util.concurrent.RejectedExecutionException("test")
+                    queue += it
+                },
+            )
         worker.request { error("rejected work must not run") }
         rejected = false
         var retried = false

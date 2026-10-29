@@ -1,6 +1,16 @@
 package camp.room.app
 
-import org.junit.Assert.*
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 
 class CabinTopologyTest {
@@ -17,7 +27,8 @@ class CabinTopologyTest {
         val ordered = listOf("ROW_1_LEFT", "ROW_1_RIGHT")
         val reversed = ordered.reversed()
         val duplicated = listOf("ROW_1_LEFT", "ROW_1_LEFT")
-        val first = Any(); val second = Any()
+        val first = Any()
+        val second = Any()
         index.put("readingLight", CabinArea("seat", ordered), first)
         index.put("readingLight", CabinArea("seat", reversed), Any())
         index.put("readingLight", CabinArea("seat", duplicated), Any())
@@ -26,7 +37,8 @@ class CabinTopologyTest {
         val duplicates = index.all().filter { it.area.members == ordered }
         assertEquals(2, duplicates.size)
         assertEquals(2, duplicates.map { it.area.id }.distinct().size)
-        assertSame(first, duplicates[0].native); assertSame(second, duplicates[1].native)
+        assertSame(first, duplicates[0].native)
+        assertSame(second, duplicates[1].native)
         assertTrue(index.all().any { it.area.members == reversed })
         assertTrue(index.all().any { it.area.members == duplicated })
         val spanning = Any()

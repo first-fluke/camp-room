@@ -60,14 +60,22 @@ class SpeechRecognitionDiagnosticsTest {
     @Test fun lifecycleUsesMonotonicOffsetsAndDoesNotInventMissingCallbacks() {
         var now = 100L
         val diagnostics = SpeechRecognitionDiagnostics(3) { now }
-        now = 105L; diagnostics.callback(RecognitionCallback.INITIALIZED, current)
-        now = 110L; diagnostics.requested()
-        now = 120L; diagnostics.callback(RecognitionCallback.STARTED, current)
-        now = 125L; diagnostics.rms(3.0, current)
-        now = 130L; diagnostics.result(2, blank = false, completed = false, current)
-        now = 140L; diagnostics.result(6, blank = false, completed = false, current)
-        now = 150L; diagnostics.result(7, blank = false, completed = true, current)
-        now = 151L; diagnostics.terminal(SpeechPhase.RECOGNIZED)
+        now = 105L
+        diagnostics.callback(RecognitionCallback.INITIALIZED, current)
+        now = 110L
+        diagnostics.requested()
+        now = 120L
+        diagnostics.callback(RecognitionCallback.STARTED, current)
+        now = 125L
+        diagnostics.rms(3.0, current)
+        now = 130L
+        diagnostics.result(2, blank = false, completed = false, current)
+        now = 140L
+        diagnostics.result(6, blank = false, completed = false, current)
+        now = 150L
+        diagnostics.result(7, blank = false, completed = true, current)
+        now = 151L
+        diagnostics.terminal(SpeechPhase.RECOGNIZED)
         now = 90L // A diagnostic clock regression cannot make elapsed times negative or go backwards.
         val fields = diagnostics.fields().toMap()
         assertEquals(5L, fields["initializedAtMillis"])

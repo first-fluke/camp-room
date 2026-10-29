@@ -2,13 +2,22 @@
 
 package camp.room.app
 
-import camp.room.app.icons.CampIcons
-
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import camp.room.app.icons.CampIcons
 
 @Composable
 fun LanguageSettingsDialog(onClose: () -> Unit) {
@@ -51,20 +61,20 @@ fun LanguageSettingsDialog(onClose: () -> Unit) {
                     }
                 }
                 HorizontalDivider(color = CampPalette.Line)
-                Column(Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(15.dp)) {
-
-                Text(
-                    tr(R.string.language_settings_description),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                )
-                listOf(
+                Column(
+                    Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                ) {
+                    Text(
+                        tr(R.string.language_settings_description),
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
+                    )
+                    listOf(
                         "system" to R.string.language_system,
                         "en" to R.string.language_english,
                         "ko" to R.string.language_korean,
-                    )
-                    .forEach { (value, label) ->
+                    ).forEach { (value, label) ->
                         Surface(
                             onClick = {
                                 CampLocale.select(context, value)

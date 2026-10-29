@@ -1,13 +1,13 @@
 package camp.room.app
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
 
 class SpeechSessionStateTest {
     @Test fun playbackStartIsPendingAndLaterEngineErrorCannotBecomeSuccess() {
@@ -40,7 +40,9 @@ class SpeechSessionStateTest {
     @Test fun recognitionNeedsNonblankFinalText() {
         val state = SpeechSessionState(SpeechKind.RECOGNITION)
         val first = state.begin()
-        state.ready(first); state.started(first); state.processing(first)
+        state.ready(first)
+        state.started(first)
+        state.processing(first)
         assertNull(state.finalText(first, "interim", false))
         assertTrue(state.isCurrent(first))
         assertEquals("EMPTY_RESULT", state.finalText(first, "  ", true)?.errorCode)
@@ -70,11 +72,20 @@ class SpeechSessionStateTest {
         state.started(token)
         val start = CountDownLatch(1)
         val accepted = AtomicInteger()
-        val threads = listOf(
-            Thread { start.await(); if (state.playbackDone(token) != null) accepted.incrementAndGet() },
-            Thread { start.await(); if (state.fail(token, "ENGINE_ERROR") != null) accepted.incrementAndGet() },
-        )
-        threads.forEach { it.start() }; start.countDown(); threads.forEach { it.join() }
+        val threads =
+            listOf(
+                Thread {
+                    start.await()
+                    if (state.playbackDone(token) != null) accepted.incrementAndGet()
+                },
+                Thread {
+                    start.await()
+                    if (state.fail(token, "ENGINE_ERROR") != null) accepted.incrementAndGet()
+                },
+            )
+        threads.forEach { it.start() }
+        start.countDown()
+        threads.forEach { it.join() }
         assertEquals(1, accepted.get())
     }
 
@@ -85,11 +96,22 @@ class SpeechSessionStateTest {
         var calls = 0
         assertEquals(LocationRegistrationReadiness.PERMISSION_REQUIRED, cleanup.prepare(false) { calls++ })
         assertEquals(0, calls)
-        assertEquals(LocationRegistrationReadiness.CLEANUP_REQUIRED, cleanup.prepare(true) {
-            calls++; assertSame(listener, it); throw IllegalStateException("service unavailable")
-        })
+        assertEquals(
+            LocationRegistrationReadiness.CLEANUP_REQUIRED,
+            cleanup.prepare(true) {
+                calls++
+                assertSame(listener, it)
+                throw IllegalStateException("service unavailable")
+            },
+        )
         assertTrue(cleanup.isNotEmpty())
-        assertEquals(LocationRegistrationReadiness.READY, cleanup.prepare(true) { calls++; assertSame(listener, it) })
+        assertEquals(
+            LocationRegistrationReadiness.READY,
+            cleanup.prepare(true) {
+                calls++
+                assertSame(listener, it)
+            },
+        )
         assertEquals(2, calls)
         assertTrue(cleanup.isEmpty())
     }
@@ -102,15 +124,28 @@ class SpeechSessionStateTest {
 
     @Test fun partialCleanupRetriesOnlyUnfinishedStepsAndNeverReusesReleasedEngine() {
         val cleanup = SpeechCleanupState()
-        var stops = 0; var removes = 0; var releases = 0
-        assertFalse(cleanup.clean(true, { stops++; throw IllegalStateException("busy") }, { removes++ }, { releases++ }))
+        var stops = 0
+        var removes = 0
+        var releases = 0
+        assertFalse(
+            cleanup.clean(true, {
+                stops++
+                throw IllegalStateException("busy")
+            }, { removes++ }, { releases++ }),
+        )
         assertEquals(0, releases)
         assertTrue(cleanup.clean(true, { stops++ }, { removes++ }, { releases++ }))
         assertEquals(2, stops)
         assertEquals(1, removes)
         assertEquals(1, releases)
-        assertTrue(cleanup.clean(true, { throw AssertionError("released engine reused") },
-            { throw AssertionError("released engine reused") }, { throw AssertionError("released engine reused") }))
+        assertTrue(
+            cleanup.clean(
+                true,
+                { throw AssertionError("released engine reused") },
+                { throw AssertionError("released engine reused") },
+                { throw AssertionError("released engine reused") },
+            ),
+        )
     }
 
     @Test fun revokedPermissionInvalidatesPendingArrivalCallbacksBeforeNextRegistration() {

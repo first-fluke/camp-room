@@ -1,8 +1,17 @@
+monorepo_root = true
+
+[monorepo]
+config_roots = ["apps/*", "packages/*"]
+
 [tools]
+bun = "1.4.4"
+hadolint = "2.14.0"
+hk = "2.7.0"
 java = "temurin-17"
+node = "24.21.0"
 python = "3.14"
 uv = "latest"
 [tasks]
-install = { run = "uv sync --all-packages", description = "Install API dependencies" }
+install = { run = ["uv sync --all-packages --locked", "bun install --frozen-lockfile"], description = "Install Python and Bun workspace dependencies" }
 "dev:api" = { run = ".venv/bin/python -m uvicorn app.main:app --app-dir apps/api --host 127.0.0.1 --port 8000", description = "Run Camp Room API" }
 "android:build" = { run = "bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug", description = "Build native demo APK" }

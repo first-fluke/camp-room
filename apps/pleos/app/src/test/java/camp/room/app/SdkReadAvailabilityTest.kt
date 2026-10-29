@@ -1,24 +1,32 @@
 package camp.room.app
 
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class SdkReadAvailabilityTest {
-    private class Clock(var now: Long = 0) {
-        fun advance(millis: Long) { now += millis }
+    private class Clock(
+        var now: Long = 0,
+    ) {
+        fun advance(millis: Long) {
+            now += millis
+        }
     }
 
     private val target = SdkReadKey(SdkReadOperation.GET_HVAC_TARGET, "0")
     private val current = SdkReadKey(SdkReadOperation.GET_HVAC_CURRENT, "0")
 
-    private fun allowed(gate: SdkReadAvailability, key: SdkReadKey = target, epoch: Int = 0): SdkReadAttempt {
+    private fun allowed(
+        gate: SdkReadAvailability,
+        key: SdkReadKey = target,
+        epoch: Int = 0,
+    ): SdkReadAttempt {
         val admission = gate.begin(key, epoch)
         assertTrue("Expected admission, received $admission", admission is SdkReadAdmission.Allowed)
         return (admission as SdkReadAdmission.Allowed).attempt
@@ -186,12 +194,13 @@ class SdkReadAvailabilityTest {
         val start = CountDownLatch(1)
         val executor = Executors.newFixedThreadPool(4)
         try {
-            val results = (1..8).map {
-                executor.submit<SdkReadAdmission> {
-                    check(start.await(5, TimeUnit.SECONDS))
-                    gate.begin(target, 0)
+            val results =
+                (1..8).map {
+                    executor.submit<SdkReadAdmission> {
+                        check(start.await(5, TimeUnit.SECONDS))
+                        gate.begin(target, 0)
+                    }
                 }
-            }
             start.countDown()
             val admissions = results.map { it.get(5, TimeUnit.SECONDS) }
             assertEquals(1, admissions.count { it is SdkReadAdmission.Allowed })
@@ -207,9 +216,13 @@ class SdkDestinationMatcherTest {
     private val destination = SdkRouteDestinationPoint(request.poiId, request.latitude, request.longitude, true)
     private val origin = SdkDestinationRequest("origin", 0.0, 0.0)
 
-    private fun northOfOrigin(metres: Double) = SdkRouteDestinationPoint(
-        origin.poiId, metres / 6_371_008.8 * 180.0 / kotlin.math.PI, 0.0, true,
-    )
+    private fun northOfOrigin(metres: Double) =
+        SdkRouteDestinationPoint(
+            origin.poiId,
+            metres / 6_371_008.8 * 180.0 / kotlin.math.PI,
+            0.0,
+            true,
+        )
 
     private fun match(
         points: List<SdkRouteDestinationPoint>,
@@ -319,13 +332,14 @@ class SdkDestinationMatcherTest {
 
     @Test
     fun invalidRequestsAreRejectedBeforeDestinationMatching() {
-        val invalid = listOf(
-            request.copy(poiId = "  "),
-            request.copy(latitude = Double.NaN),
-            request.copy(latitude = 90.01),
-            request.copy(longitude = Double.POSITIVE_INFINITY),
-            request.copy(longitude = -180.01),
-        )
+        val invalid =
+            listOf(
+                request.copy(poiId = "  "),
+                request.copy(latitude = Double.NaN),
+                request.copy(latitude = 90.01),
+                request.copy(longitude = Double.POSITIVE_INFINITY),
+                request.copy(longitude = -180.01),
+            )
         for (candidate in invalid) {
             assertEquals(SdkDestinationMatch.INVALID_REQUEST, match(listOf(destination), requested = candidate))
         }
@@ -333,12 +347,13 @@ class SdkDestinationMatcherTest {
 
     @Test
     fun invalidReturnedCoordinatesAreMismatches() {
-        val invalid = listOf(
-            destination.copy(latitude = Double.NaN),
-            destination.copy(longitude = Double.NEGATIVE_INFINITY),
-            destination.copy(latitude = -90.01),
-            destination.copy(longitude = 180.01),
-        )
+        val invalid =
+            listOf(
+                destination.copy(latitude = Double.NaN),
+                destination.copy(longitude = Double.NEGATIVE_INFINITY),
+                destination.copy(latitude = -90.01),
+                destination.copy(longitude = 180.01),
+            )
         for (candidate in invalid) {
             assertNull(SdkDestinationMatcher.distanceMeters(request, candidate))
             assertEquals(SdkDestinationMatch.MISMATCH, match(listOf(candidate)))
@@ -347,17 +362,57 @@ class SdkDestinationMatcherTest {
 
     @Test
     fun distanceIsUnavailableForInvalidRequestCoordinates() {
-        val invalid = listOf(
-            request.copy(latitude = Double.NaN),
-            request.copy(latitude = 90.01),
-            request.copy(longitude = Double.POSITIVE_INFINITY),
-            request.copy(longitude = -180.01),
-        )
+        val invalid =
+            listOf(
+                request.copy(latitude = Double.NaN),
+                request.copy(latitude = 90.01),
+                request.copy(longitude = Double.POSITIVE_INFINITY),
+                request.copy(longitude = -180.01),
+            )
         for (candidate in invalid) assertNull(SdkDestinationMatcher.distanceMeters(candidate, destination))
     }
 
     @Test
     fun aStaleInvalidRequestIsReportedAsStale() {
         assertEquals(SdkDestinationMatch.STALE, match(emptyList(), request.copy(poiId = ""), requestEpoch = 2, responseEpoch = 3))
+    }
+}
+
+class SdkReadCompletionAttributionTest {
+    private val key = SdkReadKey(SdkReadOperation.GET_HVAC_TARGET, "front")
+
+    private fun begin(
+        gate: SdkReadAvailability,
+        epoch: Int = 0,
+    ) = (gate.begin(key, epoch) as SdkReadAdmission.Allowed).attempt
+
+    @Test fun duplicateStaleResetAndReplacementAreDistinctAndCannotCompleteANewRequest() {
+        val gate = SdkReadAvailability({ 0L })
+        val first = begin(gate)
+        assertEquals(SdkReadCompletionAdmission.ACCEPTED, gate.complete(first, SdkReadOutcome.SUCCESS))
+        assertEquals(SdkReadCompletionAdmission.DUPLICATE, gate.complete(first, SdkReadOutcome.CALLBACK_ERROR))
+        val second = begin(gate)
+        assertEquals(SdkReadCompletionAdmission.REPLACED, gate.complete(first, SdkReadOutcome.EMPTY))
+        assertTrue(gate.state(key, 0)?.inFlight == true)
+        gate.reset(0)
+        assertEquals(SdkReadCompletionAdmission.RESET, gate.complete(second, SdkReadOutcome.SUCCESS))
+        val third = begin(gate)
+        gate.reset(1)
+        assertEquals(SdkReadCompletionAdmission.STALE_EPOCH, gate.complete(third, SdkReadOutcome.SUCCESS))
+        assertTrue(gate.finish(begin(gate, 1), SdkReadOutcome.SUCCESS))
+    }
+
+    @Test fun aLateSuccessAfterTimeoutCannotEraseFailureOrRefreshBackoff() {
+        var now = 0L
+        val gate = SdkReadAvailability({ now })
+        val attempt = begin(gate)
+        assertEquals(SdkReadCompletionAdmission.ACCEPTED, gate.complete(attempt, SdkReadOutcome.TIMEOUT))
+        now = 1500
+        assertEquals(SdkReadCompletionAdmission.DUPLICATE, gate.complete(attempt, SdkReadOutcome.SUCCESS))
+        assertEquals(SdkReadState(SdkReadOutcome.TIMEOUT, 1, 500, false), gate.state(key, 0))
+        now = 2000
+        val newer = begin(gate)
+        assertEquals(SdkReadCompletionAdmission.REPLACED, gate.complete(attempt, SdkReadOutcome.CALLBACK_ERROR))
+        assertTrue(gate.finish(newer, SdkReadOutcome.SUCCESS))
     }
 }

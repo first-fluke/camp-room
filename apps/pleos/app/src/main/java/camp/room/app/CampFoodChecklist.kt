@@ -57,68 +57,98 @@ private data class FoodPrepPack(
 )
 
 // Suggested meal portions are independent of merchandise, prices, stock, and orders.
-private val FoodPrepPacks = listOf(
-    FoodPrepPack(
-        "pork_belly",
-        R.string.camp_food_prep_pork_title,
-        R.string.camp_food_prep_serves_2_3,
-        R.string.camp_food_prep_pork_contents,
-        R.string.camp_food_prep_pork_image,
-        R.drawable.food_prep_pork_belly_example,
-    ),
-    FoodPrepPack(
-        "beef_grill",
-        R.string.camp_food_prep_beef_title,
-        R.string.camp_food_prep_serves_2_3,
-        R.string.camp_food_prep_beef_contents,
-        R.string.camp_food_prep_beef_image,
-        R.drawable.food_prep_beef_grill_example,
-    ),
-    FoodPrepPack(
-        "marinated_ribs",
-        R.string.camp_food_prep_ribs_title,
-        R.string.camp_food_prep_serves_3_4,
-        R.string.camp_food_prep_ribs_contents,
-        R.string.camp_food_prep_ribs_image,
-        R.drawable.food_prep_marinated_ribs_example,
-    ),
-    FoodPrepPack(
-        "bbq_assortment",
-        R.string.camp_food_prep_mixed_title,
-        R.string.camp_food_prep_serves_4,
-        R.string.camp_food_prep_mixed_contents,
-        R.string.camp_food_prep_mixed_image,
-        R.drawable.food_prep_bbq_assortment_example,
-    ),
-)
+private val FoodPrepPacks =
+    listOf(
+        FoodPrepPack(
+            "pork_belly",
+            R.string.camp_food_prep_pork_title,
+            R.string.camp_food_prep_serves_2_3,
+            R.string.camp_food_prep_pork_contents,
+            R.string.camp_food_prep_pork_image,
+            R.drawable.food_prep_pork_belly_example,
+        ),
+        FoodPrepPack(
+            "beef_grill",
+            R.string.camp_food_prep_beef_title,
+            R.string.camp_food_prep_serves_2_3,
+            R.string.camp_food_prep_beef_contents,
+            R.string.camp_food_prep_beef_image,
+            R.drawable.food_prep_beef_grill_example,
+        ),
+        FoodPrepPack(
+            "marinated_ribs",
+            R.string.camp_food_prep_ribs_title,
+            R.string.camp_food_prep_serves_3_4,
+            R.string.camp_food_prep_ribs_contents,
+            R.string.camp_food_prep_ribs_image,
+            R.drawable.food_prep_marinated_ribs_example,
+        ),
+        FoodPrepPack(
+            "bbq_assortment",
+            R.string.camp_food_prep_mixed_title,
+            R.string.camp_food_prep_serves_4,
+            R.string.camp_food_prep_mixed_contents,
+            R.string.camp_food_prep_mixed_image,
+            R.drawable.food_prep_bbq_assortment_example,
+        ),
+    )
 
 // Length prefixes prevent a delimiter in an opaque trip key from sharing a preference.
-private fun foodPrepPreferenceKey(tripKey: String, packId: String): String =
-    "${tripKey.length}:$tripKey|$packId"
+private fun foodPrepPreferenceKey(
+    tripKey: String,
+    packId: String,
+): String = "${tripKey.length}:$tripKey|$packId"
+
+internal fun foodPrepPreferences(context: Context): SharedPreferences =
+    context.applicationContext.getSharedPreferences(FOOD_PREP_PREFERENCES, Context.MODE_PRIVATE)
+
+internal fun selectedFoodPreparation(
+    preferences: SharedPreferences,
+    tripKey: String,
+): Set<String> = FoodPrepPacks.filter { preferences.getBoolean(foodPrepPreferenceKey(tripKey, it.id), false) }.map { it.id }.toSet()
+
+/** Reuse the existing intention checklist; importing never creates an order or packed confirmation. */
+internal fun importFoodPreparation(
+    preferences: SharedPreferences,
+    tripKey: String,
+    ids: Set<String>,
+) {
+    preferences
+        .edit()
+        .apply {
+            FoodPrepPacks.forEach { putBoolean(foodPrepPreferenceKey(tripKey, it.id), it.id in ids) }
+        }.apply()
+}
 
 /** A local packing checklist. Checking a set never creates a cart item or an order. */
 @Composable
-fun CampFoodChecklist(tripKey: String, modifier: Modifier = Modifier) {
+fun CampFoodChecklist(
+    tripKey: String,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current.applicationContext
-    val preferences = remember(context) {
-        context.getSharedPreferences(FOOD_PREP_PREFERENCES, Context.MODE_PRIVATE)
-    }
-    val checked = remember(preferences, tripKey) {
-        mutableStateMapOf<String, Boolean>().apply {
-            FoodPrepPacks.forEach { pack ->
-                this[pack.id] = preferences.getBoolean(foodPrepPreferenceKey(tripKey, pack.id), false)
-            }
+    val preferences =
+        remember(context) {
+            foodPrepPreferences(context)
         }
-    }
-    DisposableEffect(preferences, tripKey) {
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { updated, key ->
-            FoodPrepPacks.forEach { pack ->
-                val preferenceKey = foodPrepPreferenceKey(tripKey, pack.id)
-                if (key == null || key == preferenceKey) {
-                    checked[pack.id] = updated.getBoolean(preferenceKey, false)
+    val checked =
+        remember(preferences, tripKey) {
+            mutableStateMapOf<String, Boolean>().apply {
+                FoodPrepPacks.forEach { pack ->
+                    this[pack.id] = preferences.getBoolean(foodPrepPreferenceKey(tripKey, pack.id), false)
                 }
             }
         }
+    DisposableEffect(preferences, tripKey) {
+        val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { updated, key ->
+                FoodPrepPacks.forEach { pack ->
+                    val preferenceKey = foodPrepPreferenceKey(tripKey, pack.id)
+                    if (key == null || key == preferenceKey) {
+                        checked[pack.id] = updated.getBoolean(preferenceKey, false)
+                    }
+                }
+            }
         preferences.registerOnSharedPreferenceChangeListener(listener)
         // Reconcile changes made between initial composition and listener registration.
         FoodPrepPacks.forEach { pack ->
@@ -155,7 +185,8 @@ fun CampFoodChecklist(tripKey: String, modifier: Modifier = Modifier) {
                                 checked = checked[pack.id] == true,
                                 onCheckedChange = { value ->
                                     checked[pack.id] = value
-                                    preferences.edit()
+                                    preferences
+                                        .edit()
                                         .putBoolean(foodPrepPreferenceKey(tripKey, pack.id), value)
                                         .apply()
                                 },
@@ -204,28 +235,29 @@ private fun FoodPrepCard(
                     modifier = Modifier.fillMaxWidth().padding(top = 7.dp),
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 56.dp)
-                            .semantics { contentDescription = packTitle }
-                            .toggleable(
-                                value = checked,
-                                role = Role.Checkbox,
-                                onValueChange = onCheckedChange,
-                            )
-                            .testTag("food-prep-toggle-${pack.id}")
-                            .padding(horizontal = 9.dp, vertical = 4.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 56.dp)
+                                .semantics { contentDescription = packTitle }
+                                .toggleable(
+                                    value = checked,
+                                    role = Role.Checkbox,
+                                    onValueChange = onCheckedChange,
+                                ).testTag("food-prep-toggle-${pack.id}")
+                                .padding(horizontal = 9.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(7.dp),
                     ) {
                         Checkbox(
                             checked = checked,
                             onCheckedChange = null,
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = CampPalette.Forest,
-                                checkmarkColor = CampPalette.OnForest,
-                                uncheckedColor = CampPalette.Muted,
-                            ),
+                            colors =
+                                CheckboxDefaults.colors(
+                                    checkedColor = CampPalette.Forest,
+                                    checkmarkColor = CampPalette.OnForest,
+                                    uncheckedColor = CampPalette.Muted,
+                                ),
                         )
                         Text(
                             tr(if (checked) R.string.camp_food_prep_selected else R.string.camp_food_prep_select),
@@ -241,7 +273,10 @@ private fun FoodPrepCard(
 }
 
 @Composable
-private fun FoodPrepImage(pack: FoodPrepPack, modifier: Modifier = Modifier) {
+private fun FoodPrepImage(
+    pack: FoodPrepPack,
+    modifier: Modifier = Modifier,
+) {
     val configuration = LocalConfiguration.current
     var imageLoaded by remember(pack.image, configuration) { mutableStateOf(false) }
     var imageFailed by remember(pack.image, configuration) { mutableStateOf(false) }

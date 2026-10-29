@@ -3,25 +3,23 @@ package camp.room.app
 import org.json.JSONArray
 import org.json.JSONObject
 
-internal fun JSONObject.text(key: String, fallback: String = ""): String =
-    if (isNull(key)) fallback else optString(key, fallback)
+internal fun JSONObject.text(
+    key: String,
+    fallback: String = "",
+): String = if (isNull(key)) fallback else optString(key, fallback)
 
-internal fun JSONObject.nullNumber(key: String): Double? =
-    if (isNull(key) || !has(key)) null else optDouble(key).takeIf { it.isFinite() }
+internal fun JSONObject.nullNumber(key: String): Double? = if (isNull(key) || !has(key)) null else optDouble(key).takeIf { it.isFinite() }
 
-internal fun JSONObject.nullBool(key: String): Boolean? =
-    if (isNull(key) || !has(key)) null else optBoolean(key)
+internal fun JSONObject.nullBool(key: String): Boolean? = if (isNull(key) || !has(key)) null else optBoolean(key)
 
 internal fun JSONObject.obj(key: String): JSONObject = optJSONObject(key) ?: JSONObject()
 
 internal fun JSONObject.strings(key: String): List<String> =
     optJSONArray(key)?.let { a -> (0 until a.length()).map { a.optString(it) } } ?: emptyList()
 
-internal fun JSONArray.objects(): List<JSONObject> =
-    (0 until length()).mapNotNull { optJSONObject(it) }
+internal fun JSONArray.objects(): List<JSONObject> = (0 until length()).mapNotNull { optJSONObject(it) }
 
-internal fun JSONObject.objects(key: String): List<JSONObject> =
-    optJSONArray(key)?.objects() ?: emptyList()
+internal fun JSONObject.objects(key: String): List<JSONObject> = optJSONArray(key)?.objects() ?: emptyList()
 
 data class Availability(
     val status: String,
@@ -34,14 +32,29 @@ data class Availability(
     val label: String
         get() =
             when {
-                status == "unknown" ->
-                    camp.room.app.CampText.get(camp.room.app.R.string.camp_check_needed)
-                status == "unavailable" ->
-                    camp.room.app.CampText.get(camp.room.app.R.string.camp_fully_booked)
-                remaining != null -> CampText.quantity(R.plurals.camp_remaining_pitches, remaining)
-                status == "limited" ->
-                    camp.room.app.CampText.get(camp.room.app.R.string.camp_almost_full)
-                else -> camp.room.app.CampText.get(camp.room.app.R.string.camp_available_277)
+                status == "unknown" -> {
+                    camp.room.app.CampText
+                        .get(camp.room.app.R.string.camp_check_needed)
+                }
+
+                status == "unavailable" -> {
+                    camp.room.app.CampText
+                        .get(camp.room.app.R.string.camp_fully_booked)
+                }
+
+                remaining != null -> {
+                    CampText.quantity(R.plurals.camp_remaining_pitches, remaining)
+                }
+
+                status == "limited" -> {
+                    camp.room.app.CampText
+                        .get(camp.room.app.R.string.camp_almost_full)
+                }
+
+                else -> {
+                    camp.room.app.CampText
+                        .get(camp.room.app.R.string.camp_available_277)
+                }
             }
 
     companion object {
@@ -129,7 +142,11 @@ data class Trip(
     }
 }
 
-data class Forecast(val time: String, val temperature: Double?, val condition: String)
+data class Forecast(
+    val time: String,
+    val temperature: Double?,
+    val condition: String,
+)
 
 data class Weather(
     val source: String,
@@ -160,7 +177,11 @@ data class Weather(
     }
 }
 
-data class CabinZone(val reading: Boolean?, val ambient: Int?, val blind: Int?) {
+data class CabinZone(
+    val reading: Boolean?,
+    val ambient: Int?,
+    val blind: Int?,
+) {
     companion object {
         fun parse(j: JSONObject) =
             CabinZone(
@@ -188,29 +209,34 @@ data class Vehicle(
     val unknownFeatures: List<String> = emptyList(),
     val connectionConfirmed: Boolean = false,
     val positionAreas: List<VehicleAreaObservation> = emptyList(),
+    val socObservedAt: String = "",
+    val socObservation: PreparationSocSample? = null,
 ) {
     /** Only a real vehicle adapter may expose observations or accept vehicle commands. */
     val isConnected: Boolean
         get() = mode == "pleos" && connectionConfirmed
 
-    fun disconnected(): Vehicle = copy(
-        soc = null,
-        measuredTemperature = null,
-        targetTemperature = null,
-        front = CabinZone(null, null, null),
-        rear = CabinZone(null, null, null),
-        doorsClosed = null,
-        windowsClosed = null,
-        motionState = "unknown",
-        sceneId = "",
-        updatedAt = "",
-        mode = "unknown",
-        layoutSource = "unknown",
-        controlAreas = emptyList(),
-        unknownFeatures = emptyList(),
-        connectionConfirmed = false,
-        positionAreas = emptyList(),
-    )
+    fun disconnected(): Vehicle =
+        copy(
+            soc = null,
+            measuredTemperature = null,
+            targetTemperature = null,
+            front = CabinZone(null, null, null),
+            rear = CabinZone(null, null, null),
+            doorsClosed = null,
+            windowsClosed = null,
+            motionState = "unknown",
+            sceneId = "",
+            updatedAt = "",
+            mode = "unknown",
+            layoutSource = "unknown",
+            controlAreas = emptyList(),
+            unknownFeatures = emptyList(),
+            connectionConfirmed = false,
+            positionAreas = emptyList(),
+            socObservedAt = "",
+            socObservation = null,
+        )
 
     companion object {
         fun parse(j: JSONObject) =
@@ -228,18 +254,41 @@ data class Vehicle(
                 j.text("mode", "demo"),
                 j.text("layoutSource", "unknown"),
                 j.objects("controlAreas").map { group ->
-                    CabinControlGroup(CabinArea(group.text("kind"), group.strings("members"), group.text("areaId").takeIf { it.isNotBlank() }),
-                        group.text("feature"), group.optBoolean("readable"), group.optBoolean("writable"), group.nullNumber("observed"))
+                    CabinControlGroup(
+                        CabinArea(group.text("kind"), group.strings("members"), group.text("areaId").takeIf { it.isNotBlank() }),
+                        group.text("feature"),
+                        group.optBoolean("readable"),
+                        group.optBoolean("writable"),
+                        group.nullNumber("observed"),
+                    )
                 },
                 j.strings("unknownFeatures"),
                 j.optBoolean("connected", false),
                 j.objects("positionAreas").mapNotNull { area ->
                     val kind = runCatching { VehicleAreaKind.valueOf(area.text("kind").uppercase()) }.getOrNull() ?: return@mapNotNull null
-                    VehicleAreaObservation(VehicleAreaKey(kind, area.text("areaId")), area.strings("members").toSet(),
-                        area.areaIntOrNull("rawPosition"), area.areaIntOrNull("minimum"), area.areaIntOrNull("maximum"), area.text("access"),
+                    VehicleAreaObservation(
+                        VehicleAreaKey(kind, area.text("areaId")),
+                        area.strings("members").toSet(),
+                        area.areaIntOrNull("rawPosition"),
+                        area.areaIntOrNull("minimum"),
+                        area.areaIntOrNull("maximum"),
+                        area.text("access"),
                         runCatching { VehicleAreaStatus.valueOf(area.text("status").uppercase()) }.getOrDefault(VehicleAreaStatus.UNKNOWN),
-                        area.text("reason").takeIf { it.isNotBlank() }, area.areaLongOrNull("sampledAtElapsedMillis"),
-                        area.areaLongOrNull("updatedAtElapsedMillis") ?: 0, area.areaIntOrNull("epoch") ?: -1)
+                        area.text("reason").takeIf { it.isNotBlank() },
+                        area.areaLongOrNull("sampledAtElapsedMillis"),
+                        area.areaLongOrNull("updatedAtElapsedMillis") ?: 0,
+                        area.areaIntOrNull("epoch") ?: -1,
+                    )
+                },
+                j.text("socObservedAt"),
+                j.optJSONObject("socObservation")?.let { sample ->
+                    PreparationSocSample(
+                        sample.nullNumber("value"),
+                        sample.areaLongOrNull("sampledAtElapsedMillis"),
+                        sample.text("ownerId"),
+                        sample.areaIntOrNull("epoch") ?: -1,
+                        sample.optBoolean("current", false),
+                    )
                 },
             ).let { vehicle -> if (vehicle.isConnected) vehicle else vehicle.disconnected() }
     }
@@ -261,7 +310,8 @@ data class CommandResult(
                 j.text("confirmation"),
                 j.text(
                     "observed",
-                    camp.room.app.CampText.get(camp.room.app.R.string.camp_not_observed),
+                    camp.room.app.CampText
+                        .get(camp.room.app.R.string.camp_not_observed),
                 ),
                 j.text("message"),
                 j.text("areaId"),
@@ -309,7 +359,12 @@ data class CartItem(
     }
 }
 
-data class Cart(val items: List<CartItem>, val subtotal: Int, val shipping: Int, val total: Int) {
+data class Cart(
+    val items: List<CartItem>,
+    val subtotal: Int,
+    val shipping: Int,
+    val total: Int,
+) {
     val count: Int
         get() = items.sumOf { it.quantity }
 
@@ -433,7 +488,6 @@ data class Bootstrap(
 }
 
 // Position SDK integers must not be rounded/truncated from malformed JSON numbers.
-private fun JSONObject.areaIntOrNull(name: String): Int? =
-    if (isNull(name)) null else (opt(name) as? Number)?.toString()?.toIntOrNull()
-private fun JSONObject.areaLongOrNull(name: String): Long? =
-    if (isNull(name)) null else (opt(name) as? Number)?.toString()?.toLongOrNull()
+private fun JSONObject.areaIntOrNull(name: String): Int? = if (isNull(name)) null else (opt(name) as? Number)?.toString()?.toIntOrNull()
+
+private fun JSONObject.areaLongOrNull(name: String): Long? = if (isNull(name)) null else (opt(name) as? Number)?.toString()?.toLongOrNull()

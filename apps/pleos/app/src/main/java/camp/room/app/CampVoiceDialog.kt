@@ -5,13 +5,26 @@
 
 package camp.room.app
 
-import camp.room.app.icons.CampIcons
-
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,16 +36,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import camp.room.app.icons.CampIcons
 
 @Composable
-fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Unit) {
+fun VoiceCommandDialog(
+    state: CampUiState,
+    vm: CampViewModel,
+    onListen: () -> Unit,
+) {
     Dialog(
         onDismissRequest = { vm.voice(false) },
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Surface(
             modifier =
-                Modifier.imePadding().semantics { testTagsAsResourceId = true }
+                Modifier
+                    .imePadding()
+                    .semantics { testTagsAsResourceId = true }
                     .widthIn(max = 650.dp)
                     .fillMaxWidth(.93f),
             shape = RoundedCornerShape(14.dp),
@@ -59,57 +79,59 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                     Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()).padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-
-                Text(
-                    tr(camp.room.app.R.string.camp_speak_or_type_a_phrase_we_ll),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                )
-                CampPrimary(
-                    if (state.busy) tr(camp.room.app.R.string.camp_checking_your_voice)
-                    else tr(camp.room.app.R.string.camp_speak_a_command),
-                    CampIcons.Microphone,
-                    enabled = state.sttRetryable && state.interactionAllowed,
-                    busy = state.busy,
-                    modifier = Modifier.fillMaxWidth().testTag("voice-listen"),
-                    onClick = onListen,
-                )
-                if (state.sttMessage.isNotBlank())
                     Text(
-                        state.sttMessage,
+                        tr(camp.room.app.R.string.camp_speak_or_type_a_phrase_we_ll),
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
                     )
-                OutlinedTextField(
-                    value = state.transcript,
-                    onValueChange = vm::transcript,
-                    label = {
+                    CampPrimary(
+                        if (state.busy) {
+                            tr(camp.room.app.R.string.camp_checking_your_voice)
+                        } else {
+                            tr(camp.room.app.R.string.camp_speak_a_command)
+                        },
+                        CampIcons.Microphone,
+                        enabled = state.sttRetryable && state.interactionAllowed,
+                        busy = state.busy,
+                        modifier = Modifier.fillMaxWidth().testTag("voice-listen"),
+                        onClick = onListen,
+                    )
+                    if (state.sttMessage.isNotBlank()) {
                         Text(
-                            tr(camp.room.app.R.string.camp_recognized_text_type_instead),
+                            state.sttMessage,
                             fontSize = 22.sp,
+                            color = CampPalette.Muted,
                         )
-                    },
-                    modifier = Modifier.fillMaxWidth().testTag("voice-transcript"),
-                    minLines = 2,
-                    maxLines = 3,
-                    enabled = !state.busy && state.interactionAllowed,
-                    textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
-                    shape = RoundedCornerShape(8.dp),
-                )
-                Text(
-                    state.transcriptSource.ifBlank {
-                        tr(camp.room.app.R.string.camp_you_can_type_if_voice_is_unavailable)
-                    },
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                )
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(
+                    }
+                    OutlinedTextField(
+                        value = state.transcript,
+                        onValueChange = vm::transcript,
+                        label = {
+                            Text(
+                                tr(camp.room.app.R.string.camp_recognized_text_type_instead),
+                                fontSize = 22.sp,
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth().testTag("voice-transcript"),
+                        minLines = 2,
+                        maxLines = 3,
+                        enabled = !state.busy && state.interactionAllowed,
+                        textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    Text(
+                        state.transcriptSource.ifBlank {
+                            tr(camp.room.app.R.string.camp_you_can_type_if_voice_is_unavailable)
+                        },
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
+                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(
                             tr(camp.room.app.R.string.camp_prepare_for_sleep),
                             tr(camp.room.app.R.string.camp_read_and_rest),
                             tr(camp.room.app.R.string.camp_navigation),
-                        )
-                        .forEach { example ->
+                        ).forEach { example ->
                             SuggestionChip(
                                 onClick = { vm.transcript(example) },
                                 enabled = !state.busy && state.interactionAllowed,
@@ -121,35 +143,37 @@ fun VoiceCommandDialog(state: CampUiState, vm: CampViewModel, onListen: () -> Un
                                 },
                             )
                         }
-                }
-                CampSecondary(
-                    tr(camp.room.app.R.string.camp_preview_command),
-                    CampIcons.Eye,
-                    enabled = state.transcript.isNotBlank() && !state.busy,
-                    modifier = Modifier.fillMaxWidth().testTag("voice-preview"),
-                    onClick = vm::previewVoice,
-                )
-                if (state.voicePreview.isNotBlank())
-                    CampSurface(Modifier.fillMaxWidth()) {
-                        Text(
-                            state.voicePreview,
-                            fontSize = 22.sp,
-                            color = CampPalette.Forest,
-                        )
-                        if (state.previewTab != null)
-                            CampPrimary(
-                                tr(camp.room.app.R.string.camp_review_on_the_screen),
-                                CampIcons.ChevronRight,
-                                modifier = Modifier.fillMaxWidth().testTag("voice-preview-open"),
-                                onClick = vm::openVoicePreview,
-                            )
                     }
-                if (state.error.isNotBlank()) CampError(state.error, vm::clearError)
-                Text(
-                    tr(R.string.vehicle_voice_help),
-                    fontSize = 22.sp,
-                    color = CampPalette.Muted,
-                )
+                    CampSecondary(
+                        tr(camp.room.app.R.string.camp_preview_command),
+                        CampIcons.Eye,
+                        enabled = state.transcript.isNotBlank() && !state.busy,
+                        modifier = Modifier.fillMaxWidth().testTag("voice-preview"),
+                        onClick = vm::previewVoice,
+                    )
+                    if (state.voicePreview.isNotBlank()) {
+                        CampSurface(Modifier.fillMaxWidth()) {
+                            Text(
+                                state.voicePreview,
+                                fontSize = 22.sp,
+                                color = CampPalette.Forest,
+                            )
+                            if (state.previewTab != null) {
+                                CampPrimary(
+                                    tr(camp.room.app.R.string.camp_review_on_the_screen),
+                                    CampIcons.ChevronRight,
+                                    modifier = Modifier.fillMaxWidth().testTag("voice-preview-open"),
+                                    onClick = vm::openVoicePreview,
+                                )
+                            }
+                        }
+                    }
+                    if (state.error.isNotBlank()) CampError(state.error, vm::clearError)
+                    Text(
+                        tr(R.string.vehicle_voice_help),
+                        fontSize = 22.sp,
+                        color = CampPalette.Muted,
+                    )
                 }
             }
         }

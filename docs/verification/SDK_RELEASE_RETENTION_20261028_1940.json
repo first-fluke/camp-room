@@ -1,0 +1,83 @@
+{
+  "status": "scoped_release_retention_fixes_verified_with_unit_regressions_and_ordinary_native_teardown",
+  "sourceBase": "8f4a213c7bbed9e08f45608e4cce5c1d4712baf1",
+  "localOnly": true,
+  "stage": "review-runtime/door-window-20261028/resume-release-1940",
+  "sourceManifest": "SOURCE_BUILD_INPUT_FINAL.json",
+  "sourceManifestSha256": "5f1ebc387c180c397a85dc199cf046c33c9a6a15e0b09eeec4f7e2ed3448f569",
+  "sourceFilesMatched": 42,
+  "buildReceipt": "BUILD_RELEASE_FINAL.json",
+  "buildEndedAtUtc": "2026-10-28T20:03:24.636246+00:00",
+  "buildReturnCode": 0,
+  "testReceipt": "BUILD_TEST_APK_VERIFIED.json",
+  "testXmlDirectory": "tests-current",
+  "testSuites": 28,
+  "tests": {"tests": 227, "failures": 0, "errors": 0, "skipped": 0},
+  "newRegressions": 33,
+  "apk": {
+    "path": "camp-room-release-retention-pleos-debug.apk",
+    "bytes": 76164405,
+    "sha256": "d489929d1de2b09dcda3d7bbda59333cc297288ec7300a4305a01fd3d41cff1c",
+    "installedSha256": "d489929d1de2b09dcda3d7bbda59333cc297288ec7300a4305a01fd3d41cff1c",
+    "variant": "PleosDebug; debug signed, not release",
+    "signatureVerifyReturnCode": 0
+  },
+  "fixes": [
+    "Vehicle exact native binding lease clears only after release returns successfully, including ambiguous partial initialization",
+    "Vehicle failed exact resource and owner survive retired ViewModel in process quarantine; duplicate close retries unfinished work without repeating successful release",
+    "Automatic retry is finite; a later explicit close or same-resource admission can rearm exhausted listener cleanup without timer-driven infinite rearming",
+    "CarUX retains exact manager/listener/Car until native unregister/disconnect success and gates replacement generation",
+    "Assist and navigation retain incomplete cleanup beyond final host lifecycle task and gate newer owners while cleanup remains pending",
+    "Fused native calls and listener cleanup run outside callback metadata locks; lifecycle invalidation and speech stop admission precede potentially blocked Fused cleanup",
+    "Diagnostic callback exceptions cannot strand other reserved listener cleanup entries in flight"
+  ],
+  "runtime": {
+    "receipt": "runtime-latest/RUNTIME_RELEASE_VERIFICATION.json",
+    "rawLog": "runtime-latest/sdk-runtime.log",
+    "status": "ordinary_native_release_offmain_verified",
+    "endedAtUtc": "2026-10-28T20:05:49.670734+00:00",
+    "environment": "existing official Pleos AVD emulator-5564; no new VM or reboot",
+    "coldStartMs": 6398,
+    "ordinaryActivityRecreationMs": 1033,
+    "vehicleReleaseReturned": 1,
+    "vehicleReleasePid": 26672,
+    "vehicleReleaseTid": 27871,
+    "vehicleReleaseOnMainThread": false,
+    "positionUnregisterReturned": 10,
+    "positionUnregisterOnMainThread": 0,
+    "positionRegisterReturned": 10,
+    "positionAcceptedEvents": 17,
+    "positionAcceptedGetters": 103,
+    "readInvoked": 225,
+    "readInvokedOnMainThread": 0,
+    "carUxUnregisterReturnedSeparate": 2,
+    "carUxDisconnectReturned": 2,
+    "carUxCleanupComplete": 2,
+    "assistCleanupComplete": 1,
+    "acceptedSocGetterValue": 100,
+    "guidanceEvents": [],
+    "faultInjection": false,
+    "actualFailureThenRetryObserved": false
+  },
+  "evidenceLimits": [
+    "Failure, retry, duplicate close, exhausted burst and generation races are production-helper JVM regressions, not induced native SDK failures",
+    "Ordinary Activity teardown is not the same-ViewModel active_reuse race; that inherited rare native-runtime gap remains unobserved",
+    "SmartGlass 60001, target-temperature errors and capability timeouts remain separate raw SDK findings; this cleanup change does not turn them into successes",
+    "Navigation destination matching remains same POI plus 20m geodesic policy; previous coordinate mismatch is not waived",
+    "No real vehicle control, guidance start, real microphone or speaker execution occurred",
+    "Existing videos and earlier verification files were preserved and are not new cleanup implementation evidence"
+  ],
+  "toolIssues": [
+    {"action": "initial build", "outcome": "failed before compilation", "reason": "offloaded existing Java17 toolchain not detected", "recovery": "official macOS download API restored existing runtime; java and javac version probes succeeded; final build passed"},
+    {"action": "ps -p 42074,45689", "outcome": "denied by default sandbox", "reason": "Operation not permitted", "retried": false},
+    {"action": "optional post-teardown log-buffer read", "outcome": "not executed", "reason": "Failed to create unified exec process: exec-server transport disconnected"},
+    {"action": "optional extra raw-log regrouping", "outcome": "not executed", "reason": "Failed to create unified exec process: exec-server transport disconnected"}
+  ],
+  "resourceOwnership": {
+    "buildWrapperReturnCode": 0,
+    "ownedLogcatPid": 60301,
+    "ownedLogcatReturnCode": -15,
+    "existingAvdAndApiPreserved": true,
+    "codeCommitPushOrUpload": false
+  }
+}

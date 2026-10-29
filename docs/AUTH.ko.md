@@ -30,4 +30,4 @@
 
 ## 구현과 검증
 
-세션 검증은 [admin-session.mjs](../apps/admin/src/lib/admin-session.mjs), BFF 인증은 [admin-server.ts](../apps/admin/src/lib/admin-server.ts), 관리 API 인증은 [main.py](../apps/api/app/main.py)에 있다. 관리자 세션 테스트는 `npm --workspace admin test`, API 인증 검증은 `.venv/bin/python -m pytest apps/api/tests -q`로 실행한다.
+세션 검증은 [admin-session.mjs](../apps/admin/src/lib/admin-session.mjs), BFF 인증은 [admin-server.ts](../apps/admin/src/lib/admin-server.ts), 관리 API 인증은 [main.py](../apps/api/app/main.py)에 있다. 관리자 세션 테스트는 `mise run //apps/admin:test`, API 인증 검증은 `mise run //apps/api:test`로 실행한다.

@@ -1,28 +1,14 @@
 amends "package://github.com/jdx/hk/releases/download/v2.7.0/hk@2.7.0#/Config.pkl"
 
-/// Git hooks. Pre-commit lints only the apps touched by staged files and does
-/// not rewrite them. Pre-push runs the app suites in order. A failed suite
-/// blocks the push. Passes are cached by content in scripts/pre-push.sh.
+/// Git hooks run non-mutating checks; install tools and dependencies first.
 
 hooks {
   ["pre-commit"] {
     fix = false
     steps {
-      ["api"] {
-        glob = "apps/api/**"
-        check = "mise //apps/api:lint"
-      }
-      ["web"] {
-        glob = "apps/web/**"
-        check = "mise //apps/web:lint"
-      }
-      ["worker"] {
-        glob = "apps/worker/**"
-        check = "mise //apps/worker:lint"
-      }
-      ["mobile"] {
-        glob = "apps/mobile/**"
-        check = "env -u GIT_DIR -u GIT_WORK_TREE -u GIT_INDEX_FILE mise //apps/mobile:lint"
+      ["ktlint"] {
+        glob = List("apps/pleos/**/*.kt", "apps/pleos/**/*.kts")
+        check = "mise run //apps/pleos:lint:files -- {{files}}"
       }
       ["hadolint"] {
         glob = List("**/Dockerfile", "**/Dockerfile.*")
@@ -33,7 +19,7 @@ hooks {
   ["commit-msg"] {
     steps {
       ["commitlint"] {
-        check = "./node_modules/.bin/commitlint --edit {{commit_msg_file}}"
+        check = "mise exec -- bun run commitlint --edit {{commit_msg_file}}"
       }
     }
   }
@@ -48,17 +34,17 @@ hooks {
         depends = "branch"
         check = "scripts/pre-push.sh gate api"
       }
-      ["web"] {
+      ["admin"] {
         depends = "api"
-        check = "scripts/pre-push.sh gate web"
+        check = "scripts/pre-push.sh gate admin"
       }
       ["worker"] {
-        depends = "web"
+        depends = "admin"
         check = "scripts/pre-push.sh gate worker"
       }
-      ["mobile"] {
+      ["pleos"] {
         depends = "worker"
-        check = "scripts/pre-push.sh gate mobile"
+        check = "scripts/pre-push.sh gate pleos"
       }
     }
   }

@@ -9,7 +9,9 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class VehicleAreaObservationsTest {
-    private class Clock(var now: Long = 1_000)
+    private class Clock(
+        var now: Long = 1_000,
+    )
 
     private val left = VehicleAreaKey(VehicleAreaKind.DOOR, "ROW_1_LEFT")
     private val right = VehicleAreaKey(VehicleAreaKind.DOOR, "ROW_1_RIGHT")
@@ -23,16 +25,24 @@ class VehicleAreaObservationsTest {
         readable: Boolean = true,
     ) = VehicleAreaConfig(key, members, min, max, "GET", readable)
 
-    private fun tracker(clock: Clock = Clock(), configs: List<VehicleAreaConfig> = listOf(config())) =
-        VehicleAreaObservations({ clock.now }, maxAgeMillis = 1_000).also {
-            assertTrue(it.configure(configs, 0))
-        }
+    private fun tracker(
+        clock: Clock = Clock(),
+        configs: List<VehicleAreaConfig> = listOf(config()),
+    ) = VehicleAreaObservations({ clock.now }, maxAgeMillis = 1_000).also {
+        assertTrue(it.configure(configs, 0))
+    }
 
-    private fun read(tracker: VehicleAreaObservations, key: VehicleAreaKey = left, epoch: Int = 0) =
-        requireNotNull(tracker.beginRead(key, epoch))
+    private fun read(
+        tracker: VehicleAreaObservations,
+        key: VehicleAreaKey = left,
+        epoch: Int = 0,
+    ) = requireNotNull(tracker.beginRead(key, epoch))
 
-    private fun sample(tracker: VehicleAreaObservations, key: VehicleAreaKey = left, epoch: Int = 0) =
-        tracker.snapshot(epoch).single { it.key == key }
+    private fun sample(
+        tracker: VehicleAreaObservations,
+        key: VehicleAreaKey = left,
+        epoch: Int = 0,
+    ) = tracker.snapshot(epoch).single { it.key == key }
 
     @Test
     fun areasAndKindsKeepIndependentValuesAndReadTokens() {

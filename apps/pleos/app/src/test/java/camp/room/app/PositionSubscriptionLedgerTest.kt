@@ -1,12 +1,25 @@
 package camp.room.app
 
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNotSame
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertThat
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import org.junit.Assert.*
-import org.junit.Test
 
 class PositionSubscriptionLedgerTest {
-    private data class Binding(val nativeArea: String, val listener: Any)
+    private data class Binding(
+        val nativeArea: String,
+        val listener: Any,
+    )
 
     @Test fun failedUnregisterRetainsExactAreaEpochBindingAndBlocksReplacementUntilRetrySucceeds() {
         var now = 0L
@@ -16,10 +29,12 @@ class PositionSubscriptionLedgerTest {
         assertTrue(ledger.beginRegistration("door:left", 1, old.listener))
         assertEquals(1, ledger.detachAll())
         val attempts = mutableListOf<Triple<String, Int, Binding>>()
-        assertFalse(ledger.drain({ key, epoch, binding ->
-            attempts += Triple(key, epoch, binding)
-            throw IllegalStateException("temporary unregister failure")
-        }, { _, _, _ -> }))
+        assertFalse(
+            ledger.drain({ key, epoch, binding ->
+                attempts += Triple(key, epoch, binding)
+                throw IllegalStateException("temporary unregister failure")
+            }, { _, _, _ -> }),
+        )
         val replacement = Binding("native-door-area", Any())
         assertFalse(ledger.reserve("door:left", 2, replacement, replacement.listener))
         assertFalse(ledger.drain({ _, _, _ -> fail("backoff must suppress IPC") }, { _, _, _ -> }))
@@ -62,18 +77,23 @@ class PositionSubscriptionLedgerTest {
         assertTrue(ledger.hasPending())
         assertFalse(ledger.reserve("window:combined", 7, Binding("other", Any()), Any()))
         var calls = 0
-        assertTrue(ledger.drain({ key, epoch, native ->
-            calls++
-            assertEquals("window:combined", key)
-            assertEquals(6, epoch)
-            assertSame(binding, native)
-        }, { _, _, _ -> }))
+        assertTrue(
+            ledger.drain({ key, epoch, native ->
+                calls++
+                assertEquals("window:combined", key)
+                assertEquals(6, epoch)
+                assertSame(binding, native)
+            }, { _, _, _ -> }),
+        )
         assertEquals(1, calls)
     }
 
     @Test fun cleanupOfOldAreaCannotClearAnotherActiveAreaOrEqualReplacementIdentity() {
         val ledger = PositionSubscriptionLedger<String, Binding>()
-        data class Listener(val value: Int)
+
+        data class Listener(
+            val value: Int,
+        )
         val oldListener = Listener(1)
         val newListener = Listener(1)
         val old = Binding("door", oldListener)
@@ -97,11 +117,13 @@ class PositionSubscriptionLedgerTest {
         ledger.detachAll()
         var calls = 0
         for (delay in listOf(2000L, 4000L, 8000L, 15000L, 15000L)) {
-            assertFalse(ledger.drain({ _, _, native ->
-                assertSame(old, native)
-                calls++
-                throw IllegalStateException("test failure")
-            }, { _, _, _ -> }))
+            assertFalse(
+                ledger.drain({ _, _, native ->
+                    assertSame(old, native)
+                    calls++
+                    throw IllegalStateException("test failure")
+                }, { _, _, _ -> }),
+            )
             now += delay
         }
         now += 100000
@@ -310,7 +332,8 @@ class PositionSubscriptionLedgerTest {
         assertFalse(next.reserve("window:right", 1, Binding("other", Any()), Any()))
     }
 
-    @Test(timeout = 4000) fun blockedNativeCleanupDoesNotHoldMetadataLockAndBlocksSameAreaUntilReturn() {
+    @Test(timeout = 4000)
+    fun blockedNativeCleanupDoesNotHoldMetadataLockAndBlocksSameAreaUntilReturn() {
         val quarantine = PositionSubscriptionQuarantine<String>()
         val ledger = PositionSubscriptionLedger<String, Binding>(quarantine = quarantine)
         val otherBridge = PositionSubscriptionLedger<String, Binding>(quarantine = quarantine)
@@ -321,15 +344,18 @@ class PositionSubscriptionLedgerTest {
         val entered = CountDownLatch(1)
         val release = CountDownLatch(1)
         val finished = CountDownLatch(1)
-        val worker = Thread {
-            try {
-                ledger.drain({ _, _, binding ->
-                    assertSame(old, binding)
-                    entered.countDown()
-                    check(release.await(3, TimeUnit.SECONDS))
-                }, { _, _, error -> throw error })
-            } finally { finished.countDown() }
-        }.apply { isDaemon = true }
+        val worker =
+            Thread {
+                try {
+                    ledger.drain({ _, _, binding ->
+                        assertSame(old, binding)
+                        entered.countDown()
+                        check(release.await(3, TimeUnit.SECONDS))
+                    }, { _, _, error -> throw error })
+                } finally {
+                    finished.countDown()
+                }
+            }.apply { isDaemon = true }
         worker.start()
         assertTrue(entered.await(1, TimeUnit.SECONDS))
         try {
@@ -341,7 +367,9 @@ class PositionSubscriptionLedgerTest {
             val other = Binding("window", Any())
             assertTrue(ledger.reserve("window:right", 2, other, other.listener))
             assertFalse(ledger.drain({ _, _, _ -> fail("in-flight cleanup cannot be duplicated") }, { _, _, _ -> }))
-        } finally { release.countDown() }
+        } finally {
+            release.countDown()
+        }
         assertTrue(finished.await(1, TimeUnit.SECONDS))
         assertFalse(ledger.hasPending())
     }

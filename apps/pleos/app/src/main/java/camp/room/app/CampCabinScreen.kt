@@ -6,16 +6,39 @@
 
 package camp.room.app
 
-import camp.room.app.icons.CampIcons
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -32,6 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import camp.room.app.icons.CampIcons
 
 data class CampScene(
     val id: String,
@@ -81,7 +105,10 @@ val campScenes =
     )
 
 @Composable
-fun CabinScreen(s: CampUiState, vm: CampViewModel) {
+fun CabinScreen(
+    s: CampUiState,
+    vm: CampViewModel,
+) {
     val vehicle = s.data?.vehicle ?: return
     SectionTitle(
         tr(camp.room.app.R.string.camp_a_little_room_of_our_own_inside),
@@ -90,66 +117,89 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             if (vehicle.isConnected) CampPill(tr(R.string.vehicle_connected))
         },
     )
-    if (vehicle.isConnected) CampSurface(Modifier.fillMaxWidth().testTag("vehicle-status-summary")) {
-        FlowRow(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            VehicleStatus(
-                CampIcons.BatteryCharging,
-                tr(camp.room.app.R.string.camp_current_battery),
-                vehicle.soc?.let { "${number(it)}%" } ?: tr(R.string.vehicle_value_unknown),
-            )
-            VehicleStatus(
-                CampIcons.Thermometer,
-                tr(R.string.cabin_layout_front_temperature),
-                vehicle.measuredTemperature?.let { "${number(it)}°C" } ?: tr(R.string.vehicle_value_unknown),
-            )
-            vehicle.doorsClosed?.let { closed ->
+    if (vehicle.isConnected) {
+        CampSurface(Modifier.fillMaxWidth().testTag("vehicle-status-summary")) {
+            FlowRow(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
                 VehicleStatus(
-                    CampIcons.Door,
-                    tr(camp.room.app.R.string.camp_doors),
-                    if (closed) tr(camp.room.app.R.string.camp_all_closed)
-                    else tr(camp.room.app.R.string.camp_a_door_is_open),
+                    CampIcons.BatteryCharging,
+                    tr(camp.room.app.R.string.camp_current_battery),
+                    vehicle.soc?.let { "${number(it)}%" } ?: tr(R.string.vehicle_value_unknown),
                 )
+                VehicleStatus(
+                    CampIcons.Thermometer,
+                    tr(R.string.cabin_layout_front_temperature),
+                    vehicle.measuredTemperature?.let { "${number(it)}°C" } ?: tr(R.string.vehicle_value_unknown),
+                )
+                vehicle.doorsClosed?.let { closed ->
+                    VehicleStatus(
+                        CampIcons.Door,
+                        tr(camp.room.app.R.string.camp_doors),
+                        if (closed) {
+                            tr(camp.room.app.R.string.camp_all_closed)
+                        } else {
+                            tr(camp.room.app.R.string.camp_a_door_is_open)
+                        },
+                    )
+                }
+                vehicle.windowsClosed?.let { closed ->
+                    VehicleStatus(
+                        CampIcons.Wind,
+                        tr(camp.room.app.R.string.camp_windows),
+                        if (closed) {
+                            tr(camp.room.app.R.string.camp_all_closed)
+                        } else {
+                            tr(camp.room.app.R.string.camp_a_window_is_open)
+                        },
+                    )
+                }
             }
-            vehicle.windowsClosed?.let { closed ->
-                VehicleStatus(
-                    CampIcons.Wind,
-                    tr(camp.room.app.R.string.camp_windows),
-                    if (closed) tr(camp.room.app.R.string.camp_all_closed)
-                    else tr(camp.room.app.R.string.camp_a_window_is_open),
-                )
+        }
+    } else {
+        CampSurface(Modifier.fillMaxWidth().testTag("vehicle-connection-needed")) {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(54.dp).background(CampPalette.Sage, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                    Icon(CampIcons.Vehicle, null, Modifier.size(30.dp), tint = CampPalette.Muted)
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text(tr(R.string.vehicle_connection_needed), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                    Text(tr(R.string.vehicle_connection_details), fontSize = 22.sp, color = CampPalette.Muted, lineHeight = 29.sp)
+                }
             }
         }
     }
-    else CampSurface(Modifier.fillMaxWidth().testTag("vehicle-connection-needed")) {
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(54.dp).background(CampPalette.Sage, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
-                Icon(CampIcons.Vehicle, null, Modifier.size(30.dp), tint = CampPalette.Muted)
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Text(tr(R.string.vehicle_connection_needed), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
-                Text(tr(R.string.vehicle_connection_details), fontSize = 22.sp, color = CampPalette.Muted, lineHeight = 29.sp)
-            }
-        }
+    if (s.data?.trip != null) {
+        CampSecondary(
+            tr(R.string.prep_continue_trip),
+            CampIcons.ChevronRight,
+            enabled = s.interactionAllowed && !s.busy,
+            modifier = Modifier.testTag("prep-continue-trip"),
+            onClick = { vm.tab(1) },
+        )
     }
     BoxWithConstraints {
         val wide = maxWidth > 960.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale
-        if (wide)
+        if (wide) {
             Row(horizontalArrangement = Arrangement.spacedBy(23.dp)) {
                 CabinDiagram(vehicle, Modifier.weight(1.18f))
                 ScenePanel(s, vm, Modifier.weight(1f))
             }
-        else
+        } else {
             Column(verticalArrangement = Arrangement.spacedBy(23.dp)) {
                 CabinDiagram(vehicle, Modifier.fillMaxWidth())
                 ScenePanel(s, vm, Modifier.fillMaxWidth())
             }
+        }
     }
     CampSurface(Modifier.fillMaxWidth()) {
-        FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             Text(
                 tr(camp.room.app.R.string.camp_a_little_more_just_for_you),
                 fontSize = 22.sp,
@@ -166,8 +216,19 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             )
         }
         BoxWithConstraints {
-            val controlWidth = if (maxWidth > 1100.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale) (maxWidth - 60.dp) / 3 else maxWidth
-            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(30.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            val controlWidth =
+                if (maxWidth >
+                    1100.dp * androidx.compose.ui.platform.LocalDensity.current.fontScale
+                ) {
+                    (maxWidth - 60.dp) / 3
+                } else {
+                    maxWidth
+                }
+            FlowRow(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(30.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+            ) {
                 Column(Modifier.width(controlWidth)) {
                     Text(
                         tr(camp.room.app.R.string.camp_target_cabin_temperature),
@@ -185,7 +246,9 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             onClick = {
                                 vehicle.targetTemperature?.let { vm.control("targetTemperature", it - 1) }
                             },
-                            enabled = !s.busy && s.interactionAllowed && vehicle.isConnected && vehicle.targetTemperature != null && vehicle.targetTemperature > 16,
+                            enabled =
+                                !s.busy && s.interactionAllowed && vehicle.isConnected && vehicle.targetTemperature != null &&
+                                    vehicle.targetTemperature > 16,
                             modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
                             Icon(
@@ -205,7 +268,9 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                             onClick = {
                                 vehicle.targetTemperature?.let { vm.control("targetTemperature", it + 1) }
                             },
-                            enabled = !s.busy && s.interactionAllowed && vehicle.isConnected && vehicle.targetTemperature != null && vehicle.targetTemperature < 30,
+                            enabled =
+                                !s.busy && s.interactionAllowed && vehicle.isConnected && vehicle.targetTemperature != null &&
+                                    vehicle.targetTemperature < 30,
                             modifier = Modifier.size(CampDesign.IconTarget),
                         ) {
                             Icon(
@@ -243,12 +308,15 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
             }
         }
     }
-    if (vehicle.isConnected && s.commands.isNotEmpty())
+    if (vehicle.isConnected && s.commands.isNotEmpty()) {
         CampSurface(Modifier.fillMaxWidth().testTag("scene-results")) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(
-                    if (s.commandStatus == "completed") CampIcons.CheckCircle
-                    else CampIcons.WarningCircle,
+                    if (s.commandStatus == "completed") {
+                        CampIcons.CheckCircle
+                    } else {
+                        CampIcons.WarningCircle
+                    },
                     null,
                     Modifier.size(24.dp),
                     tint = CampPalette.Muted,
@@ -259,20 +327,26 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 CampPill(
-                    if (s.commandStatus == "completed")
+                    if (s.commandStatus == "completed") {
                         tr(camp.room.app.R.string.camp_items_checked)
-                    else tr(camp.room.app.R.string.camp_some_items_need_attention)
+                    } else {
+                        tr(camp.room.app.R.string.camp_some_items_need_attention)
+                    },
                 )
             }
             s.commands.forEach { result ->
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
-                        Modifier.size(5.dp)
+                        Modifier
+                            .size(5.dp)
                             .background(
-                                if (result.status == "applied") CampPalette.Forest
-                                else CampPalette.Danger,
+                                if (result.status == "applied") {
+                                    CampPalette.Forest
+                                } else {
+                                    CampPalette.Danger
+                                },
                                 CircleShape,
-                            )
+                            ),
                     )
                     Text(
                         controlLabel(result.control) + if (result.areaId.isNotBlank()) "\n" + cabinTargetLabel(result.areaId) else "",
@@ -304,7 +378,8 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                 color = CampPalette.Muted,
             )
         }
-    if (s.sceneId == "departure")
+    }
+    if (s.sceneId == "departure") {
         CampSurface(Modifier.fillMaxWidth()) {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Icon(CampIcons.CheckCircle, null, tint = CampPalette.Muted)
@@ -316,10 +391,14 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        if (vehicle.isConnected) tr(
-                            camp.room.app.R.string.camp_check_doors_windows_and_battery_at_then,
-                            number(vehicle.soc),
-                        ) else tr(R.string.vehicle_departure_unconnected),
+                        if (vehicle.isConnected) {
+                            tr(
+                                camp.room.app.R.string.camp_check_doors_windows_and_battery_at_then,
+                                number(vehicle.soc),
+                            )
+                        } else {
+                            tr(R.string.vehicle_departure_unconnected)
+                        },
                         fontSize = 22.sp,
                         color = CampPalette.Muted,
                         modifier = Modifier.padding(top = 7.dp),
@@ -334,6 +413,7 @@ fun CabinScreen(s: CampUiState, vm: CampViewModel) {
                 )
             }
         }
+    }
 }
 
 @Composable
@@ -384,9 +464,11 @@ private fun ZoneControls(
         )
         Row(Modifier.fillMaxWidth().heightIn(min = CampDesign.IconTarget), verticalAlignment = Alignment.CenterVertically) {
             Text(
-                if (value.reading == null)
+                if (value.reading == null) {
                     tr(camp.room.app.R.string.camp_reading_light_check_needed)
-                else tr(camp.room.app.R.string.camp_reading_light),
+                } else {
+                    tr(camp.room.app.R.string.camp_reading_light)
+                },
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
                 modifier = Modifier.weight(1f),
@@ -410,8 +492,11 @@ private fun ZoneControls(
             )
             Spacer(Modifier.weight(1f))
             Text(
-                if (value.blind == null) tr(camp.room.app.R.string.camp_check_needed)
-                else "${blind.toInt()}%",
+                if (value.blind == null) {
+                    tr(camp.room.app.R.string.camp_check_needed)
+                } else {
+                    "${blind.toInt()}%"
+                },
                 fontSize = 22.sp,
                 color = CampPalette.Muted,
                 maxLines = 3,
@@ -431,12 +516,18 @@ private fun ZoneControls(
 }
 
 @Composable
-private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
+private fun ScenePanel(
+    s: CampUiState,
+    vm: CampViewModel,
+    modifier: Modifier,
+) {
     CampSurface(modifier) {
-
         Text(
-            if (s.data?.vehicle?.isConnected == true) tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need)
-            else tr(R.string.vehicle_scene_walkthrough),
+            if (s.data?.vehicle?.isConnected == true) {
+                tr(camp.room.app.R.string.camp_what_kind_of_rest_do_you_need)
+            } else {
+                tr(R.string.vehicle_scene_walkthrough)
+            },
             fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 3,
@@ -461,7 +552,8 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
-                        Modifier.size(35.dp)
+                        Modifier
+                            .size(35.dp)
                             .background(
                                 if (selected) CampPalette.Selected else CampPalette.Canvas,
                                 RoundedCornerShape(7.dp),
@@ -498,13 +590,25 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
         }
         Text(
             when (s.sceneId) {
-                "split" -> tr(camp.room.app.R.string.camp_keep_the_front_bright_for_reading_and)
-                "sleep" -> tr(camp.room.app.R.string.camp_lower_the_light_and_add_shade_for)
-                "departure" ->
+                "split" -> {
+                    tr(camp.room.app.R.string.camp_keep_the_front_bright_for_reading_and)
+                }
+
+                "sleep" -> {
+                    tr(camp.room.app.R.string.camp_lower_the_light_and_add_shade_for)
+                }
+
+                "departure" -> {
                     tr(camp.room.app.R.string.camp_reset_shade_and_lighting_then_check_before)
-                "load" -> tr(camp.room.app.R.string.camp_light_both_zones_so_you_can_unpack)
-                else ->
+                }
+
+                "load" -> {
+                    tr(camp.room.app.R.string.camp_light_both_zones_so_you_can_unpack)
+                }
+
+                else -> {
                     tr(camp.room.app.R.string.camp_soft_lighting_and_a_comfortable_temperature_for)
+                }
             },
             fontSize = 22.sp,
             color = CampPalette.Muted,
@@ -521,8 +625,11 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
             onClick = vm::applyScene,
         )
         Text(
-            if (s.data?.vehicle?.isConnected == true) tr(R.string.vehicle_scene_observations)
-            else tr(R.string.vehicle_scene_walkthrough_details),
+            if (s.data?.vehicle?.isConnected == true) {
+                tr(R.string.vehicle_scene_observations)
+            } else {
+                tr(R.string.vehicle_scene_walkthrough_details)
+            },
             fontSize = 22.sp,
             color = CampPalette.Muted,
             maxLines = 3,
@@ -532,7 +639,10 @@ private fun ScenePanel(s: CampUiState, vm: CampViewModel, modifier: Modifier) {
 }
 
 @Composable
-private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
+private fun CabinDiagram(
+    vehicle: Vehicle,
+    modifier: Modifier,
+) {
     if (!vehicle.isConnected) {
         DisconnectedCabinDiagram(modifier)
         return
@@ -541,60 +651,106 @@ private fun CabinDiagram(vehicle: Vehicle, modifier: Modifier) {
         Text(tr(R.string.cabin_layout_title), fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
         Text(
             tr(R.string.cabin_layout_model_unknown_short),
-            fontSize = 22.sp, color = CampPalette.Muted,
+            fontSize = 22.sp,
+            color = CampPalette.Muted,
         )
         if (vehicle.controlAreas.isEmpty()) {
             Text(tr(R.string.cabin_layout_unknown), fontSize = 22.sp, color = CampPalette.Muted)
         } else {
             // Spatial headings sort presentation only. Exact ordered SDK members/IDs stay untouched.
-            val sections = vehicle.controlAreas.groupBy { group ->
-                val member = group.area.members.singleOrNull()
-                Regex("ROW_([123])_(LEFT|CENTER|RIGHT)").matchEntire(member.orEmpty())?.groupValues?.get(1)
-                    ?: if (group.area.kind == "demo") "demo" else "groups"
-            }
+            val sections =
+                vehicle.controlAreas.groupBy { group ->
+                    val member = group.area.members.singleOrNull()
+                    Regex("ROW_([123])_(LEFT|CENTER|RIGHT)").matchEntire(member.orEmpty())?.groupValues?.get(1)
+                        ?: if (group.area.kind == "demo") "demo" else "groups"
+                }
             for (section in sections.keys.sorted()) {
-                if (section != "demo") Text(
-                    if (section == "groups") tr(R.string.cabin_layout_linked_groups)
-                    else tr(R.string.cabin_layout_row_heading, section),
-                    fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
-                )
+                if (section != "demo") {
+                    Text(
+                        if (section == "groups") {
+                            tr(R.string.cabin_layout_linked_groups)
+                        } else {
+                            tr(R.string.cabin_layout_row_heading, section)
+                        },
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
                 BoxWithConstraints {
                     val cardWidth = if (maxWidth > 760.dp) (maxWidth - 16.dp) / 2 else maxWidth
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        val cards = sections.getValue(section).groupBy { it.area.id }.values.sortedBy {
-                            when (it.first().area.members.singleOrNull()?.substringAfterLast('_')) { "LEFT" -> 0; "CENTER" -> 1; "RIGHT" -> 2; else -> 3 }
-                        }
+                        val cards =
+                            sections.getValue(section).groupBy { it.area.id }.values.sortedBy {
+                                when (
+                                    it
+                                        .first()
+                                        .area.members
+                                        .singleOrNull()
+                                        ?.substringAfterLast('_')
+                                ) {
+                                    "LEFT" -> 0
+                                    "CENTER" -> 1
+                                    "RIGHT" -> 2
+                                    else -> 3
+                                }
+                            }
                         for (controls in cards) {
                             val area = controls.first().area
                             Surface(
                                 modifier = Modifier.width(cardWidth).testTag("cabin-area-${area.id}"),
-                                color = CampPalette.Sage, shape = RoundedCornerShape(8.dp),
+                                color = CampPalette.Sage,
+                                shape = RoundedCornerShape(8.dp),
                                 border = androidx.compose.foundation.BorderStroke(1.dp, CampPalette.Line),
                             ) {
                                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Text(cabinAreaLabel(area), fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
                                     for (group in controls) {
-                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Row(
+                                            Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
                                             Text(cabinFeatureLabel(group.feature), modifier = Modifier.weight(1f), fontSize = 22.sp)
                                             val value = group.observed
                                             Text(
                                                 when {
-                                                    value == null -> tr(R.string.cabin_layout_value_unknown_short)
-                                                    group.feature == "readingLight" -> when (value) { 1.0 -> tr(R.string.cabin_layout_on); 0.0 -> tr(R.string.cabin_layout_off); else -> tr(R.string.cabin_layout_value_unknown_short) }
-                                                    group.feature in listOf("targetTemperature", "cabinTemperature") -> "${number(value)}°C"
-                                                    else -> "${number(value)}%"
+                                                    value == null -> {
+                                                        tr(R.string.cabin_layout_value_unknown_short)
+                                                    }
+
+                                                    group.feature == "readingLight" -> {
+                                                        when (value) {
+                                                            1.0 -> tr(R.string.cabin_layout_on)
+                                                            0.0 -> tr(R.string.cabin_layout_off)
+                                                            else -> tr(R.string.cabin_layout_value_unknown_short)
+                                                        }
+                                                    }
+
+                                                    group.feature in listOf("targetTemperature", "cabinTemperature") -> {
+                                                        "${number(value)}°C"
+                                                    }
+
+                                                    else -> {
+                                                        "${number(value)}%"
+                                                    }
                                                 },
-                                                fontSize = 22.sp, fontWeight = FontWeight.Medium,
+                                                fontSize = 22.sp,
+                                                fontWeight = FontWeight.Medium,
                                             )
                                         }
-                                        if (!group.readable || (!group.writable && group.feature !in listOf("targetTemperature", "cabinTemperature"))) Text(
-                                            when {
-                                                group.readable -> tr(R.string.cabin_layout_read_only)
-                                                group.writable -> tr(R.string.cabin_layout_write_only)
-                                                else -> tr(R.string.cabin_layout_access_unknown)
-                                            },
-                                            fontSize = 22.sp, color = CampPalette.Muted,
-                                        )
+                                        if (!group.readable ||
+                                            (!group.writable && group.feature !in listOf("targetTemperature", "cabinTemperature"))
+                                        ) {
+                                            Text(
+                                                when {
+                                                    group.readable -> tr(R.string.cabin_layout_read_only)
+                                                    group.writable -> tr(R.string.cabin_layout_write_only)
+                                                    else -> tr(R.string.cabin_layout_access_unknown)
+                                                },
+                                                fontSize = 22.sp,
+                                                color = CampPalette.Muted,
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -626,11 +782,37 @@ private fun DisconnectedCabinDiagram(modifier: Modifier) {
                 val body = Size(width, height)
                 drawRoundRect(canvasColor, Offset(left, top), body, CornerRadius(width * .24f))
                 drawRoundRect(lineColor, Offset(left, top), body, CornerRadius(width * .24f), style = Stroke(2.dp.toPx()))
-                drawRoundRect(lineColor, Offset(left + width * .13f, top + height * .2f), Size(width * .74f, height * .54f), CornerRadius(width * .12f), style = Stroke(2.dp.toPx()))
-                drawLine(lineColor, Offset(left + width * .13f, top + height * .34f), Offset(left + width * .87f, top + height * .34f), 2.dp.toPx())
-                drawLine(lineColor, Offset(left + width * .13f, top + height * .64f), Offset(left + width * .87f, top + height * .64f), 2.dp.toPx())
-                drawRoundRect(lineColor, Offset(left - width * .08f, top + height * .24f), Size(width * .08f, height * .08f), CornerRadius(3.dp.toPx()))
-                drawRoundRect(lineColor, Offset(left + width, top + height * .24f), Size(width * .08f, height * .08f), CornerRadius(3.dp.toPx()))
+                drawRoundRect(
+                    lineColor,
+                    Offset(left + width * .13f, top + height * .2f),
+                    Size(width * .74f, height * .54f),
+                    CornerRadius(width * .12f),
+                    style = Stroke(2.dp.toPx()),
+                )
+                drawLine(
+                    lineColor,
+                    Offset(left + width * .13f, top + height * .34f),
+                    Offset(left + width * .87f, top + height * .34f),
+                    2.dp.toPx(),
+                )
+                drawLine(
+                    lineColor,
+                    Offset(left + width * .13f, top + height * .64f),
+                    Offset(left + width * .87f, top + height * .64f),
+                    2.dp.toPx(),
+                )
+                drawRoundRect(
+                    lineColor,
+                    Offset(left - width * .08f, top + height * .24f),
+                    Size(width * .08f, height * .08f),
+                    CornerRadius(3.dp.toPx()),
+                )
+                drawRoundRect(
+                    lineColor,
+                    Offset(left + width, top + height * .24f),
+                    Size(width * .08f, height * .08f),
+                    CornerRadius(3.dp.toPx()),
+                )
             }
             Text(tr(R.string.vehicle_value_unknown), fontSize = 30.sp, color = CampPalette.Muted)
         }
@@ -639,36 +821,52 @@ private fun DisconnectedCabinDiagram(modifier: Modifier) {
 }
 
 @Composable
-private fun cabinFeatureLabel(feature: String): String = when (feature) {
-    "cabinTemperature" -> tr(R.string.camp_measured_cabin_temperature)
-    "targetTemperature" -> tr(R.string.camp_target_cabin_temperature)
-    "readingLight" -> tr(R.string.camp_reading_light)
-    "ambientBrightness" -> tr(R.string.camp_ambient_brightness)
-    "blindLevel" -> tr(R.string.camp_shade)
-    else -> feature
-}
+private fun cabinFeatureLabel(feature: String): String =
+    when (feature) {
+        "cabinTemperature" -> tr(R.string.camp_measured_cabin_temperature)
+        "targetTemperature" -> tr(R.string.camp_target_cabin_temperature)
+        "readingLight" -> tr(R.string.camp_reading_light)
+        "ambientBrightness" -> tr(R.string.camp_ambient_brightness)
+        "blindLevel" -> tr(R.string.camp_shade)
+        else -> feature
+    }
 
 @Composable
 private fun cabinAreaLabel(area: CabinArea): String {
     if (area.members.isEmpty()) return tr(R.string.cabin_layout_unspecified)
-    if (area.kind == "demo") return if (area.members.contains("DEMO_FRONT_ZONE")) tr(R.string.cabin_layout_demo_front) else tr(R.string.cabin_layout_demo_rear)
+    if (area.kind ==
+        "demo"
+    ) {
+        return if (area.members.contains(
+                "DEMO_FRONT_ZONE",
+            )
+        ) {
+            tr(R.string.cabin_layout_demo_front)
+        } else {
+            tr(R.string.cabin_layout_demo_rear)
+        }
+    }
     val labels = mutableListOf<String>()
     for (member in area.members) {
         val match = Regex("ROW_([123])_(LEFT|CENTER|RIGHT)").matchEntire(member)
-        labels += if (match == null) when (member) {
-            "FRONT_WINDSHIELD" -> tr(R.string.cabin_layout_front_windshield)
-            "REAR_WINDSHIELD" -> tr(R.string.cabin_layout_rear_windshield)
-            "ROOF_TOP_1" -> tr(R.string.cabin_layout_roof_1)
-            "ROOF_TOP_2" -> tr(R.string.cabin_layout_roof_2)
-            else -> tr(R.string.cabin_layout_unspecified)
-        } else {
-            val side = when (match.groupValues[2]) {
-                "LEFT" -> tr(R.string.cabin_layout_left)
-                "CENTER" -> tr(R.string.cabin_layout_center)
-                else -> tr(R.string.cabin_layout_right)
+        labels +=
+            if (match == null) {
+                when (member) {
+                    "FRONT_WINDSHIELD" -> tr(R.string.cabin_layout_front_windshield)
+                    "REAR_WINDSHIELD" -> tr(R.string.cabin_layout_rear_windshield)
+                    "ROOF_TOP_1" -> tr(R.string.cabin_layout_roof_1)
+                    "ROOF_TOP_2" -> tr(R.string.cabin_layout_roof_2)
+                    else -> tr(R.string.cabin_layout_unspecified)
+                }
+            } else {
+                val side =
+                    when (match.groupValues[2]) {
+                        "LEFT" -> tr(R.string.cabin_layout_left)
+                        "CENTER" -> tr(R.string.cabin_layout_center)
+                        else -> tr(R.string.cabin_layout_right)
+                    }
+                tr(R.string.cabin_layout_row_position, match.groupValues[1], side)
             }
-            tr(R.string.cabin_layout_row_position, match.groupValues[1], side)
-        }
     }
     return labels.joinToString(" · ")
 }
@@ -677,32 +875,59 @@ private fun cabinAreaLabel(area: CabinArea): String {
 private fun cabinTargetLabel(targetId: String): String {
     val descriptor = targetId.substringBefore('|').split(':', limit = 2)
     if (descriptor.size != 2) return tr(R.string.cabin_layout_unspecified)
-    val members = if (descriptor[0] == "demo") listOf("DEMO_${descriptor[1].uppercase()}_ZONE")
-        else descriptor[1].takeUnless { it == "<unspecified>" }?.split('+') ?: emptyList()
+    val members =
+        if (descriptor[0] == "demo") {
+            listOf("DEMO_${descriptor[1].uppercase()}_ZONE")
+        } else {
+            descriptor[1].takeUnless { it == "<unspecified>" }?.split('+') ?: emptyList()
+        }
     return cabinAreaLabel(CabinArea(descriptor[0], members))
 }
 
 fun controlLabel(value: String): String {
     val zone =
-        if (value.startsWith("front"))
-            camp.room.app.CampText.get(camp.room.app.R.string.camp_front_201)
-        else if (value.startsWith("rear"))
-            camp.room.app.CampText.get(camp.room.app.R.string.camp_rear_202)
-        else ""
+        if (value.startsWith("front")) {
+            camp.room.app.CampText
+                .get(camp.room.app.R.string.camp_front_201)
+        } else if (value.startsWith("rear")) {
+            camp.room.app.CampText
+                .get(camp.room.app.R.string.camp_rear_202)
+        } else {
+            ""
+        }
     return zone +
         when (value.substringAfterLast('.')) {
-            "readingLight" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_reading_light)
-            "ambientBrightness" ->
-                camp.room.app.CampText.get(camp.room.app.R.string.camp_ambient_brightness)
-            "blindLevel" -> camp.room.app.CampText.get(camp.room.app.R.string.camp_shade)
-            "targetTemperature" ->
-                camp.room.app.CampText.get(camp.room.app.R.string.camp_target_temperature)
-            else -> value
+            "readingLight" -> {
+                camp.room.app.CampText
+                    .get(camp.room.app.R.string.camp_reading_light)
+            }
+
+            "ambientBrightness" -> {
+                camp.room.app.CampText
+                    .get(camp.room.app.R.string.camp_ambient_brightness)
+            }
+
+            "blindLevel" -> {
+                camp.room.app.CampText
+                    .get(camp.room.app.R.string.camp_shade)
+            }
+
+            "targetTemperature" -> {
+                camp.room.app.CampText
+                    .get(camp.room.app.R.string.camp_target_temperature)
+            }
+
+            else -> {
+                value
+            }
         }
 }
 
 @Composable
-fun CampLandscape(id: String, modifier: Modifier = Modifier) {
+fun CampLandscape(
+    id: String,
+    modifier: Modifier = Modifier,
+) {
     Canvas(modifier.clipToBounds()) {
         val shore = id == "solbaram" || id == "island"
         val sky = if (shore) Color(0xFFD7E6DF) else Color(0xFFDDE2CF)
@@ -758,7 +983,12 @@ fun CampLandscape(id: String, modifier: Modifier = Modifier) {
                 close()
             }
         drawPath(grass, Color(0xFFA7AF87))
-        fun tree(x: Float, y: Float, h: Float) {
+
+        fun tree(
+            x: Float,
+            y: Float,
+            h: Float,
+        ) {
             drawLine(Color(0xFF34543D), Offset(x, y), Offset(x, y - h * .7f), size.width * .008f)
             val p =
                 Path().apply {
@@ -811,7 +1041,10 @@ fun CampLandscape(id: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ProductArtwork(id: String, modifier: Modifier = Modifier) {
+fun ProductArtwork(
+    id: String,
+    modifier: Modifier = Modifier,
+) {
     // Category illustrations are deliberately not presented as exact product photography.
     val icon =
         when {

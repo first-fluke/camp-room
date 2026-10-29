@@ -5,24 +5,36 @@ import java.util.concurrent.Executor
 /** Metadata stays independent of vendor IPC, including synchronous SDK callbacks. */
 internal class NavigationSdkIo(
     val stateLock: Any = Any(),
-    executor: Executor = Executor { task ->
-        Thread(task, "camp-navigation-followup").apply { isDaemon = true }.start()
-    },
+    executor: Executor =
+        Executor { task ->
+            Thread(task, "camp-navigation-followup").apply { isDaemon = true }.start()
+        },
     nowMs: () -> Long = { System.nanoTime() / 1_000_000 },
     private val onFailure: (Exception) -> Unit = {},
     private val retainedOwner: RetainedCleanupOwner = processCleanup,
     private val cleanupWaitMillis: Long = 500,
 ) {
-    private companion object { val processCleanup = RetainedCleanupOwner() }
-    private class Cleanup(val identity: Any, val action: () -> Unit)
+    private companion object {
+        val processCleanup = RetainedCleanupOwner()
+    }
+
+    private class Cleanup(
+        val identity: Any,
+        val action: () -> Unit,
+    )
+
     private val cleanupLock = Any()
     private val cleanupByIdentity = java.util.IdentityHashMap<Any, Cleanup>()
+
     // Only the process owner's budgeted action can drain this lane. Automatic
     // preview/admission checks cannot create additional native cleanup attempts.
-    private val cleanup = VehicleListenerCleanup<Cleanup>(maxAttempts=Int.MAX_VALUE, nowMs=nowMs)
+    private val cleanup = VehicleListenerCleanup<Cleanup>(maxAttempts = Int.MAX_VALUE, nowMs = nowMs)
     private val lane = VehicleSdkIo(executor, onFailure)
 
-    fun <T> call(isCurrent: () -> Boolean = { true }, action: () -> T): T? {
+    fun <T> call(
+        isCurrent: () -> Boolean = { true },
+        action: () -> T,
+    ): T? {
         check(!Thread.holdsLock(stateLock)) { "Navigation SDK call while holding metadata lock" }
         // Retirement is asynchronous. Wait for its already admitted pass before
         // taking the native lane, so a healthy fresh preview does not lose a race
@@ -36,7 +48,11 @@ internal class NavigationSdkIo(
     }
 
     /** Callback threads only enqueue and never wait for another vendor operation. */
-    fun enqueue(key: String, isCurrent: () -> Boolean, action: () -> Unit): Boolean {
+    fun enqueue(
+        key: String,
+        isCurrent: () -> Boolean,
+        action: () -> Unit,
+    ): Boolean {
         check(!Thread.holdsLock(stateLock)) { "Navigation follow-up while holding metadata lock" }
         return lane.request(key) {
             if (!cleanup.hasPending() && !retainedOwner.hasPending() && synchronized(stateLock) { isCurrent() }) action()
@@ -44,7 +60,10 @@ internal class NavigationSdkIo(
     }
 
     /** Retention and queue admission do not execute SDK code, so lifecycle callers stay free. */
-    fun retire(identity: Any, action: () -> Unit) {
+    fun retire(
+        identity: Any,
+        action: () -> Unit,
+    ) {
         synchronized(cleanupLock) {
             cleanupByIdentity[identity] ?: Cleanup(identity, action).also {
                 cleanupByIdentity[identity] = it
@@ -53,7 +72,12 @@ internal class NavigationSdkIo(
         }
         // Static owner survives a retired ViewModel and periodically re-enters this
         // exact lane/bundle. It is the sole authority for automatic native attempts.
-        retainedOwner.retire(this) { lane.run { drainCleanup(); !cleanup.hasPending() } }
+        retainedOwner.retire(this) {
+            lane.run {
+                drainCleanup()
+                !cleanup.hasPending()
+            }
+        }
     }
 
     /** Only a verified user-operation boundary may request a fresh bounded burst. */

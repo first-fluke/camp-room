@@ -2,11 +2,11 @@
 
 ## 환경 준비
 
-Python 3.14와 uv, JDK 17, Android SDK 35를 준비한다. 관리자 화면에는 Node.js 24가 필요하다. `.env`가 없다면 루트 `.env.example`을 복사해 설정하고 이미 있다면 필요한 항목만 추가한다.
+mise와 Android SDK 35를 준비한다. mise가 Python, uv, Bun, Node.js와 JDK를 관리한다. `.env`가 없다면 루트 `.env.example`을 복사해 설정하고 이미 있다면 필요한 항목만 추가한다.
 
 ```bash
-uv sync --all-packages --frozen
-npm ci
+mise install --monorepo
+mise run install
 ```
 
 API 주소와 토큰은 [환경변수 안내](INTEGRATIONS.md)를 따른다. 실제 키를 저장소에 커밋하지 않는다.
@@ -40,7 +40,7 @@ bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug -PcampApiBaseUrl=h
 관리자 비밀번호, 세션 서명 키와 API 관리자 토큰을 서버 환경에 설정한다. `CAMP_API_BASE_URL`은 관리자 BFF가 접속할 API 주소다.
 
 ```bash
-npm run admin:dev
+mise run //apps/admin:dev
 uv run --package camp-room-worker camp-room-worker --once
 ```
 
@@ -61,8 +61,8 @@ bash apps/pleos/gradlew -p apps/pleos :app:openApiGenerate
 .venv/bin/python apps/api/scripts/export_openapi.py --check
 python apps/pleos/verify_contracts.py
 bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:assembleDemoDebug :app:assemblePleosDebug
-npm --workspace admin run typecheck
-npm --workspace admin test
+mise run //apps/admin:typecheck
+mise run //apps/admin:test
 ```
 
 원격 DB 검증은 서버용 Turso 설정을 읽고 독립된 검증 범위를 만든다. 검증 후 그 범위의 데이터만 정리한다.

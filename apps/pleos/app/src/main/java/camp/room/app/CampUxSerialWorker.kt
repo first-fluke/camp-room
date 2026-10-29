@@ -11,15 +11,24 @@ internal class CampUxSerialWorker(
     private var pending: (() -> Unit)? = null
 
     fun request(reconcile: () -> Unit) {
-        val dispatch = synchronized(this) {
-            pending = reconcile
-            if (running) false else { running = true; true }
-        }
+        val dispatch =
+            synchronized(this) {
+                pending = reconcile
+                if (running) {
+                    false
+                } else {
+                    running = true
+                    true
+                }
+            }
         if (dispatch) {
             try {
                 executor.execute(::drain)
             } catch (error: RuntimeException) {
-                synchronized(this) { running = false; pending = null }
+                synchronized(this) {
+                    running = false
+                    pending = null
+                }
                 onFailure(error)
             }
         }
@@ -27,12 +36,13 @@ internal class CampUxSerialWorker(
 
     private fun drain() {
         while (true) {
-            val next = synchronized(this) {
-                val task = pending
-                pending = null
-                if (task == null) running = false
-                task
-            } ?: return
+            val next =
+                synchronized(this) {
+                    val task = pending
+                    pending = null
+                    if (task == null) running = false
+                    task
+                } ?: return
             try {
                 next()
             } catch (error: Exception) {

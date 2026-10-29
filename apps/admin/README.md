@@ -7,8 +7,9 @@ Camp Room의 Kotlin/Pleos 앱과 별도로 사용하는 실제 Next.js 운영 �
 저장소 루트에서 다음 명령을 실행합니다.
 
 ```sh
-npm install
-npm --workspace admin run dev
+mise install --monorepo
+mise run install
+mise run //apps/admin:dev
 ```
 
 기본 주소는 `http://127.0.0.1:3000`입니다. 루트 `.env`에서 서버 전용 설정을 읽습니다. 환경변수를 변경한 뒤에는 개발 서버를 다시 시작합니다.
@@ -46,8 +47,8 @@ npm --workspace admin run dev
 ## 검증
 
 ```sh
-npm --workspace admin run typecheck
-npm --workspace admin run test
+mise run //apps/admin:typecheck
+mise run //apps/admin:test
 ```
 
 보안 테스트는 서명 변조·만료·잘못된 키·미래 시각 세션, 잘못된 비밀번호, 요청 origin, 경로 이탈을 검증합니다. 실제 cookie/BFF 및 저장·복구 통합 검증은 저장소의 `scripts/verify-admin.py`에서 수행합니다.

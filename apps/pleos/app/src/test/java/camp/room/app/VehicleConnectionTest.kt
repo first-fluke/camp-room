@@ -37,7 +37,10 @@ class VehicleConnectionTest {
         assertTrue(disconnected.unknownFeatures.isEmpty())
     }
 
-    private fun vehicle(mode: String, confirmed: Boolean) = Vehicle(
+    private fun vehicle(
+        mode: String,
+        confirmed: Boolean,
+    ) = Vehicle(
         soc = 78.0,
         measuredTemperature = 23.0,
         targetTemperature = 22.0,
@@ -50,9 +53,10 @@ class VehicleConnectionTest {
         updatedAt = "2026-10-26T12:00:00Z",
         mode = mode,
         layoutSource = "sdk_capabilities",
-        controlAreas = listOf(
-            CabinControlGroup(CabinArea("seat", listOf("ROW_1_LEFT")), "readingLight", true, true, 1.0),
-        ),
+        controlAreas =
+            listOf(
+                CabinControlGroup(CabinArea("seat", listOf("ROW_1_LEFT")), "readingLight", true, true, 1.0),
+            ),
         unknownFeatures = listOf("blindLevel"),
         connectionConfirmed = confirmed,
     )

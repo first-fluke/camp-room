@@ -1,0 +1,203 @@
+{
+  "at": "2026-10-28T20:42:42.893887+00:00",
+  "status": "scoped speech creation race fixed; fake-engine regressions and compiled APK verified; prior log aggregation corrected",
+  "sourceBase": "8f4a213c7bbed9e08f45608e4cce5c1d4712baf1",
+  "localOnly": true,
+  "stage": "review-runtime/door-window-20261028/resume-speech-2022",
+  "changedFiles": [
+    "apps/pleos/app/src/pleos/java/camp/room/app/PleosAssistAdapter.kt",
+    "apps/pleos/app/src/main/java/camp/room/app/SpeechSessionState.kt",
+    "apps/pleos/app/src/main/java/camp/room/app/SdkResourceConstruction.kt",
+    "apps/pleos/app/src/test/java/camp/room/app/SdkResourceConstructionTest.kt"
+  ],
+  "fixes": [
+    "Reserve construction obligation before provider invocation; close cannot complete while the provider owns an unpublished engine",
+    "Transfer obligation under the same speech metadata lock from constructing to staging and then active or pending cleanup",
+    "Exclude healthy staging from user cleanupPending indicators; invalidate stale publication with host epoch and session identity",
+    "Re-register late closed-owner release failure in process-retained cleanup so retries and new-owner gates persist",
+    "Retain exact returned engine on wrapper-construction failure; release outside metadata lock",
+    "Settle private run waiters without publishing stale UI state or awaiting a never-published terminal"
+  ],
+  "analogousPaths": {
+    "navigation": "Unpublished late factory result already reaches exact-bundle finally retirement; no guidance started or policy changed",
+    "fusedLocation": "Existing pre-initialize release obligation retains a late return; no new native location execution",
+    "ttsAndStt": "Both use the same production construction helper and separate fake-engine race regressions"
+  },
+  "sourceManifest": "SOURCE_BUILD_INPUT.json",
+  "sourceManifestSha256": "432966369020a56bc870df83f87aee306e7a6d237cd11b38a5654459b968807d",
+  "sourceFilesMatched": 44,
+  "buildReceipt": "BUILD_SPEECH.json",
+  "build": {
+    "startedAt": "2026-10-28T20:37:23.878783+00:00",
+    "command": [
+      "/tmp/camp-room-gradle-runtime-20261028/gradle-8.11.1/bin/gradle",
+      "-p",
+      "apps/pleos",
+      ":app:assemblePleosDebug",
+      ":app:testPleosDebugUnitTest",
+      "--offline",
+      "--no-daemon",
+      "--max-workers=2",
+      "-Porg.gradle.java.installations.paths=/Users/gracefullight/Documents/Codex/2026-10-25/task-2/camp-room/review-runtime/jdk17/Contents/Home",
+      "-Pkotlin.compiler.execution.strategy=in-process",
+      "-PcampApiBaseUrl=http://127.0.0.1:8000/api/v1"
+    ],
+    "status": "passed",
+    "maxSeconds": 1200,
+    "sourceManifest": "SOURCE_BUILD_INPUT.json",
+    "pid": 55546,
+    "pgid": 55546,
+    "returnCode": 0,
+    "endedAt": "2026-10-28T20:38:41.113342+00:00"
+  },
+  "tests": {
+    "tests": 235,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "newAppTests": 8,
+  "testSuites": 29,
+  "parserTestsSeparate": {
+    "command": "python3 -m unittest discover -s review-runtime/door-window-20261028/resume-speech-2022 -p test_sdk_error_evidence.py -v",
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "returnCode": 0,
+    "observation": "actual successful tool execution a3b3d1; app227 tests belong prior build, not these Python regressions"
+  },
+  "apk": {
+    "apk": "review-runtime/door-window-20261028/resume-speech-2022/camp-room-speech-creation-pleos-debug.apk",
+    "apkBytes": 76182025,
+    "apkSha256": "49a59ecfe5b0363e84525b3a2ca1e9b4b38767de2b3e7864676f3850bebf84c2",
+    "signatureVerifyReturnCode": 0,
+    "variant": "PleosDebug; debug-signed, not release"
+  },
+  "newApkInstalled": false,
+  "newNativeVoiceExecution": false,
+  "priorNativeEvidence": {
+    "apkSha256": "d489929d1de2b09dcda3d7bbda59333cc297288ec7300a4305a01fd3d41cff1c",
+    "rawLog": "review-runtime/door-window-20261028/resume-release-1940/runtime-latest/sdk-runtime.log",
+    "rawSha256": "0e146d35e1f329e298677a2622a9ebfdbd32335aacb3b8ac6d25bae2f5ebbd4b",
+    "correctedReceipt": "review-runtime/door-window-20261028/resume-speech-2022/RUNTIME_RELEASE_VERIFICATION_CORRECTED_v2.json",
+    "correctedReceiptSha256": "e820e3b36116ccbf4773a9d8eb838ecebad61eea17b6e8882ef34ce58b30c8ab",
+    "supersedesOnly": "incorrect sdkErrorsPreserved empty array and related error aggregation, not the preserved native release observations",
+    "failedTerminalRequests": 19,
+    "errorCallbacks": 18,
+    "primaryEvidenceRows": 37,
+    "ignoredLateDiagnosticRows": 1,
+    "preservedEvidenceRows": 38,
+    "operationSummary": [
+      {
+        "operation": "CAP_DOOR_POSITION",
+        "failedRequestCount": 1,
+        "errorEvidenceRecordCount": 2,
+        "correlationIds": [
+          7
+        ],
+        "requestEvidenceIds": [
+          2
+        ],
+        "firstLine": 65,
+        "lastLine": 70,
+        "firstTime": "10-29 07:04:45.377",
+        "lastTime": "10-29 07:04:45.565"
+      },
+      {
+        "operation": "CAP_SMART_GLASS",
+        "failedRequestCount": 6,
+        "errorEvidenceRecordCount": 12,
+        "correlationIds": [
+          6,
+          23,
+          45,
+          84,
+          141,
+          6
+        ],
+        "requestEvidenceIds": [
+          1,
+          5,
+          8,
+          11,
+          14,
+          17
+        ],
+        "firstLine": 61,
+        "lastLine": 663,
+        "firstTime": "10-29 07:04:43.141",
+        "lastTime": "10-29 07:05:44.884"
+      },
+      {
+        "operation": "GET_HVAC_TARGET",
+        "failedRequestCount": 12,
+        "errorEvidenceRecordCount": 24,
+        "correlationIds": [
+          13,
+          14,
+          35,
+          36,
+          56,
+          57,
+          95,
+          96,
+          152,
+          153,
+          19,
+          20
+        ],
+        "requestEvidenceIds": [
+          3,
+          4,
+          6,
+          7,
+          9,
+          10,
+          12,
+          13,
+          15,
+          16,
+          18,
+          19
+        ],
+        "firstLine": 94,
+        "lastLine": 731,
+        "firstTime": "10-29 07:04:45.771",
+        "lastTime": "10-29 07:05:45.669"
+      }
+    ],
+    "captureCoverage": {
+      "acceptedSocGetterValues": [
+        {
+          "value": 100,
+          "epoch": 3,
+          "adapterInstance": 198220778,
+          "line": 41
+        },
+        {
+          "value": 100,
+          "epoch": 1,
+          "adapterInstance": 115854909,
+          "line": 682
+        }
+      ],
+      "activeReuseFreshGetterObserved": false,
+      "sameViewModelFastStopStartRaceMeasured": false,
+      "positionRegisterReturnedTotal": 10,
+      "positionRegisterReturnedAfterTeardownMarker": 0,
+      "teardownMarkerLine": 594,
+      "interpretation": "SOC getter100 was observed; active_reuse and follow-up position re-registration are not demonstrated by this capture. Zero post-marker registrations is a capture limit, not proof the SDK never later registered."
+    }
+  },
+  "limitations": [
+    "The new speech creation race is verified with fake engines and production helpers, not induced native speech failures",
+    "The corrected native capture belongs to the prior d489 APK; it is not new runtime proof for the newly compiled APK",
+    "SOC getter100 was observed; active-reuse and follow-up registrations are outside that capture",
+    "SmartGlass60001, target-temperature errors and door capability timeout remain failures; aggregation correction is not their resolution",
+    "The future corrected runtime harness was AST-checked but not executed",
+    "No GUI, microphone/speaker, real vehicle control, guidance start, permission changes, source push or upload occurred"
+  ],
+  "evidenceArchive": "SDK_SPEECH_CREATION_SOURCE_EVIDENCE_20261028_2022.zip",
+  "archiveReceipt": "DELIVERY_RECEIPT.json"
+}
