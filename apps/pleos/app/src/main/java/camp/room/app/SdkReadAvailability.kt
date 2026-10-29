@@ -9,11 +9,15 @@ enum class SdkReadOperation {
     CAP_LIGHT_SWITCH,
     CAP_AMBIENT,
     CAP_SMART_GLASS,
+    CAP_DOOR_POSITION,
+    CAP_WINDOW_POSITION,
     GET_HVAC_TARGET,
     GET_HVAC_CURRENT,
     GET_LIGHT_STATE,
     GET_AMBIENT,
     GET_SMART_GLASS,
+    GET_DOOR_POSITION,
+    GET_WINDOW_POSITION,
 }
 
 data class SdkReadKey(val operation: SdkReadOperation, val context: String)

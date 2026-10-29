@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-28T23:56:05.994566+00:00",
+  "status": "retry_budget_P2_fixed_and_nonvoice_runtime_verified_with_limits",
+  "baseSubmission": "8f4a213c7bbed9e08f45608e4cce5c1d4712baf1",
+  "mainModifiedOrPushed": false,
+  "scope": "Automatic retained-cleanup notifications must not renew finite retry budgets; normal nonvoice Pleos lifecycle checks",
+  "stage": "review-runtime/door-window-20261028/resume-budget-2305",
+  "stageChangedFiles": [
+    "apps/pleos/app/src/main/java/camp/room/app/RetainedCleanupOwner.kt",
+    "apps/pleos/app/src/main/java/camp/room/app/NavigationSdkIo.kt",
+    "apps/pleos/app/src/pleos/java/camp/room/app/PleosAssistAdapter.kt",
+    "apps/pleos/app/src/pleos/java/camp/room/app/PlatformBridge.kt",
+    "apps/pleos/app/src/pleos/java/camp/room/app/CampUxMonitor.kt",
+    "apps/pleos/app/src/test/java/camp/room/app/RetainedCleanupOwnerTest.kt",
+    "apps/pleos/app/src/test/java/camp/room/app/NavigationSdkIoTest.kt"
+  ],
+  "repair": {
+    "automatic": "retire preserves ownership/revision only; existing notifications neither reset attempts nor expedite backoff; requireClear/requireClearExcept are pure gates",
+    "explicit": "retryAfterExplicitRequest grants a separate bounded burst only at verified manual operation boundaries; concurrent explicit requests coalesce",
+    "navigation": "Process owner is the sole native cleanup scheduler. Generic call/enqueue and saved-trip preview do not grant retries. A bounded 500ms wait observes already-admitted work outside vendor/state locks",
+    "speech": "Late asynchronous cleanup failure remains process-retained without restarting an exhausted budget",
+    "callerAudit": {
+      "at": "2026-10-28T23:24:33.489928+00:00",
+      "mode": "independent read-only source review; actual tests/runtime separately required",
+      "status": "no blocking counterexample in frozen budget/await source",
+      "automaticOrigins": [
+        "Assist.start lifecycle",
+        "Assist.close/stop/finally/cleanup errors/location callbacks",
+        "NavigationSdkIo.retire and genericcall/enqueue",
+        "saved-trip automatic preview",
+        "Retainer dirty-success revision recheck"
+      ],
+      "explicitOrigins": [
+        "VM LOCATION -> Assist.location",
+        "VM ARRIVAL_WATCH -> Assist.arrivalWatch",
+        "VM BRIEFING -> Assist.speak",
+        "VM LISTEN -> Assist.listen",
+        "VM NAVIGATION_START -> Bridge.navigationStart -> NavIo.retryAfterExplicitRequest"
+      ],
+      "rules": [
+        "retire preserves ownership but never replenishes or expedites existing retry budget",
+        "requireClear and requireClearExcept are pure gates",
+        "only explicit user-operation entrypoints grant another bounded burst",
+        "all Nav native cleanup attempts are owned by process coordinator",
+        "Nav awaitClear observes already admitted work outside vendor/state locks, bounded500ms, no grant/attempt",
+        "existing notification revisions cannot reset dirty-success budget",
+        "direct and asynchronous failed speech cleanup remain finite even after late notification"
+      ],
+      "expectedNewRegressions": 9,
+      "expectedTests": 244,
+      "rareFastRaceIsNotOrdinaryResume": true,
+      "ordinaryStopDoesNotRequireVehicleOrFusedRelease": true,
+      "nativeGuidanceAndVoiceNotExecuted": true
+    }
+  },
+  "unitAndBuildEvidence": {
+    "sourceManifest": "SOURCE_BUILD_INPUT_FINAL.json",
+    "sourceManifestSha256": "3192df0054ec59ea0a5ce367d237a716ead5691b7500b4d3a551eb75c02bcfe3",
+    "sourceFilesMatched": 44,
+    "testSuites": 29,
+    "tests": {
+      "tests": 244,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "newRegressionTests": 9,
+    "buildReceipt": "BUILD_BUDGET_FINAL.json",
+    "buildStartedAt": "2026-10-28T23:36:38.874651+00:00",
+    "buildEndedAt": "2026-10-28T23:37:49.423570+00:00",
+    "buildReturnCode": 0,
+    "backoffRegression": {
+      "at": "2026-10-28T23:37:56.264850+00:00",
+      "status": "independent source/test semantics review passed; actual final run pending",
+      "productionChangedForFailure": false,
+      "firstAttempt": "Nav regression expected10 actual7, existing15s nativebackoff preserved",
+      "deterministicAssertions": {
+        "secondBurstCoordinatorTimes": [
+          2000000,
+          2002000,
+          2006000,
+          2014000,
+          2029000
+        ],
+        "nativeCallCumulativeAfterEachPass": [
+          6,
+          6,
+          6,
+          6,
+          7
+        ],
+        "nativeSecondBurstTimes": [
+          2000000,
+          2029000
+        ],
+        "lateAutomaticAdmissions": 20,
+        "lateAutomaticAdditionalNativeCalls": 0,
+        "explicitThirdRecoveryTime": 2050000,
+        "recoveredNativeCumulative": 8,
+        "newFactoryCallsAfterRecovery": 1,
+        "pendingCleared": true
+      },
+      "testSha256": "e95cbe82acca85338d40f0369149c8999b89c363d061e5ae2367f2715f84a00a",
+      "limits": "fixture/coordinator proof, not induced native SDK release failure"
+    },
+    "firstAttempt": "Historical expected10/actual7 failure and all first XML are preserved. Final test asserts coordinator times, 15-second native backoff, automatic quiescence after exhaustion, and explicit healed recovery; production backoff was not loosened",
+    "permanentFailureProof": "Fake engines/fake clock only; native permanent failure was not induced. Coordinator pass count and native release invocation count are distinct"
+  },
+  "apk": {
+    "path": "review-runtime/door-window-20261028/resume-budget-2305/camp-room-retry-budget-pleos-debug.apk",
+    "bytes": 76184917,
+    "sha256": "26f7611cf918756b08db550f1dce898a60fb82435956ec8aa898100f8df104f5",
+    "installedSha256": "26f7611cf918756b08db550f1dce898a60fb82435956ec8aa898100f8df104f5",
+    "signatureVerifyReturnCode": 0,
+    "variant": "PleosDebug; debug-signed, not release"
+  },
+  "runtime": {
+    "officialExistingAvd": "camp-pleos-review/emulator-5564; no new definition, wipe or restart",
+    "sameViewModel": {
+      "receipt": "runtime-same-vm-quoted/SAME_VM_VERIFICATION.json",
+      "rawLog": "runtime-same-vm-quoted/sdk-runtime.log",
+      "rawSha256": "1d752f2f1675df230685727e9bdd853485234d15da1e70d203d0973f08649c28",
+      "startedAt": "2026-10-28T23:49:11.045227+00:00",
+      "endedAt": "2026-10-28T23:49:27.363618+00:00",
+      "records": 166,
+      "appPid": 23618,
+      "bridgeInstance": 2,
+      "adapterInstance": 232249666,
+      "assistantInstance": 69586259,
+      "stopLine": 57,
+      "stopEpoch": 2,
+      "startLine": 74,
+      "startEpoch": 3,
+      "activityRecreated": false,
+      "viewModelClosed": false,
+      "native": {
+        "Vehicle.position.unregister.returned": {
+          "count": 10,
+          "onMain": 0
+        },
+        "Vehicle.position.register.returned": {
+          "count": 10,
+          "onMain": 0
+        },
+        "CarUx.unregister.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "CarUx.disconnect.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "CarUx.register.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "FusedLocation.unregister.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "FusedLocation.register.returned": {
+          "count": 1,
+          "onMain": 0
+        }
+      },
+      "freshSoc": "Current subscription100 line91; same-adapter getter100 line93 superseded by the newer subscription, correctly not accepted",
+      "vehicleReleaseCount": 0,
+      "fusedReleaseCount": 0,
+      "releaseMeaning": "Ordinary retained STOP unregisters listeners and reuses owners; full release is not required here",
+      "rareActiveReuseObserved": false
+    },
+    "separateFullRecreation": {
+      "receipt": "runtime-latest/RUNTIME_VERIFICATION.json",
+      "rawLog": "runtime-latest/all-sdk-runtime.log",
+      "rawSha256": "13f3657ab1797ddde1eed3ed2f64e704ac69301ba12c7ba1d89ca292dff67a1c",
+      "overallReceiptStatus": "partial; HOME did not stop the app and is not same-ViewModel resume evidence",
+      "fullRecreationObserved": true,
+      "newBridgeLine": 1884,
+      "newBridgeInstance": 2,
+      "newAdapterInstance": 232249666,
+      "oldVehicleReleaseLine": 1919,
+      "oldFusedReleaseLine": 1923,
+      "newAdapterAcceptedSoc100Line": 1940,
+      "native": {
+        "Vehicle.read.invoked": {
+          "count": 23,
+          "onMain": 0
+        },
+        "Vehicle.position.register.returned": {
+          "count": 10,
+          "onMain": 0
+        },
+        "Vehicle.position.unregister.returned": {
+          "count": 10,
+          "onMain": 0
+        },
+        "Vehicle.release.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "CarUx.register.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "CarUx.unregister.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "CarUx.disconnect.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "FusedLocation.initialize.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "FusedLocation.register.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "FusedLocation.unregister.returned": {
+          "count": 1,
+          "onMain": 0
+        },
+        "FusedLocation.release.returned": {
+          "count": 1,
+          "onMain": 0
+        }
+      },
+      "anchoring": "New bridge/adapter identity plus epoch1 accepted SOC and new position registrations; separate from ordinary retained STOP/START",
+      "initialReadReadyFalse": "Getter-only readiness criterion missed an earlier current SOC100 subscription; do not interpret it as absence of a usable SOC"
+    },
+    "failedIntermediatePass": {
+      "receipt": "runtime-same-vm/SAME_VM_VERIFICATION.json",
+      "reason": "ADB remote-shell expanded unquoted $HomepageActivity. Error type3 proves intended Activity did not execute; later retry quotes exact component and checks stdout errors",
+      "correction": "ADB_COMPONENT_QUOTING_CORRECTION.json",
+      "failurePreserved": true
+    },
+    "threadMeaning": "Main lifecycle.start/stop/close and SOC timeout timer entries are metadata, nativeCall=false or diagnostic; observed native reads/registration/unregistration/releases were off Main",
+    "audioEventsObserved": 0,
+    "guidanceEventsObserved": 0,
+    "backendScope": "Existing isolated local API was demo/sqlite. This stage verifies native SDK lifecycle, not live GoCamping data or video",
+    "errorsPreserved": [
+      {
+        "pass": "runtime-latest",
+        "failedReadTerminals": 42,
+        "smartGlass60001": 14,
+        "targetTemperature": 28,
+        "socTimeoutDiagnostics": 1,
+        "evidenceRows": 85
+      },
+      {
+        "pass": "runtime-same-vm",
+        "failedReadTerminals": 6,
+        "smartGlass60001": 2,
+        "targetTemperature": 4,
+        "evidenceRows": 12
+      },
+      {
+        "pass": "runtime-same-vm-quoted",
+        "failedReadTerminals": 1,
+        "smartGlass60001": 1,
+        "evidenceRows": 2
+      }
+    ],
+    "countingPolicy": "Callback+terminal of one captured invocation is one failed request. One unidentified SOC diagnostic is not proof of another failed native request. Pass totals are not asserted globally unique"
+  },
+  "remainingLimits": [
+    "Rare active_reuse SOC race and native permanent cleanup failure are covered by fake regressions, not induced emulator proof",
+    "SmartGlass60001, target-temperature SDK errors and initial SOC capability timeout remain in raw evidence",
+    "TTS/STT audio and navigation guidance were not executed; no full-SDK-success or 5/5 review score claim",
+    "No new video or main push was part of this stage"
+  ],
+  "resources": {
+    "allOwnedLogcatClientsExited": true,
+    "ownedLogcatExitCodes": [
+      -15,
+      -15,
+      -15
+    ],
+    "existingAvdRetained": true,
+    "lastKnownOwnedAvdPid": 11757,
+    "existingApiRetained": true,
+    "note": "AVD/API deliberately retained for continuation; no recording or voice process started"
+  },
+  "historicalReceiptPolicy": "Earlier snapshots keep their original pending/partial/failed fields; this document reconciles final results without rewriting raw history",
+  "restrictionsObserved": [
+    "CLI/ADB only",
+    "no Mac GUI",
+    "no actual voice devices",
+    "no guidance start",
+    "no real vehicle control",
+    "no root/security/permission changes",
+    "no commit/push/upload",
+    "previous evidence preserved"
+  ]
+}

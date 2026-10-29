@@ -1,6 +1,7 @@
 package camp.room.app
 
 import java.util.Locale
+import kotlinx.coroutines.CompletableDeferred
 
 internal enum class SpeechKind { PLAYBACK, RECOGNITION }
 internal enum class SpeechPhase { INITIALIZING, READY, STARTED, PROCESSING, COMPLETED, RECOGNIZED, FAILED, TIMED_OUT, CANCELLED }
@@ -10,6 +11,16 @@ internal data class SpeechOutcome(
     val errorCode: String? = null,
     val text: String? = null,
 )
+
+/** A private or retired engine must settle its waiters without publishing host UI. */
+internal class SpeechRunSignals {
+    val initialized=CompletableDeferred<Boolean>()
+    val started=CompletableDeferred<Boolean>()
+    val terminal=CompletableDeferred<SpeechOutcome>()
+    fun settle(outcome:SpeechOutcome) {
+        initialized.complete(false);started.complete(false);terminal.complete(outcome)
+    }
+}
 
 /** A request owns one terminal result. Old or duplicate callbacks cannot complete another request. */
 internal class SpeechSessionState(private val kind: SpeechKind) {
@@ -98,14 +109,18 @@ internal class LocationWatchEpoch {
 /** Failed cleanup retains the exact listener; permission denial never calls the SDK. */
 internal class LocationListenerCleanup<L> {
     private val pending = linkedSetOf<L>()
+    private val inFlight = mutableSetOf<L>()
     @Synchronized fun add(listener: L) { pending.add(listener) }
     @Synchronized fun isEmpty() = pending.isEmpty()
     @Synchronized fun isNotEmpty() = pending.isNotEmpty()
-    @Synchronized fun prepare(permissionGranted: Boolean, unregister: (L) -> Unit): LocationRegistrationReadiness {
+    fun prepare(permissionGranted: Boolean, unregister: (L) -> Unit): LocationRegistrationReadiness {
         if (!permissionGranted) return LocationRegistrationReadiness.PERMISSION_REQUIRED
-        pending.toList().forEach { listener ->
-            try { unregister(listener); pending.remove(listener) } catch (_: Exception) { /* Retry the same listener later. */ }
+        val due=synchronized(this){pending.filter { inFlight.add(it) }}
+        due.forEach { listener ->
+            try { unregister(listener); synchronized(this){pending.remove(listener)} }
+            catch (_: Exception) { /* Retry the same listener later. */ }
+            finally { synchronized(this){inFlight.remove(listener)} }
         }
-        return if (pending.isEmpty()) LocationRegistrationReadiness.READY else LocationRegistrationReadiness.CLEANUP_REQUIRED
+        return synchronized(this){if(pending.isEmpty())LocationRegistrationReadiness.READY else LocationRegistrationReadiness.CLEANUP_REQUIRED}
     }
 }

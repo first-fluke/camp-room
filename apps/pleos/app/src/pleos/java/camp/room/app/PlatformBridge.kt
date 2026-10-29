@@ -4,6 +4,9 @@ import javax.inject.Inject
 import javax.inject.Provider
 import dagger.hilt.android.scopes.ViewModelScoped
 import ai.pleos.playground.vehicle.Vehicle as SdkVehicle
+import ai.pleos.playground.vehicle.api.model.area.DoorArea
+import ai.pleos.playground.vehicle.listener.DoorPositionListener
+import ai.pleos.playground.vehicle.listener.WindowPositionListener
 import ai.pleos.playground.vehicle.api.model.area.SeatArea
 import ai.pleos.playground.vehicle.api.model.area.WindowArea
 import ai.pleos.playground.vehicle.api.model.capability.CapabilityConfig
@@ -23,6 +26,7 @@ import ai.pleos.playground.navi.constants.NaviErrorCode
 import ai.pleos.playground.navi.constants.NavigationStatus
 import ai.pleos.playground.navi.constants.RoutePointPoiType
 import ai.pleos.playground.navi.constants.RoutePointType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +57,13 @@ class PlatformBridge @Inject constructor(
     private val assistant:PleosAssistAdapter,
     private val hostMotion:MotionProvider,
 ) {
+    private companion object {
+        // A failed old ViewModel cleanup must also block a newer ViewModel's
+        // listener for that area. Tokens retain the old exact binding, not SDK values.
+        val positionQuarantine = PositionSubscriptionQuarantine<VehicleAreaKey>()
+        private val lifecycleTraceSequence = java.util.concurrent.atomic.AtomicLong()
+    }
+    private val lifecycleTraceId = lifecycleTraceSequence.incrementAndGet()
     private val guard = Mutex()
     private val discoveryGuard = Mutex()
     private val topologyLock = Any()
@@ -65,6 +76,8 @@ class PlatformBridge @Inject constructor(
         val switches: Pair<CapabilityConfig, Map<SeatArea, List<LightSwitch>>>? = null,
         val ambient: Pair<CapabilityConfig, Map<SeatArea, AreaBounds<Int>>>? = null,
         val glass: Pair<CapabilityConfig, Map<WindowArea, AreaBounds<Int>>>? = null,
+        val doors: Pair<CapabilityConfig, Map<DoorArea, AreaBounds<Int>>>? = null,
+        val windows: Pair<CapabilityConfig, Map<WindowArea, AreaBounds<Int>>>? = null,
     )
     private data class CapabilitySnapshot(
         val targets: CabinTargetIndex<NativeTarget> = CabinTargetIndex(),
@@ -82,6 +95,21 @@ class PlatformBridge @Inject constructor(
     @Volatile private var closed = false
     @Volatile private var connectionEpoch = 0
     private val readAvailability = SdkReadAvailability()
+    private val positionObservations = VehicleAreaObservations()
+    private val lifecycleQueue = SdkLifecycleQueue(
+        withGuard = { work -> discoveryGuard.withLock { work() } },
+        onFailure = { error -> SdkRuntimeTrace.event("Vehicle", "lifecycle.error", "errorClass" to error.javaClass.simpleName) },
+    )
+    private sealed interface PositionSubscription {
+        data class Door(val area: DoorArea, val listener: DoorPositionListener) : PositionSubscription
+        data class Window(val area: WindowArea, val listener: WindowPositionListener) : PositionSubscription
+    }
+    private val positionSubscriptions = PositionSubscriptionLedger<VehicleAreaKey, PositionSubscription>(quarantine = positionQuarantine)
+    // Serialized with discoveryGuard. A cached capability set can still have
+    // pending cleanup or a missing native subscription, so it must reconcile.
+    private var configuredPositionEpoch = Int.MIN_VALUE
+    private var configuredDoors: Any? = null
+    private var configuredWindows: Any? = null
     private val adapter = PleosVehicleAdapter(sdk, { control, areaId -> targets.get(control.name, areaId)?.seat },
         { control, areaId -> targets.get(control.name, areaId)?.readSeat },
         { areaId -> targets.get(Control.SMART_GLASS.name, areaId)?.window },
@@ -89,6 +117,15 @@ class PlatformBridge @Inject constructor(
         { when(it) { LightState.ON -> true; LightState.OFF -> false; else -> null } },
         CapabilityRegistry { control, areaId -> targets.get(control.name, areaId)?.capability }, hostMotion,
         { soc = it; socObservedAt = Instant.now().toString() }, { soc = null; socObservedAt = null; diagnostic = "차량 상태 조회: ${it.javaClass.simpleName}" })
+    private class NavigationResources(val helper: NaviHelper, val adapter: PleosNavigationAdapter, val listener: NaviHelperEventListener) {
+        var listenerMayBeAdded = false
+        var listenerRemoved = false
+        var adapterClosed = false
+    }
+    private val navigationIo = NavigationSdkIo(onFailure = { error ->
+        SdkRuntimeTrace.event("NaviHelper", "cleanup.error", "errorClass" to error.javaClass.simpleName, "retained" to true)
+    })
+    private var navigationResources: NavigationResources? = null
     private var helper: NaviHelper? = null
     private var navigation: PleosNavigationAdapter? = null
     private var naviListener: NaviHelperEventListener? = null
@@ -99,7 +136,7 @@ class PlatformBridge @Inject constructor(
     private var navigationInvalidated: (() -> Unit)? = null
     private val navigationObservations = NavigationRequestState()
     private var navigationGeneration = 0
-    private val navigationLock = Any()
+    private val navigationLock = navigationIo.stateLock
     private val navigationRequests = Mutex()
     private var navigationForeground = false
     @Volatile private var navigationConnectionStatus = "not_connected"
@@ -207,20 +244,23 @@ class PlatformBridge @Inject constructor(
     private fun writable(config: CapabilityConfig) = config.accessType.name in setOf("WRITE", "READ_WRITE")
     private fun descriptor(area: SeatArea) = CabinArea("seat", area.values.map { it.name })
     private fun descriptor(area: WindowArea) = CabinArea("window", area.values.map { it.name })
-    private suspend fun ensure() {
+    private suspend fun ensure() = withContext(Dispatchers.IO) {
         discoveryGuard.withLock {
-            if (closed) return
+            if (closed) return@withLock
             val epoch = connectionEpoch
             if (!active) {
                 adapter.start()
                 val accepted = synchronized(topologyLock) {
                     if (closed || epoch != connectionEpoch) false else { active = true; true }
                 }
-                if (!accepted) { adapter.stop(); return }
+                if (!accepted) { adapter.stop(); return@withLock }
             }
             val cached = capabilitySnapshot.cache
             if (cached.temperature != null && cached.measured != null && cached.state != null &&
-                cached.switches != null && cached.ambient != null && cached.glass != null) return
+                cached.switches != null && cached.ambient != null && cached.glass != null && cached.doors != null && cached.windows != null) {
+                configurePositionAreas(cached.doors, cached.windows, epoch)
+                return@withLock
+            }
             fun current() = active && !closed && epoch == connectionEpoch
             val discovered = CabinTargetIndex<NativeTarget>()
             val discoveredQueries = mutableSetOf<Control>()
@@ -233,7 +273,7 @@ class PlatformBridge @Inject constructor(
                     done(TemperatureCaps(config, areas, steps))
                 }, fail)
             }
-            if (!current()) return
+            if (!current()) return@withLock
             if (temperature != null) discoveredQueries += Control.TARGET_TEMPERATURE
             temperature?.areas?.forEach { (area, bounds) ->
                 add(Control.TARGET_TEMPERATURE, area, Capability(readable(temperature.config), writable(temperature.config),
@@ -245,7 +285,7 @@ class PlatformBridge @Inject constructor(
                     done(config to areas)
                 }, fail)
             }
-            if (!current()) return
+            if (!current()) return@withLock
             if (measured != null) discoveredQueries += Control.CURRENT_TEMPERATURE
             measured?.second?.forEach { area -> add(Control.CURRENT_TEMPERATURE, area, Capability(readable(measured.first), false)) }
             val state = cached.state ?: read<Pair<CapabilityConfig, Map<SeatArea, List<LightState>>>>(SdkReadOperation.CAP_LIGHT_STATE, expectedEpoch = epoch) { done, fail ->
@@ -254,14 +294,14 @@ class PlatformBridge @Inject constructor(
                     done(config to areas)
                 }, fail)
             }
-            if (!current()) return
+            if (!current()) return@withLock
             val switches = cached.switches ?: read<Pair<CapabilityConfig, Map<SeatArea, List<LightSwitch>>>>(SdkReadOperation.CAP_LIGHT_SWITCH, expectedEpoch = epoch) { done, fail ->
                 sdk.getLight().checkReadingLightSwitchCapabilities({ config, areas ->
                     SdkRuntimeTrace.event("Vehicle", "capability", "feature" to "readingLightSwitch", "accessType" to config.accessType.name, "areaCount" to areas.size, "current" to current())
                     done(config to areas)
                 }, fail)
             }
-            if (!current()) return
+            if (!current()) return@withLock
             if (state != null || switches != null) discoveredQueries += Control.READING_LIGHT
             switches?.second?.forEach { (area, values) ->
                 // Only the SDK map-key equality contract may pair state/switch areas.
@@ -280,7 +320,7 @@ class PlatformBridge @Inject constructor(
                     done(config to areas)
                 }, fail)
             }
-            if (!current()) return
+            if (!current()) return@withLock
             if (ambient != null) discoveredQueries += Control.AMBIENT_BRIGHTNESS
             ambient?.second?.forEach { (area, bounds) ->
                 add(Control.AMBIENT_BRIGHTNESS, area, Capability(readable(ambient.first), writable(ambient.first), minimum = bounds.minValue.toDouble(), maximum = bounds.maxValue.toDouble(), increment = 1.0))
@@ -291,17 +331,248 @@ class PlatformBridge @Inject constructor(
                     done(config to areas)
                 }, fail)
             }
-            if (!current()) return
+            if (!current()) return@withLock
             if (glass != null) discoveredQueries += Control.SMART_GLASS
             glass?.second?.forEach { (area, bounds) ->
                 val descriptor = descriptor(area)
                 discovered.put(Control.SMART_GLASS.name, descriptor,
                     NativeTarget(Capability(readable(glass.first), writable(glass.first), minimum = bounds.minValue.toDouble(), maximum = bounds.maxValue.toDouble(), increment = 1.0), window = area))
             }
+            val doors = cached.doors ?: read<Pair<CapabilityConfig, Map<DoorArea, AreaBounds<Int>>>>(SdkReadOperation.CAP_DOOR_POSITION, expectedEpoch = epoch) { done, fail ->
+                sdk.getDoor().checkDoorPositionCapabilities({ config, areas ->
+                    SdkRuntimeTrace.event("Vehicle", "position.capability", "kind" to "door", "accessType" to config.accessType.name, "areaCount" to areas.size, "epoch" to epoch, "current" to current())
+                    done(config to areas)
+                }, fail)
+            }
+            if (!current()) return@withLock
+            val windows = cached.windows ?: read<Pair<CapabilityConfig, Map<WindowArea, AreaBounds<Int>>>>(SdkReadOperation.CAP_WINDOW_POSITION, expectedEpoch = epoch) { done, fail ->
+                sdk.getWindow().checkWindowPositionCapabilities({ config, areas ->
+                    SdkRuntimeTrace.event("Vehicle", "position.capability", "kind" to "window", "accessType" to config.accessType.name, "areaCount" to areas.size, "epoch" to epoch, "current" to current())
+                    done(config to areas)
+                }, fail)
+            }
+            if (!current()) return@withLock
             synchronized(topologyLock) {
                 if (current()) capabilitySnapshot = CapabilitySnapshot(discovered, discoveredQueries.toSet(),
-                    CapabilityCache(temperature, measured, state, switches, ambient, glass))
+                    CapabilityCache(temperature, measured, state, switches, ambient, glass, doors, windows))
             }
+            configurePositionAreas(doors, windows, epoch)
+        }
+    }
+
+    private fun positionKey(kind: VehicleAreaKind, members: List<String>) =
+        VehicleAreaKey(kind, kind.name.lowercase() + ":" + members.sorted().joinToString("+"))
+
+    private fun detachPositionSubscriptions() {
+        positionSubscriptions.detachAll()
+        drainPositionCleanup()
+    }
+
+    private fun drainPositionCleanup() {
+        positionSubscriptions.drain({ key, epoch, binding ->
+            when (binding) {
+                is PositionSubscription.Door -> sdk.getDoor().unregisterDoorPosition(binding.area, binding.listener)
+                is PositionSubscription.Window -> sdk.getWindow().unregisterWindowPosition(binding.area, binding.listener)
+            }
+            SdkRuntimeTrace.event("Vehicle", "position.unregister.returned", "kind" to key.kind.name.lowercase(),
+                "areaId" to key.nativeAreaId, "epoch" to epoch,
+                "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()))
+        }, { key, epoch, error ->
+            SdkRuntimeTrace.event("Vehicle", "position.unregister.error", "kind" to key.kind.name.lowercase(),
+                "areaId" to key.nativeAreaId, "epoch" to epoch, "retained" to true,
+                "errorClass" to error.javaClass.simpleName,
+                "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()))
+        })
+    }
+
+    /** The final queued lifecycle work owns bounded retries before Vehicle.release. */
+    private suspend fun finishPositionCleanup() {
+        detachPositionSubscriptions()
+        while (positionSubscriptions.hasPending()) {
+            val wait = positionSubscriptions.nextRetryAfterMillis() ?: break
+            if (wait > 0) delay(wait)
+            drainPositionCleanup()
+        }
+        if (positionSubscriptions.hasPending()) SdkRuntimeTrace.event("Vehicle", "position.cleanup.exhausted",
+            "pendingCount" to positionSubscriptions.pendingCount(), "retained" to true,
+            "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()))
+    }
+
+    private fun configurePositionAreas(
+        doors: Pair<CapabilityConfig, Map<DoorArea, AreaBounds<Int>>>?,
+        windows: Pair<CapabilityConfig, Map<WindowArea, AreaBounds<Int>>>?,
+        epoch: Int,
+    ) {
+        if (!active || closed || epoch != connectionEpoch) return
+        drainPositionCleanup()
+        val configs = mutableListOf<VehicleAreaConfig>()
+        val doorAreas = linkedMapOf<VehicleAreaKey, DoorArea>()
+        val windowAreas = linkedMapOf<VehicleAreaKey, WindowArea>()
+        doors?.second?.entries?.forEachIndexed { ordinal, (area, bounds) ->
+            val members = area.values.map { it.name }
+            val key = positionKey(VehicleAreaKind.DOOR, members)
+            configs += VehicleAreaConfig(key, members.toSet(), bounds.minValue, bounds.maxValue, doors.first.accessType.name,
+                readable(doors.first) && members.isNotEmpty() && members.none { it == "NONE" })
+            doorAreas[key] = area
+        }
+        windows?.second?.entries?.forEachIndexed { ordinal, (area, bounds) ->
+            val members = area.values.map { it.name }
+            val key = positionKey(VehicleAreaKind.WINDOW, members)
+            configs += VehicleAreaConfig(key, members.toSet(), bounds.minValue, bounds.maxValue, windows.first.accessType.name,
+                readable(windows.first) && members.isNotEmpty() && members.none { it == "NONE" })
+            windowAreas[key] = area
+        }
+        if (configuredPositionEpoch != epoch || configuredDoors !== doors || configuredWindows !== windows) {
+            if (!positionObservations.configure(configs, epoch)) {
+                detachPositionSubscriptions()
+                return
+            }
+            configuredPositionEpoch = epoch
+            configuredDoors = doors
+            configuredWindows = windows
+        }
+        val eligible = configs.filter { it.readable && it.minPosition != null && it.maxPosition != null && it.minPosition < it.maxPosition }
+        positionSubscriptions.detachExcept(eligible.mapTo(linkedSetOf()) { it.key }, epoch)
+        drainPositionCleanup()
+        fun current() = active && !closed && epoch == connectionEpoch
+        eligible.forEach { config ->
+            val key = config.key
+            if (positionSubscriptions.hasActive(key, epoch)) return@forEach
+            doorAreas[key]?.let { area ->
+                val listener = object : DoorPositionListener {
+                    override fun onPositionUpdated(pos: Int?) {
+                        val accepted = synchronized(topologyLock) {
+                            current() && positionSubscriptions.isCurrent(key, epoch, this) && positionObservations.onEvent(key, epoch, pos)
+                        }
+                        SdkRuntimeTrace.event("Vehicle", "position.event", "kind" to "door", "areaId" to key.nativeAreaId, "rawPosition" to pos, "epoch" to epoch, "accepted" to accepted)
+                    }
+                    override fun onFailed(e: Exception) {
+                        val failure = SdkVehicleReadFailure.from(e)
+                        val bound = synchronized(topologyLock) {
+                            val currentBinding = current() && positionSubscriptions.isCurrent(key, epoch, this)
+                            if (currentBinding) positionObservations.failArea(key, epoch, failure.failureClass.name.lowercase())
+                            currentBinding
+                        }
+                        SdkRuntimeTrace.event("Vehicle", "position.subscription.error", "kind" to "door", "areaId" to key.nativeAreaId, "epoch" to epoch, "current" to bound, *failure.traceFields())
+                    }
+                }
+                val reserved = synchronized(topologyLock) {
+                    current() && positionSubscriptions.reserve(key, epoch, PositionSubscription.Door(area, listener), listener)
+                }
+                if (!reserved) {
+                    if (current()) {
+                        positionObservations.failArea(key, epoch, "cleanup_or_other_owner_pending")
+                        SdkRuntimeTrace.event("Vehicle", "position.register.deferred", "kind" to "door", "areaId" to key.nativeAreaId,
+                            "epoch" to epoch, "reason" to "cleanup_or_other_owner_pending")
+                    }
+                    return@let
+                }
+                val invoke = synchronized(topologyLock) {
+                    current() && positionSubscriptions.beginRegistration(key, epoch, listener)
+                }
+                if (!invoke) { positionSubscriptions.discardUnregistered(key, listener); return@let }
+                runCatching { sdk.getDoor().registerDoorPosition(area, listener) }
+                    .onSuccess { SdkRuntimeTrace.event("Vehicle", "position.register.returned", "kind" to "door", "areaId" to key.nativeAreaId, "members" to config.members.joinToString("+"), "min" to config.minPosition, "max" to config.maxPosition, "epoch" to epoch, "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper())) }
+                    .onFailure { error ->
+                        positionSubscriptions.registrationFailed(key, listener)
+                        val failure = SdkVehicleReadFailure.from(error as? Exception ?: Exception())
+                        positionObservations.failArea(key, epoch, failure.failureClass.name.lowercase())
+                        SdkRuntimeTrace.event("Vehicle", "position.register.error", "kind" to "door", "areaId" to key.nativeAreaId, *failure.traceFields())
+                        drainPositionCleanup()
+                    }
+            }
+            windowAreas[key]?.let { area ->
+                val listener = object : WindowPositionListener {
+                    override fun onWindowPositionUpdated(position: Int?) {
+                        val accepted = synchronized(topologyLock) {
+                            current() && positionSubscriptions.isCurrent(key, epoch, this) && positionObservations.onEvent(key, epoch, position)
+                        }
+                        SdkRuntimeTrace.event("Vehicle", "position.event", "kind" to "window", "areaId" to key.nativeAreaId, "rawPosition" to position, "epoch" to epoch, "accepted" to accepted)
+                    }
+                    override fun onFailed(e: Exception) {
+                        val failure = SdkVehicleReadFailure.from(e)
+                        val bound = synchronized(topologyLock) {
+                            val currentBinding = current() && positionSubscriptions.isCurrent(key, epoch, this)
+                            if (currentBinding) positionObservations.failArea(key, epoch, failure.failureClass.name.lowercase())
+                            currentBinding
+                        }
+                        SdkRuntimeTrace.event("Vehicle", "position.subscription.error", "kind" to "window", "areaId" to key.nativeAreaId, "epoch" to epoch, "current" to bound, *failure.traceFields())
+                    }
+                }
+                val reserved = synchronized(topologyLock) {
+                    current() && positionSubscriptions.reserve(key, epoch, PositionSubscription.Window(area, listener), listener)
+                }
+                if (!reserved) {
+                    if (current()) {
+                        positionObservations.failArea(key, epoch, "cleanup_or_other_owner_pending")
+                        SdkRuntimeTrace.event("Vehicle", "position.register.deferred", "kind" to "window", "areaId" to key.nativeAreaId,
+                            "epoch" to epoch, "reason" to "cleanup_or_other_owner_pending")
+                    }
+                    return@let
+                }
+                val invoke = synchronized(topologyLock) {
+                    current() && positionSubscriptions.beginRegistration(key, epoch, listener)
+                }
+                if (!invoke) { positionSubscriptions.discardUnregistered(key, listener); return@let }
+                runCatching { sdk.getWindow().registerWindowPosition(area, listener) }
+                    .onSuccess { SdkRuntimeTrace.event("Vehicle", "position.register.returned", "kind" to "window", "areaId" to key.nativeAreaId, "members" to config.members.joinToString("+"), "min" to config.minPosition, "max" to config.maxPosition, "epoch" to epoch, "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper())) }
+                    .onFailure { error ->
+                        positionSubscriptions.registrationFailed(key, listener)
+                        val failure = SdkVehicleReadFailure.from(error as? Exception ?: Exception())
+                        positionObservations.failArea(key, epoch, failure.failureClass.name.lowercase())
+                        SdkRuntimeTrace.event("Vehicle", "position.register.error", "kind" to "window", "areaId" to key.nativeAreaId, *failure.traceFields())
+                        drainPositionCleanup()
+                    }
+            }
+        }
+    }
+
+    private suspend fun refreshPositionAreas(epoch: Int) = withContext(Dispatchers.IO) {
+        val snapshot = capabilitySnapshot.cache
+        suspend fun sample(key: VehicleAreaKey, operation: SdkReadOperation, ordinal: Int, invoke: ((Int?) -> Unit, (Exception) -> Unit) -> Unit) {
+            val availability = readAvailability.state(SdkReadKey(operation, key.nativeAreaId), epoch)
+            if (availability?.inFlight == true || (availability?.retryAfterMillis ?: 0) > 0) {
+                SdkRuntimeTrace.event("Vehicle", "position.getter.deferred", "kind" to key.kind.name.lowercase(), "areaId" to key.nativeAreaId, "epoch" to epoch, "reason" to "backoff_or_in_flight")
+                return
+            }
+            val token = positionObservations.beginRead(key, epoch) ?: return
+            try {
+            val value = read<Int?>(operation, key.nativeAreaId, ordinal, expectedEpoch = epoch) { done, fail ->
+                fun failed(error: Exception) {
+                    positionObservations.fail(token, SdkVehicleReadFailure.from(error).failureClass.name.lowercase())
+                    fail(error)
+                }
+                try { invoke(done, ::failed) } catch (cancelled: CancellationException) { throw cancelled } catch (error: Exception) { failed(error) }
+            }
+            val state = readAvailability.state(SdkReadKey(operation, key.nativeAreaId), epoch)
+            val accepted = when (state?.lastOutcome) {
+                SdkReadOutcome.SUCCESS, SdkReadOutcome.EMPTY, SdkReadOutcome.INVALID_VALUE -> positionObservations.completeRead(token, value)
+                else -> positionObservations.fail(token, if ((state?.retryAfterMillis ?: 0) > 0) "backoff:${state?.lastOutcome?.name?.lowercase()}" else state?.lastOutcome?.name?.lowercase() ?: "unavailable")
+            }
+            SdkRuntimeTrace.event("Vehicle", "position.getter", "kind" to key.kind.name.lowercase(), "areaId" to key.nativeAreaId, "rawPosition" to value, "epoch" to epoch, "accepted" to accepted)
+            } finally {
+                val released = positionObservations.cancelRead(token)
+                if (released) SdkRuntimeTrace.event("Vehicle", "position.getter.released", "kind" to key.kind.name.lowercase(), "areaId" to key.nativeAreaId, "epoch" to epoch, "reason" to "cancelled_or_unfinished")
+            }
+        }
+        snapshot.doors?.second?.entries?.forEachIndexed { ordinal, (area, _) ->
+            val key = positionKey(VehicleAreaKind.DOOR, area.values.map { it.name })
+            sample(key, SdkReadOperation.GET_DOOR_POSITION, ordinal) { done, fail -> sdk.getDoor().getCurrentDoorPosition(area, done, fail) }
+        }
+        snapshot.windows?.second?.entries?.forEachIndexed { ordinal, (area, _) ->
+            val key = positionKey(VehicleAreaKind.WINDOW, area.values.map { it.name })
+            sample(key, SdkReadOperation.GET_WINDOW_POSITION, ordinal) { done, fail -> sdk.getWindow().getCurrentWindowPosition(area, done, fail) }
+        }
+    }
+
+    private fun positionAreasJson(epoch: Int) = JSONArray().also { rows ->
+        positionObservations.snapshot(epoch).forEach { observation ->
+            rows.put(JSONObject().put("kind", observation.kind.name.lowercase()).put("areaId", observation.nativeAreaId)
+                .put("members", JSONArray(observation.members.toList())).put("rawPosition", observation.rawPosition ?: JSONObject.NULL)
+                .put("minimum", observation.minPosition ?: JSONObject.NULL).put("maximum", observation.maxPosition ?: JSONObject.NULL)
+                .put("access", observation.access).put("status", observation.status.name.lowercase()).put("reason", observation.reason ?: JSONObject.NULL)
+                .put("sampledAtElapsedMillis", observation.sampledAtMillis ?: JSONObject.NULL).put("updatedAtElapsedMillis", observation.updatedAtMillis)
+                .put("epoch", observation.epoch).put("closed", JSONObject.NULL))
         }
     }
 
@@ -309,13 +580,17 @@ class PlatformBridge @Inject constructor(
         .put("soc", soc ?: JSONObject.NULL).put("socObservedAt", socObservedAt ?: JSONObject.NULL).put("cabinTemperature", JSONObject.NULL).put("targetTemperature", JSONObject.NULL)
         .put("front", JSONObject().put("readingLight", JSONObject.NULL).put("ambientBrightness", JSONObject.NULL).put("blindLevel", JSONObject.NULL))
         .put("rear", JSONObject().put("readingLight", JSONObject.NULL).put("ambientBrightness", JSONObject.NULL).put("blindLevel", JSONObject.NULL))
-        .put("doorsClosed", JSONObject.NULL).put("windowsClosed", JSONObject.NULL).put("lastSceneId", JSONObject.NULL)
+        .put("doorsClosed", JSONObject.NULL).put("windowsClosed", JSONObject.NULL).put("positionAreas", JSONArray()).put("lastSceneId", JSONObject.NULL)
         .put("updatedAt", Instant.now().toString()).put("message", listOf(diagnostic, readDiagnostic).filter { it.isNotBlank() }.joinToString(" "))
 
     suspend fun vehicle(): JSONObject = guard.withLock {
         try { ensure() } catch(cancelled: CancellationException) { throw cancelled } catch(error: Exception) { soc=null; socObservedAt=null; diagnostic = "Pleos vehicle connection/permission: ${error.javaClass.simpleName}" }
         val epoch = connectionEpoch
+        refreshPositionAreas(epoch)
         val result = unknown().put("layoutSource", "sdk_capabilities")
+            .put("positionAreas", positionAreasJson(epoch))
+            .put("doorsClosed", positionObservations.allClosed(VehicleAreaKind.DOOR, epoch) ?: JSONObject.NULL)
+            .put("windowsClosed", positionObservations.allClosed(VehicleAreaKind.WINDOW, epoch) ?: JSONObject.NULL)
         val snapshot = capabilitySnapshot
         val groups = JSONArray()
         val unavailableReads = JSONArray()
@@ -384,7 +659,7 @@ class PlatformBridge @Inject constructor(
             .put("readStatus", if (!active || closed) "unknown" else if (unknownControls.isNotEmpty()) "partial" else "available")
             .put("unavailableReads", unavailableReads)
             .put("connected", active && !closed && epoch == connectionEpoch &&
-                (soc != null || observations.values.any { it != null } ||
+                (soc != null || observations.values.any { it != null } || positionObservations.snapshot(epoch).any { it.status == VehicleAreaStatus.OBSERVED } ||
                     (snapshot.targets.all().isEmpty() && snapshot.queried.isNotEmpty())))
             .put("message", listOf(diagnostic, readDiagnostic).filter { it.isNotBlank() }.joinToString(" "))
     }
@@ -466,34 +741,49 @@ class PlatformBridge @Inject constructor(
             navigationConnectionStatus = "connecting"
             navigationGeneration
         }
-        val newHelper=navigationFactory.get()
+        val newHelper=navigationIo.call({ !closed && navigationForeground && navigationGeneration == epoch }) {
+            navigationFactory.get()
+        } ?: return false
         val newAdapter=PleosNavigationAdapter(newHelper)
         var published = false
-        var listenerAdded = false
+        fun current() = !closed && navigationForeground && navigationGeneration == epoch
         val listener=object: NaviHelperEventListener {
-            override fun onTripInfo(tripInfo:TripInfo) { synchronized(navigationLock) {
-                SdkRuntimeTrace.event("NaviHelper", "onTripInfo", "status" to "received", "distanceMetres" to tripInfo.distance,
-                    "eta" to tripInfo.eta, "energyConsumption" to tripInfo.energyConsumption, "estimatedSocAtDest" to tripInfo.estimatedSocAtDest,
-                    "current" to (!closed && navigationForeground && navigationGeneration == epoch))
-                if(!closed && navigationForeground && navigationGeneration == epoch) tripResult?.invoke(tripInfo)
-            } }
-            override fun onNavigationStatus(navigationStatus:NavigationStatus) { synchronized(navigationLock) {
-                SdkRuntimeTrace.event("NaviHelper", "onNavigationStatus", "status" to navigationStatus.name, "current" to (!closed && navigationForeground && navigationGeneration == epoch))
-                if(!closed && navigationForeground && navigationGeneration == epoch) routeResult?.invoke(navigationStatus)
-            } }
-            override fun onDestinationInfo(destinationInfo:DestinationInfo) { synchronized(navigationLock) {
-                val coordinatesValid = destinationInfo.latitude.isFinite() && destinationInfo.longitude.isFinite() && destinationInfo.latitude in -90.0..90.0 && destinationInfo.longitude in -180.0..180.0
-                SdkRuntimeTrace.event("NaviHelper", "onDestinationInfo", "status" to "received", "coordinatesValid" to coordinatesValid, "current" to (!closed && navigationForeground && navigationGeneration == epoch))
-                if(!closed && navigationForeground && navigationGeneration == epoch) destinationResult?.invoke(destinationInfo)
-            } }
-            override fun onError(naviErrorCode:NaviErrorCode) { synchronized(navigationLock) {
-                SdkRuntimeTrace.event("NaviHelper", "onError", "errorCode" to naviErrorCode.name, "current" to (!closed && navigationForeground && navigationGeneration == epoch))
-                if(!closed && navigationForeground && navigationGeneration == epoch) navigationError?.invoke()
-            } }
+            override fun onTripInfo(tripInfo:TripInfo) {
+                val callback = synchronized(navigationLock) {
+                    SdkRuntimeTrace.event("NaviHelper", "onTripInfo", "status" to "received", "distanceMetres" to tripInfo.distance,
+                        "eta" to tripInfo.eta, "energyConsumption" to tripInfo.energyConsumption, "estimatedSocAtDest" to tripInfo.estimatedSocAtDest,
+                        "current" to current())
+                    tripResult.takeIf { current() }
+                }
+                callback?.invoke(tripInfo)
+            }
+            override fun onNavigationStatus(navigationStatus:NavigationStatus) {
+                val callback = synchronized(navigationLock) {
+                    SdkRuntimeTrace.event("NaviHelper", "onNavigationStatus", "status" to navigationStatus.name, "current" to current())
+                    routeResult.takeIf { current() }
+                }
+                callback?.invoke(navigationStatus)
+            }
+            override fun onDestinationInfo(destinationInfo:DestinationInfo) {
+                val callback = synchronized(navigationLock) {
+                    val coordinatesValid = destinationInfo.latitude.isFinite() && destinationInfo.longitude.isFinite() && destinationInfo.latitude in -90.0..90.0 && destinationInfo.longitude in -180.0..180.0
+                    SdkRuntimeTrace.event("NaviHelper", "onDestinationInfo", "status" to "received", "coordinatesValid" to coordinatesValid, "current" to current())
+                    destinationResult.takeIf { current() }
+                }
+                callback?.invoke(destinationInfo)
+            }
+            override fun onError(naviErrorCode:NaviErrorCode) {
+                val callback = synchronized(navigationLock) {
+                    SdkRuntimeTrace.event("NaviHelper", "onError", "errorCode" to naviErrorCode.name, "current" to current())
+                    navigationError.takeIf { current() }
+                }
+                callback?.invoke()
+            }
         }
+        val resources = NavigationResources(newHelper, newAdapter, listener)
         try {
             val connected=withTimeoutOrNull(4000) { suspendCancellableCoroutine<Boolean> { continuation ->
-                newAdapter.connect({
+                val invoked = navigationIo.call({ current() }) { newAdapter.connect({
                     SdkRuntimeTrace.event("NaviHelper", "onConnected", "continuationActive" to continuation.isActive)
                     if(continuation.isActive)continuation.resume(true)
                 }, { error ->
@@ -502,7 +792,8 @@ class PlatformBridge @Inject constructor(
                         if (continuation.isActive && !closed && navigationForeground && navigationGeneration == epoch) navigationConnectionStatus = "service_failure"
                     }
                     if(continuation.isActive)continuation.resume(false)
-                })
+                }) }
+                if (invoked == null && continuation.isActive) continuation.resume(false)
             } }
             if (connected != true) {
                 synchronized(navigationLock) {
@@ -511,28 +802,31 @@ class PlatformBridge @Inject constructor(
                 }
                 return false
             }
+            val installed = navigationIo.call({ current() }) {
+                resources.listenerMayBeAdded = true
+                newHelper.addListener(listener)
+                true
+            } == true
+            if (!installed) return false
             return synchronized(navigationLock) {
-                if (closed || !navigationForeground || navigationGeneration != epoch) { navigationConnectionStatus = "stale"; false }
+                if (!current()) { navigationConnectionStatus = "stale"; false }
                 else {
-                    listenerAdded = true
-                    newHelper.addListener(listener)
-                    helper=newHelper;navigation=newAdapter;naviListener=listener
+                    helper=newHelper;navigation=newAdapter;naviListener=listener;navigationResources=resources
                     published = true
                     navigationConnectionStatus = "connected"
                     true
                 }
             }
         } catch (cancelled: CancellationException) {
-            navigationConnectionStatus = "cancelled"
+            synchronized(navigationLock) { if (navigationGeneration == epoch) navigationConnectionStatus = "cancelled" }
             throw cancelled
         } catch (error: Exception) {
-            navigationConnectionStatus = "service_failure"
+            synchronized(navigationLock) { if (navigationGeneration == epoch) navigationConnectionStatus = "service_failure" }
             SdkRuntimeTrace.event("NaviHelper", "connect.error", "errorClass" to error.javaClass.simpleName)
             return false
         } finally {
             if (!published) {
-                if (listenerAdded) runCatching { newHelper.removeListener(listener) }.onFailure { diagnostic="내비 리스너 해제 확인 필요: ${it.javaClass.simpleName}" }
-                runCatching { newAdapter.close() }.onFailure { diagnostic="내비 연결 종료 확인 필요: ${it.javaClass.simpleName}" }
+                retireNavigation(resources)
             }
         }
     }
@@ -596,30 +890,43 @@ class PlatformBridge @Inject constructor(
         var completed=false
         var requestOutcome="timeout"
         try {
-            synchronized(navigationLock) {
-                val current=navigation
-                if(closed || !navigationForeground || current==null) {
+            val current = synchronized(navigationLock) {
+                val target=navigation
+                if(closed || !navigationForeground || target==null || navigationGeneration!=requestEpoch) {
                     requestOutcome="stale";navigationObservations.finish(token);result.complete(null)
+                    null
                 } else {
-                    tripResult={ received ->
-                        val admission=navigationObservations.claim(token,navigationGeneration)
-                        traceNavigationAdmission("trip.callback",token,admission)
-                        if(admission==NavigationCallbackAdmission.CURRENT) { requestOutcome="received";result.complete(received) }
-                    }
-                    navigationError={
-                        val admission=navigationObservations.claim(token,navigationGeneration)
-                        traceNavigationAdmission("trip.error_callback",token,admission)
-                        if(admission==NavigationCallbackAdmission.CURRENT) { requestOutcome="service_failure";result.complete(null) }
-                    }
-                    navigationInvalidated={ requestOutcome="stale";navigationObservations.finish(token);result.complete(null) }
-                    try {
-                        current.preview(TripRequest(latitude=site.latitude!!,longitude=site.longitude!!,poiId=site.id,poiName=site.name,poiSubId=null))
-                    } catch (cancelled: CancellationException) { throw cancelled }
-                    catch (error: Exception) {
-                        requestOutcome="service_failure";navigationObservations.finish(token)
-                        SdkRuntimeTrace.event("NaviHelper", "preview.error", "errorClass" to error.javaClass.simpleName)
-                        result.complete(null)
-                    }
+                    tripResult={ received -> synchronized(navigationLock) {
+                        if (!closed && navigationForeground && navigation === target && navigationGeneration == requestEpoch) {
+                            val admission=navigationObservations.claim(token,navigationGeneration)
+                            traceNavigationAdmission("trip.callback",token,admission)
+                            if(admission==NavigationCallbackAdmission.CURRENT) { requestOutcome="received";result.complete(received) }
+                        }
+                    } }
+                    navigationError={ synchronized(navigationLock) {
+                        if (!closed && navigationForeground && navigation === target && navigationGeneration == requestEpoch) {
+                            val admission=navigationObservations.claim(token,navigationGeneration)
+                            traceNavigationAdmission("trip.error_callback",token,admission)
+                            if(admission==NavigationCallbackAdmission.CURRENT) { requestOutcome="service_failure";result.complete(null) }
+                        }
+                    } }
+                    navigationInvalidated={ synchronized(navigationLock) {
+                        requestOutcome="stale";navigationObservations.finish(token);result.complete(null)
+                    } }
+                    target
+                }
+            }
+            if (current != null) try {
+                navigationIo.call({ !closed && navigationForeground && navigation === current &&
+                    navigationGeneration == requestEpoch && navigationObservations.admission(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT }) {
+                    current.preview(TripRequest(latitude=site.latitude!!,longitude=site.longitude!!,poiId=site.id,poiName=site.name,poiSubId=null))
+                }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (error: Exception) {
+                synchronized(navigationLock) {
+                    requestOutcome="service_failure";navigationObservations.finish(token)
+                    SdkRuntimeTrace.event("NaviHelper", "preview.error", "errorClass" to error.javaClass.simpleName)
+                    result.complete(null)
                 }
             }
             val info=observeNavigationResult(result,token)
@@ -714,6 +1021,9 @@ class PlatformBridge @Inject constructor(
       navigationRequests.withLock {
         val response=JSONObject().put("started",false).put("mode","pleos").put("message","실제 내비 경로 시작을 확인하지 못했습니다.")
         if(!validDestination(site))return@withLock response
+        // This entry is the VM's explicit NAVIGATION_START action. Automatic
+        // saved-trip preview and generic SDK admission never restart cleanup budgets.
+        navigationIo.retryAfterExplicitRequest()
         if(!prepareFreshNavigationRequest())return@withLock response.put("reason","cleanup_failure")
         if(!connectNavigation())return@withLock response
         val token=synchronized(navigationLock) {
@@ -725,48 +1035,72 @@ class PlatformBridge @Inject constructor(
         var drivingObserved=false
         var requestOutcome="timeout"
         try {
-            synchronized(navigationLock) {
-                val current=navigation
-                if(closed || !navigationForeground || current==null) {
+            val requestEpoch=token.connectionEpoch
+            val current = synchronized(navigationLock) {
+                val target=navigation
+                if(closed || !navigationForeground || target==null || navigationGeneration!=requestEpoch) {
                     requestOutcome="stale";navigationObservations.finish(token);result.complete(false)
+                    null
                 } else {
                     routeResult={ status ->
-                        val admission=navigationObservations.admission(token,navigationGeneration)
-                        traceNavigationAdmission("route.status_callback",token,admission)
-                        if(admission==NavigationCallbackAdmission.CURRENT) {
-                            drivingObserved=status==NavigationStatus.ROUTE_DRIVE
-                            try { if(drivingObserved)helper?.getDestinationInfo() }
-                            catch(error:Exception) {
-                                diagnostic="내비 목적지 확인 필요: ${error.javaClass.simpleName}"
-                                if(navigationObservations.claim(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT) {
-                                    requestOutcome="service_failure";result.complete(false)
-                                }
+                        val destinationHelper = synchronized(navigationLock) {
+                            if (closed || !navigationForeground || navigation !== target || navigationGeneration != requestEpoch) null
+                            else {
+                                val admission=navigationObservations.admission(token,navigationGeneration)
+                                traceNavigationAdmission("route.status_callback",token,admission)
+                                if(admission==NavigationCallbackAdmission.CURRENT) {
+                                    drivingObserved=status==NavigationStatus.ROUTE_DRIVE
+                                    helper.takeIf { drivingObserved }
+                                } else null
                             }
                         }
-                    }
-                    destinationResult={ destination ->
-                        val admission=navigationObservations.admission(token,navigationGeneration)
-                        val match=if(admission==NavigationCallbackAdmission.CURRENT)
-                            SdkDestinationMatcher.match(token.request,listOf(SdkRouteDestinationPoint(destination.poiId.orEmpty(),
-                                destination.latitude,destination.longitude,true)),token.connectionEpoch,navigationGeneration)
-                            else SdkDestinationMatch.STALE
-                        SdkRuntimeTrace.event("NaviHelper", "destination.result", "matchesRequestedDestination" to (match==SdkDestinationMatch.MATCH),
-                            "matchStatus" to match.name,"drivingObserved" to drivingObserved,"appRequestId" to token.id,
-                            "admission" to admission.name.lowercase(),"coordinatePolicy" to "same_poi_geodesic_20m",
-                            "elapsedMs" to navigationObservations.elapsedMillis(token))
-                        if(drivingObserved && match==SdkDestinationMatch.MATCH &&
-                            navigationObservations.claim(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT) {
-                            requestOutcome="started";result.complete(true)
+                        if (destinationHelper != null) navigationIo.enqueue("destination:${token.id}",
+                            { !closed && navigationForeground && navigation === target && helper === destinationHelper &&
+                                navigationGeneration == requestEpoch && navigationObservations.admission(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT }) {
+                            try { destinationHelper.getDestinationInfo() }
+                            catch(error:Exception) { synchronized(navigationLock) {
+                                if (!closed && navigationForeground && navigation === target && navigationGeneration == requestEpoch) {
+                                    diagnostic="내비 목적지 확인 필요: ${error.javaClass.simpleName}"
+                                    if(navigationObservations.claim(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT) {
+                                        requestOutcome="service_failure";result.complete(false)
+                                    }
+                                }
+                            } }
                         }
                     }
-                    navigationError={
-                        val admission=navigationObservations.claim(token,navigationGeneration)
-                        traceNavigationAdmission("route.error_callback",token,admission)
-                        if(admission==NavigationCallbackAdmission.CURRENT) { requestOutcome="service_failure";result.complete(false) }
-                    }
-                    navigationInvalidated={ requestOutcome="stale";navigationObservations.finish(token);result.complete(false) }
-                    current.start(RouteInfo(latitude=site.latitude!!,longitude=site.longitude!!,poiName=site.name,poiId=site.id,address=site.address,poiSubId=""))
+                    destinationResult={ destination -> synchronized(navigationLock) {
+                        if (!closed && navigationForeground && navigation === target && navigationGeneration == requestEpoch) {
+                            val admission=navigationObservations.admission(token,navigationGeneration)
+                            val match=if(admission==NavigationCallbackAdmission.CURRENT)
+                                SdkDestinationMatcher.match(token.request,listOf(SdkRouteDestinationPoint(destination.poiId.orEmpty(),
+                                    destination.latitude,destination.longitude,true)),token.connectionEpoch,navigationGeneration)
+                                else SdkDestinationMatch.STALE
+                            SdkRuntimeTrace.event("NaviHelper", "destination.result", "matchesRequestedDestination" to (match==SdkDestinationMatch.MATCH),
+                                "matchStatus" to match.name,"drivingObserved" to drivingObserved,"appRequestId" to token.id,
+                                "admission" to admission.name.lowercase(),"coordinatePolicy" to "same_poi_geodesic_20m",
+                                "elapsedMs" to navigationObservations.elapsedMillis(token))
+                            if(drivingObserved && match==SdkDestinationMatch.MATCH &&
+                                navigationObservations.claim(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT) {
+                                requestOutcome="started";result.complete(true)
+                            }
+                        }
+                    } }
+                    navigationError={ synchronized(navigationLock) {
+                        if (!closed && navigationForeground && navigation === target && navigationGeneration == requestEpoch) {
+                            val admission=navigationObservations.claim(token,navigationGeneration)
+                            traceNavigationAdmission("route.error_callback",token,admission)
+                            if(admission==NavigationCallbackAdmission.CURRENT) { requestOutcome="service_failure";result.complete(false) }
+                        }
+                    } }
+                    navigationInvalidated={ synchronized(navigationLock) {
+                        requestOutcome="stale";navigationObservations.finish(token);result.complete(false)
+                    } }
+                    target
                 }
+            }
+            if (current != null) navigationIo.call({ !closed && navigationForeground && navigation === current &&
+                navigationGeneration == requestEpoch && navigationObservations.admission(token,navigationGeneration)==NavigationCallbackAdmission.CURRENT }) {
+                current.start(RouteInfo(latitude=site.latitude!!,longitude=site.longitude!!,poiName=site.name,poiId=site.id,address=site.address,poiSubId=""))
             }
             val observed=observeNavigationResult(result,token)==true
             currentCoroutineContext().ensureActive()
@@ -795,24 +1129,98 @@ class PlatformBridge @Inject constructor(
         }
       }
     }
-    private fun disconnectNavigation(){
-        val resources=synchronized(navigationLock) {
+    /** Pure metadata invalidation. Caller may be Main, so no SDK or vendor-lane wait. */
+    private fun detachNavigation(): NavigationResources? {
+        val captured = synchronized(navigationLock) {
             navigationGeneration++
-            navigationConnectionStatus="not_connected"
-            navigationInvalidated?.invoke()
+            navigationConnectionStatus = "not_connected"
             navigationObservations.invalidate()
+            val invalidated = navigationInvalidated
             tripResult=null;routeResult=null;destinationResult=null;navigationError=null;navigationInvalidated=null
-            Triple(helper,navigation,naviListener).also { navigation=null;helper=null;naviListener=null }
+            val resources = navigationResources
+            navigationResources=null;navigation=null;helper=null;naviListener=null
+            resources to invalidated
         }
-        try{resources.third?.let{resources.first?.removeListener(it)}}finally{resources.second?.close()}
+        captured.second?.invoke()
+        return captured.first
     }
+
+    private fun retireNavigation(resources: NavigationResources) {
+        navigationIo.retire(resources) {
+            var failure: Exception? = null
+            if (resources.listenerMayBeAdded && !resources.listenerRemoved) try {
+                resources.helper.removeListener(resources.listener)
+                resources.listenerRemoved = true
+                SdkRuntimeTrace.event("NaviHelper", "listener.remove.returned", "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()))
+            } catch (error: Exception) { failure = error }
+            if (!resources.adapterClosed) try {
+                resources.adapter.close()
+                resources.adapterClosed = true
+                SdkRuntimeTrace.event("NaviHelper", "release.returned", "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()))
+            } catch (error: Exception) {
+                if (failure == null) failure = error else failure.addSuppressed(error)
+            }
+            failure?.let { throw it }
+        }
+    }
+
+    private fun disconnectNavigation() {
+        detachNavigation()?.let(::retireNavigation)
+    }
+
     suspend fun location()=assistant.location()
     suspend fun arrivalWatch(site:Campsite)=assistant.arrivalWatch(site)
     suspend fun speak(text:String)=assistant.speak(text)
     suspend fun listen()=assistant.listen()
     fun setLanguage(tag:String)=assistant.setLanguage(tag)
     fun assistStatus()=assistant.assistStatus()
-    fun start(){if(!closed){synchronized(navigationLock){navigationForeground=true};synchronized(topologyLock){connectionEpoch++;readAvailability.reset(connectionEpoch);readDiagnostic="";active=false;soc=null;socObservedAt=null;capabilitySnapshot=CapabilitySnapshot()};runCatching{assistant.start()}}}
-    fun stop(){synchronized(navigationLock){navigationForeground=false};synchronized(topologyLock){connectionEpoch++;readAvailability.reset(connectionEpoch);readDiagnostic="";active=false;capabilitySnapshot=CapabilitySnapshot()};try{adapter.stop()}finally{soc=null;socObservedAt=null;try{disconnectNavigation()}finally{assistant.stop()}}}
-    fun close(){if(closed)return;closed=true;try{stop()}finally{try{adapter.close()}finally{assistant.close()}}}
+    private fun queueLifecycle(step: SdkLifecycleStep, work: suspend () -> Unit) {
+        lifecycleQueue.submit(step, work)
+    }
+    private fun traceLifecycle(event: String, epoch: Int) {
+        SdkRuntimeTrace.event("Vehicle", "lifecycle.$event", "bridgeInstance" to lifecycleTraceId,
+            "adapterInstance" to System.identityHashCode(adapter), "assistantInstance" to System.identityHashCode(assistant), "epoch" to epoch,
+            "closed" to closed, "nativeCall" to false,
+            "onMainThread" to (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()))
+    }
+    fun start() {
+        if (closed) return
+        synchronized(navigationLock) { navigationForeground = true }
+        val epoch = synchronized(topologyLock) {
+            connectionEpoch++; readAvailability.reset(connectionEpoch); positionObservations.reset(connectionEpoch)
+            positionSubscriptions.detachAll()
+            readDiagnostic = ""; active = false; soc = null; socObservedAt = null; capabilitySnapshot = CapabilitySnapshot()
+            connectionEpoch
+        }
+        traceLifecycle("start", epoch)
+        queueLifecycle(SdkLifecycleStep.START) {
+            drainPositionCleanup()
+            if (!closed && epoch == connectionEpoch) runCatching { assistant.start() }
+        }
+    }
+    fun stop() {
+        synchronized(navigationLock) { navigationForeground = false }
+        disconnectNavigation()
+        val stoppedEpoch = synchronized(topologyLock) {
+            connectionEpoch++; readAvailability.reset(connectionEpoch); positionObservations.reset(connectionEpoch)
+            positionSubscriptions.detachAll()
+            readDiagnostic = ""; active = false; soc = null; socObservedAt = null; capabilitySnapshot = CapabilitySnapshot()
+            connectionEpoch
+        }
+        traceLifecycle("stop", stoppedEpoch)
+        lifecycleQueue.submitStop(
+            shouldStop = { closed || stoppedEpoch == connectionEpoch },
+            cleanup = { drainPositionCleanup() },
+            stop = { try { adapter.stop() } finally { assistant.stop() } },
+        )
+    }
+    fun close() {
+        if (closed) return
+        closed = true
+        traceLifecycle("close", connectionEpoch)
+        stop()
+        queueLifecycle(SdkLifecycleStep.CLOSE) {
+            try { finishPositionCleanup() } finally { try { adapter.close() } finally { assistant.close() } }
+        }
+    }
 }

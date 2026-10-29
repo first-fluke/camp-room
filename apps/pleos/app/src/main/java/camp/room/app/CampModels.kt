@@ -187,6 +187,7 @@ data class Vehicle(
     val controlAreas: List<CabinControlGroup> = emptyList(),
     val unknownFeatures: List<String> = emptyList(),
     val connectionConfirmed: Boolean = false,
+    val positionAreas: List<VehicleAreaObservation> = emptyList(),
 ) {
     /** Only a real vehicle adapter may expose observations or accept vehicle commands. */
     val isConnected: Boolean
@@ -208,6 +209,7 @@ data class Vehicle(
         controlAreas = emptyList(),
         unknownFeatures = emptyList(),
         connectionConfirmed = false,
+        positionAreas = emptyList(),
     )
 
     companion object {
@@ -231,6 +233,14 @@ data class Vehicle(
                 },
                 j.strings("unknownFeatures"),
                 j.optBoolean("connected", false),
+                j.objects("positionAreas").mapNotNull { area ->
+                    val kind = runCatching { VehicleAreaKind.valueOf(area.text("kind").uppercase()) }.getOrNull() ?: return@mapNotNull null
+                    VehicleAreaObservation(VehicleAreaKey(kind, area.text("areaId")), area.strings("members").toSet(),
+                        area.areaIntOrNull("rawPosition"), area.areaIntOrNull("minimum"), area.areaIntOrNull("maximum"), area.text("access"),
+                        runCatching { VehicleAreaStatus.valueOf(area.text("status").uppercase()) }.getOrDefault(VehicleAreaStatus.UNKNOWN),
+                        area.text("reason").takeIf { it.isNotBlank() }, area.areaLongOrNull("sampledAtElapsedMillis"),
+                        area.areaLongOrNull("updatedAtElapsedMillis") ?: 0, area.areaIntOrNull("epoch") ?: -1)
+                },
             ).let { vehicle -> if (vehicle.isConnected) vehicle else vehicle.disconnected() }
     }
 }
@@ -421,3 +431,9 @@ data class Bootstrap(
             )
     }
 }
+
+// Position SDK integers must not be rounded/truncated from malformed JSON numbers.
+private fun JSONObject.areaIntOrNull(name: String): Int? =
+    if (isNull(name)) null else (opt(name) as? Number)?.toString()?.toIntOrNull()
+private fun JSONObject.areaLongOrNull(name: String): Long? =
+    if (isNull(name)) null else (opt(name) as? Number)?.toString()?.toLongOrNull()

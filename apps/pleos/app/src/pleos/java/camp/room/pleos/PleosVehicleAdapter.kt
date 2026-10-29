@@ -10,7 +10,15 @@ import ai.pleos.playground.vehicle.constant.control.LightSwitch
 import ai.pleos.playground.vehicle.constant.control.LightState
 import ai.pleos.playground.vehicle.listener.EvBatteryStateOfChargeListener
 import camp.room.app.SdkRuntimeTrace
-import java.util.concurrent.TimeoutException
+import camp.room.app.VehicleListenerCleanup
+import camp.room.app.VehicleSdkIo
+import camp.room.app.SocCapabilityReader
+import camp.room.app.SocSnapshotReader
+import camp.room.app.VehicleScheduledTask
+import camp.room.app.SdkVehicleReadFailure
+import camp.room.app.SdkVehicleReadFailureClass
+import camp.room.app.SdkCleanupQuarantine
+import camp.room.app.SdkReleaseLease
 import kotlin.math.abs
 
 /** Real-SDK flavor. Host supplies checked mappings and marshals callbacks to UI dispatcher. */
@@ -27,153 +35,256 @@ class PleosVehicleAdapter(
     private val onSoc: (Int?) -> Unit,
     private val onError: (Exception) -> Unit,
 ) : VehiclePort {
+    private companion object {
+        // Retired ViewModels cannot be the only owners of failed native cleanup.
+        val releaseQuarantine = SdkCleanupQuarantine<Vehicle>()
+    }
+    private val stateLock = Any()
     private var started = false
     private var initialized = false
+    private val nativeRelease = SdkReleaseLease(vehicle, stateLock)
     private var closed = false
     private var generation = 0
-    private var liveSocSeen = false
     private var registeredSoc: EvBatteryStateOfChargeListener? = null
     private val socTimeoutHandler = Handler(Looper.getMainLooper())
-    private var socCapabilityRequest: Any? = null
-    private var socCapabilityTimeout: Runnable? = null
+    // Only a listener reserved by the serial vendor lane can enter this set. Every
+    // new vendor entry drains it before registering the next generation.
+    private val pendingUnregister = VehicleListenerCleanup<EvBatteryStateOfChargeListener>()
+    private val io = VehicleSdkIo(onFailure = onError)
     private val requests = mutableMapOf<Pair<Control, String>, Long>()
+    private val socSnapshots = SocSnapshotReader<EvBatteryStateOfChargeListener>(
+        lock = stateLock,
+        read = { done, failed -> vehicle.getEvBattery().getEvBatteryStateOfCharge(done, failed) },
+        onValue = onSoc,
+        onError = onError,
+        trace = { event, sample -> SdkRuntimeTrace.event("Vehicle", event,
+            "adapterInstance" to System.identityHashCode(this), "epoch" to sample.epoch,
+            "requestId" to sample.requestId, "reason" to sample.reason, "eventRevision" to sample.eventRevision,
+            "current" to sample.current, "accepted" to sample.accepted,
+            "supersededBySubscription" to sample.supersededByEvent, "value" to sample.value,
+            "errorClass" to sample.errorClass,
+            "onMainThread" to (Looper.myLooper() == Looper.getMainLooper())) },
+    )
+    private val socReader = SocCapabilityReader(
+        check = { done, failed -> vehicle.getEvBattery().checkEvBatteryStateOfChargeCapabilities(
+            { config -> done(config.accessType.name in setOf("READ", "READ_WRITE")) }, failed) },
+        schedule = { delay, action ->
+            val task = Runnable(action)
+            socTimeoutHandler.postDelayed(task, delay)
+            VehicleScheduledTask { socTimeoutHandler.removeCallbacks(task) }
+        },
+        dispatch = { task -> io.request("soc.retry") { drainCleanup(); task() } },
+        onReadable = { epoch -> followup("soc.register") { registerSoc(epoch) } },
+        onError = { epoch, error -> synchronized(stateLock) { if (active(epoch)) onError(error) } },
+        isActive = { epoch -> synchronized(stateLock) { active(epoch) } },
+        isRetryable = { error -> error !is SecurityException && error !is UnsupportedOperationException &&
+            SdkVehicleReadFailure.from(error).failureClass !in setOf(
+                SdkVehicleReadFailureClass.SECURITY_PERMISSION,
+                SdkVehicleReadFailureClass.UNSUPPORTED_PROPERTY,
+                SdkVehicleReadFailureClass.UNSUPPORTED_VALUE_TYPE,
+                SdkVehicleReadFailureClass.UNSUPPORTED_AREA,
+                SdkVehicleReadFailureClass.DRIVING_RESTRICTED,
+            ) },
+        trace = { event, attempt, delay -> SdkRuntimeTrace.event("Vehicle", "soc.$event",
+            "attempt" to attempt, "retryDelayMs" to delay) },
+    )
 
-    @Synchronized override fun start() {
-        check(!closed) { "Adapter is closed" }
-        if (started) return
-        if (!initialized) { vehicle.initialize(); initialized = true }
-        started = true
-        liveSocSeen = false
-        val epoch = ++generation
-        val request = Any()
-        socCapabilityRequest = request
-        val timeout = Runnable {
-            synchronized(this) {
-                if (active(epoch) && socCapabilityRequest === request) {
-                    clearSocCapabilityRequest()
-                    onError(TimeoutException("EV battery SOC capability check timed out"))
-                }
-            }
+    private fun <T> vendor(block: () -> T): T = io.run {
+        drainCleanup()
+        block()
+    }
+
+    private fun followup(key: String, block: () -> Unit) {
+        if (!io.request(key) { drainCleanup(); block() })
+            onError(IllegalStateException("Vehicle follow-up capacity unavailable"))
+    }
+
+    override fun start() = vendor {
+        check(releaseQuarantine.drain(vehicle)) { "Previous vehicle release is unresolved" }
+        check(!pendingUnregister.hasPending()) { "Previous SOC listener cleanup is unresolved" }
+        val session = synchronized(stateLock) {
+            check(!closed) { "Adapter is closed" }
+            val reused = started
+            if (!reused) { started = true; generation++ }
+            Triple(generation, reused, registeredSoc)
         }
-        socCapabilityTimeout = timeout
-        socTimeoutHandler.postDelayed(timeout, 2200L)
+        val (epoch, reused, listener) = session
+        SdkRuntimeTrace.event("Vehicle", "soc.start", "adapterInstance" to System.identityHashCode(this),
+            "epoch" to epoch, "reused" to reused, "listenerPresent" to (listener != null),
+            "onMainThread" to (Looper.myLooper() == Looper.getMainLooper()))
         try {
-            vehicle.getEvBattery().checkEvBatteryStateOfChargeCapabilities(
-                { config -> synchronized(this) {
-                    SdkRuntimeTrace.event("Vehicle", "soc.capability", "accessType" to config.accessType.name, "current" to (active(epoch) && socCapabilityRequest === request))
-                    if (active(epoch) && socCapabilityRequest === request) {
-                        clearSocCapabilityRequest()
-                        if (config.accessType.name in setOf("READ", "READ_WRITE")) registerSoc(epoch)
-                        else onError(UnsupportedOperationException("EV battery SOC does not support reads"))
-                    }
-                } },
-                { error -> synchronized(this) {
-                    SdkRuntimeTrace.event("Vehicle", "soc.capability.error", "errorClass" to error.javaClass.simpleName, "current" to (active(epoch) && socCapabilityRequest === request))
-                    if (active(epoch) && socCapabilityRequest === request) {
-                        clearSocCapabilityRequest()
-                        onError(error)
-                    }
-                } },
-            )
-        } catch (error: Exception) {
-            started = false; generation++
-            clearSocCapabilityRequest()
-            registeredSoc?.let { listener ->
-                try { vehicle.getEvBattery().unregisterEvBatteryStateOfCharge(listener) }
-                catch (cleanupError: Exception) { error.addSuppressed(cleanupError) }
+            socSnapshots.startOrRefresh(epoch, reused, listener) {
+                if (!synchronized(stateLock) { initialized }) {
+                    // initialize can bind before throwing; close must still release that exact object.
+                    nativeRelease.markAcquired()
+                    vehicle.initialize()
+                    synchronized(stateLock) { initialized = true }
+                }
+                if (synchronized(stateLock) { active(epoch) }) socReader.start(epoch)
+                else drainCleanup()
             }
-            registeredSoc = null
+        } catch (error: Exception) {
+            synchronized(stateLock) {
+                if (active(epoch)) invalidateLocked()
+            }
+            nativeRelease.requestRelease()
+            requestReleaseCleanup()
             throw error
         }
     }
 
-    private fun clearSocCapabilityRequest() {
-        socCapabilityRequest = null
-        socCapabilityTimeout?.let(socTimeoutHandler::removeCallbacks)
-        socCapabilityTimeout = null
-    }
-
-    /** Caller holds this adapter's monitor after a readable capability response. */
+    /** Runs on the vendor lane; reserve identity before registration can synchronously callback. */
     private fun registerSoc(epoch: Int) {
         val listener = object : EvBatteryStateOfChargeListener {
             override fun onFailed(e: Exception) {
-                synchronized(this@PleosVehicleAdapter) {
-                    SdkRuntimeTrace.event("Vehicle", "soc.subscription.error", "errorClass" to e.javaClass.simpleName, "current" to (active(epoch) && registeredSoc === this))
-                    if (active(epoch) && registeredSoc === this) onError(e)
+                synchronized(stateLock) {
+                    val accepted = active(epoch) && registeredSoc === this
+                    SdkRuntimeTrace.event("Vehicle", "soc.subscription.error", "errorClass" to e.javaClass.simpleName, "current" to accepted)
+                    if (accepted) onError(e)
                 }
             }
             override fun onEvBatteryStateOfChargeUpdated(value: Int?) {
-                synchronized(this@PleosVehicleAdapter) {
-                    SdkRuntimeTrace.event("Vehicle", "soc.subscription", "value" to value, "current" to (active(epoch) && registeredSoc === this))
-                    if (active(epoch) && registeredSoc === this) { liveSocSeen = true; onSoc(value) }
+                synchronized(stateLock) {
+                    val accepted = active(epoch) && registeredSoc === this
+                    SdkRuntimeTrace.event("Vehicle", "soc.subscription", "value" to value, "current" to accepted)
+                    if (accepted) socSnapshots.onEvent(epoch, this, value)
                 }
             }
         }
-        registeredSoc = listener
+        synchronized(stateLock) {
+            if (!active(epoch) || registeredSoc != null || pendingUnregister.hasPending()) return
+            registeredSoc = listener
+            socSnapshots.bind(epoch, listener)
+        }
         try {
             vehicle.getEvBattery().registerEvBatteryStateOfCharge(listener)
-            if (!active(epoch) || registeredSoc !== listener) return
-            vehicle.getEvBattery().getEvBatteryStateOfCharge(
-                { value -> synchronized(this) {
-                    SdkRuntimeTrace.event("Vehicle", "soc.initialRead", "value" to value, "current" to (active(epoch) && registeredSoc === listener), "supersededBySubscription" to liveSocSeen)
-                    if (active(epoch) && registeredSoc === listener && !liveSocSeen) onSoc(value)
-                } },
-                { error -> synchronized(this) {
-                    SdkRuntimeTrace.event("Vehicle", "soc.initialRead.error", "errorClass" to error.javaClass.simpleName, "current" to (active(epoch) && registeredSoc === listener))
-                    if (active(epoch) && registeredSoc === listener) onError(error)
-                } },
-            )
+            if (!synchronized(stateLock) { active(epoch) && registeredSoc === listener }) {
+                drainCleanup()
+                return
+            }
+            socSnapshots.refresh(epoch, listener, "initial")
         } catch (error: Exception) {
-            try { vehicle.getEvBattery().unregisterEvBatteryStateOfCharge(listener) }
-            catch (cleanupError: Exception) { error.addSuppressed(cleanupError) }
-            finally { registeredSoc = null }
-            onError(error)
+            synchronized(stateLock) {
+                if (registeredSoc === listener) {
+                    registeredSoc = null
+                    socSnapshots.invalidate(epoch, listener)
+                }
+                pendingUnregister.retain(listener)
+            }
+            drainCleanup()
+            if (synchronized(stateLock) { active(epoch) }) onError(error)
         }
     }
 
-    @Synchronized override fun stop() {
-        started = false; generation++
-        clearSocCapabilityRequest()
-        val listener = registeredSoc ?: return
-        try { vehicle.getEvBattery().unregisterEvBatteryStateOfCharge(listener) }
-        finally { registeredSoc = null }
+    /** No vendor IPC, and no waiting for vendor IPC, while holding stateLock. */
+    private fun invalidateLocked() {
+        started = false
+        generation++
+        registeredSoc?.let { pendingUnregister.retain(it) }
+        registeredSoc = null
+        socSnapshots.invalidate()
+        requests.clear()
     }
 
-    @Synchronized override fun close() {
-        if (closed) return
-        closed = true; started = false; generation++
-        clearSocCapabilityRequest()
-        try {
-            registeredSoc?.let { vehicle.getEvBattery().unregisterEvBatteryStateOfCharge(it) }
-        } finally {
-            registeredSoc = null
-            if (initialized) { initialized = false; vehicle.release() }
+    /** Called only on the serial vendor lane; cleanup cannot be dropped by coalescing. */
+    private fun drainCleanup() {
+        pendingUnregister.drain({ listener -> vehicle.getEvBattery().unregisterEvBatteryStateOfCharge(listener) }, onError)
+        if (pendingUnregister.hasPending()) return
+        val released = nativeRelease.releaseIfRequested { exactVehicle ->
+            SdkRuntimeTrace.event("Vehicle", "release.attempt", "adapterInstance" to System.identityHashCode(this),
+                "vehicleInstance" to System.identityHashCode(vehicle),
+                "epoch" to synchronized(stateLock) { generation }, "complete" to false,
+                "onMainThread" to (Looper.myLooper() == Looper.getMainLooper()))
+            exactVehicle.release()
         }
+        if (released) {
+            synchronized(stateLock) { initialized = false }
+            SdkRuntimeTrace.event("Vehicle", "release.returned", "adapterInstance" to System.identityHashCode(this),
+                "vehicleInstance" to System.identityHashCode(vehicle),
+                "epoch" to synchronized(stateLock) { generation }, "complete" to true,
+                "onMainThread" to (Looper.myLooper() == Looper.getMainLooper()))
+        }
+    }
+
+    override fun stop() {
+        val epoch = synchronized(stateLock) { generation.also { invalidateLocked() } }
+        socReader.stop(epoch)
+        vendor { Unit }
+    }
+
+    override fun close() {
+        synchronized(stateLock) {
+            if (!closed) {
+                closed = true
+                invalidateLocked()
+            }
+        }
+        nativeRelease.requestRelease()
+        socReader.stop()
+        requestReleaseCleanup()
+    }
+
+    private fun requestReleaseCleanup() {
+        SdkRuntimeTrace.event("Vehicle", "release.request", "adapterInstance" to System.identityHashCode(this),
+            "vehicleInstance" to System.identityHashCode(vehicle),
+            "epoch" to synchronized(stateLock) { generation }, "pending" to true,
+            "onMainThread" to (Looper.myLooper() == Looper.getMainLooper()))
+        releaseQuarantine.retain(vehicle, this,
+            cleanup = {
+                io.run {
+                    drainCleanup()
+                    check(!pendingUnregister.hasPending()) { "SOC listener cleanup is unresolved" }
+                    check(!nativeRelease.hasResource()) { "Vehicle release is unresolved" }
+                }
+            },
+            retry = { delay, task ->
+                check(socTimeoutHandler.postDelayed({
+                    if (!io.request("vehicle.release.retry", task))
+                        onError(IllegalStateException("Vehicle cleanup retry capacity unavailable; cleanup retained"))
+                }, delay)) { "Vehicle cleanup timer unavailable; cleanup retained" }
+            },
+            onFailure = { error ->
+                SdkRuntimeTrace.event("Vehicle", "release.pending", "adapterInstance" to System.identityHashCode(this),
+                    "vehicleInstance" to System.identityHashCode(vehicle), "errorClass" to error.javaClass.simpleName,
+                    "epoch" to synchronized(stateLock) { generation }, "complete" to false,
+                    "retained" to true, "onMainThread" to (Looper.myLooper() == Looper.getMainLooper()))
+                onError(error)
+            },
+            // Automatic retries remain capped. A later explicit close or same-object
+            // admission can rearm exhausted SOC cleanup instead of staying poisoned forever.
+            onExplicitRetry = pendingUnregister::rearmExhausted,
+        )
+        releaseQuarantine.drain(vehicle)
     }
 
     private fun active(epoch: Int) = started && !closed && generation == epoch
 
-    @Synchronized override fun apply(command: Command, onUpdate: (CommandUpdate) -> Unit) {
+    override fun apply(command: Command, onUpdate: (CommandUpdate) -> Unit) {
         val cap = capabilities.get(command.control, command.areaId)
         val integral = command.control in setOf(Control.READING_LIGHT, Control.AMBIENT_BRIGHTNESS, Control.SMART_GLASS, Control.SEAT_MEMORY)
         val numericValid = command.value.isFinite() &&
             (!integral || command.value % 1.0 == 0.0 && command.value >= Int.MIN_VALUE && command.value <= Int.MAX_VALUE) &&
             command.value.toFloat().isFinite() &&
             (command.control != Control.READING_LIGHT || command.value in setOf(0.0, 1.0))
-        if (!started || closed || cap == null || !numericValid || !cap.allows(command.value)) {
+        if (cap == null || !numericValid || !cap.allows(command.value)) {
             onUpdate(CommandUpdate(command, Confirmation.BLOCKED, message = "Unsupported permission, area or value")); return
         }
         if (motion.current() != MotionState.PARKED) {
             onUpdate(CommandUpdate(command, Confirmation.BLOCKED, message = "Trusted parked signal required")); return
         }
-        val epoch = generation
+        val epoch = synchronized(stateLock) {
+            if (!started || closed) {
+                onUpdate(CommandUpdate(command, Confirmation.BLOCKED, message = "Vehicle session unavailable"))
+                return
+            }
+            generation
+        }
         // Capture the separately capability-checked getter object before any async callback.
         val originalReadSeat = readSeatAreas(command.control, command.areaId)
         val key = command.control to command.areaId
-        val token = (requests[key] ?: 0L) + 1
-        requests[key] = token
+        val token = synchronized(stateLock) { ((requests[key] ?: 0L) + 1).also { requests[key] = it } }
         fun current() = active(epoch) && requests[key] == token
-        fun guarded(block: () -> Unit): Unit = synchronized(this) { if (current()) block(); Unit }
+        fun guarded(block: () -> Unit): Unit = synchronized(stateLock) { if (current()) block(); Unit }
         fun emit(update: CommandUpdate) = guarded { onUpdate(update) }
         fun failed(error: Exception) = emit(CommandUpdate(command, Confirmation.FAILED, message = error.message))
         fun observed(value: Double?) = emit(CommandUpdate(command,
@@ -184,52 +295,61 @@ class PleosVehicleAdapter(
         fun seat(): SeatArea? = seatAreas(command.control, command.areaId).also {
             if (it == null) emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Seat area unavailable"))
         }
-        when (command.control) {
-            Control.CURRENT_TEMPERATURE -> emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Measured temperature is read-only"))
-            Control.TARGET_TEMPERATURE -> {
-                val area = seat() ?: return
-                vehicle.getHVAC().setHvacTemperature(area, command.value.toFloat(), temperatureUnit,
-                    { _, _ -> guarded {
-                        emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
-                        if (cap.readable) vehicle.getHVAC().getHvacTemperature(area, temperatureUnit, { observed(it?.toDouble()) }, ::failed)
-                    } }, ::failed)
+        fun confirm(block: () -> Unit) = followup("confirm:${command.control}:${command.areaId}") {
+            if (synchronized(stateLock) { current() } && motion.current() == MotionState.PARKED) block()
+        }
+        vendor {
+            if (!synchronized(stateLock) { current() } || motion.current() != MotionState.PARKED) {
+                emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Trusted parked signal required"))
+                return@vendor
             }
-            Control.READING_LIGHT -> {
-                val area = seat() ?: return
-                vehicle.getLight().setReadingLightSwitch(area, lightSwitch(command.value != 0.0),
-                    { _ -> guarded {
-                        emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
-                        // readable comes from checkReadingLightStateCapabilities, independently of switch capability.
-                        if (cap.readable && originalReadSeat != null) vehicle.getLight().getCurrentReadingLightState(originalReadSeat,
-                            { observed(it?.let(lightState)?.let { state -> if (state) 1.0 else 0.0 }) }, ::failed)
-                        else if (cap.readable) emit(CommandUpdate(command, Confirmation.SENT_UNVERIFIED, message = "Getter area unavailable"))
-                    } }, ::failed)
+            when (command.control) {
+                Control.CURRENT_TEMPERATURE -> emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Measured temperature is read-only"))
+                Control.TARGET_TEMPERATURE -> {
+                    val area = seat() ?: return@vendor
+                    vehicle.getHVAC().setHvacTemperature(area, command.value.toFloat(), temperatureUnit,
+                        { _, _ -> confirm {
+                            emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
+                            if (cap.readable) vehicle.getHVAC().getHvacTemperature(area, temperatureUnit, { observed(it?.toDouble()) }, ::failed)
+                        } }, ::failed)
+                }
+                Control.READING_LIGHT -> {
+                    val area = seat() ?: return@vendor
+                    vehicle.getLight().setReadingLightSwitch(area, lightSwitch(command.value != 0.0),
+                        { _ -> confirm {
+                            emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
+                            // readable comes from checkReadingLightStateCapabilities, independently of switch capability.
+                            if (cap.readable && originalReadSeat != null) vehicle.getLight().getCurrentReadingLightState(originalReadSeat,
+                                { observed(it?.let(lightState)?.let { state -> if (state) 1.0 else 0.0 }) }, ::failed)
+                            else if (cap.readable) emit(CommandUpdate(command, Confirmation.SENT_UNVERIFIED, message = "Getter area unavailable"))
+                        } }, ::failed)
+                }
+                Control.AMBIENT_BRIGHTNESS -> {
+                    val area = seat() ?: return@vendor
+                    vehicle.getLight().setAmbientLightBrightness(area, command.value.toInt(),
+                        { _, _ -> confirm {
+                            emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
+                            if (cap.readable) vehicle.getLight().getAmbientLightBrightness(area, { observed(it?.toDouble()) }, ::failed)
+                        } }, ::failed)
+                }
+                Control.SMART_GLASS -> {
+                    val area = windowAreas(command.areaId)
+                    if (area == null) { emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Window area unavailable")); return@vendor }
+                    vehicle.getWindow().setSmartGlassLevel(area, command.value.toInt(),
+                        { _, _ -> confirm {
+                            emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
+                            if (cap.readable) vehicle.getWindow().getCurrentSmartGlassLevel(area, { observed(it?.toDouble()) }, ::failed)
+                        } }, ::failed)
+                }
+                Control.SEAT_MEMORY -> {
+                    val area = seat() ?: return@vendor
+                    emit(CommandUpdate(command, Confirmation.SENT_UNVERIFIED))
+                    vehicle.getSeat().selectSeatMemory(area, command.value.toInt(), ::failed)
+                }
+                Control.CHARGE_PERCENT -> vehicle.getEvBattery().setEvChargePercentLimit(command.value.toFloat(),
+                    { value -> emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED, message =
+                        if (value == null) "Callback received; accepted value unknown; no target getter" else "Setter returned target; no separate target getter")) }, ::failed)
             }
-            Control.AMBIENT_BRIGHTNESS -> {
-                val area = seat() ?: return
-                vehicle.getLight().setAmbientLightBrightness(area, command.value.toInt(),
-                    { _, _ -> guarded {
-                        emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
-                        if (cap.readable) vehicle.getLight().getAmbientLightBrightness(area, { observed(it?.toDouble()) }, ::failed)
-                    } }, ::failed)
-            }
-            Control.SMART_GLASS -> {
-                val area = windowAreas(command.areaId)
-                if (area == null) { emit(CommandUpdate(command, Confirmation.BLOCKED, message = "Window area unavailable")); return }
-                vehicle.getWindow().setSmartGlassLevel(area, command.value.toInt(),
-                    { _, _ -> guarded {
-                        emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED))
-                        if (cap.readable) vehicle.getWindow().getCurrentSmartGlassLevel(area, { observed(it?.toDouble()) }, ::failed)
-                    } }, ::failed)
-            }
-            Control.SEAT_MEMORY -> {
-                val area = seat() ?: return
-                emit(CommandUpdate(command, Confirmation.SENT_UNVERIFIED))
-                vehicle.getSeat().selectSeatMemory(area, command.value.toInt(), ::failed)
-            }
-            Control.CHARGE_PERCENT -> vehicle.getEvBattery().setEvChargePercentLimit(command.value.toFloat(),
-                { value -> emit(CommandUpdate(command, Confirmation.ACKNOWLEDGED, message =
-                    if (value == null) "Callback received; accepted value unknown; no target getter" else "Setter returned target; no separate target getter")) }, ::failed)
         }
     }
 }

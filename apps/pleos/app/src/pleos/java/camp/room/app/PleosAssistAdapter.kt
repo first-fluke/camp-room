@@ -45,11 +45,15 @@ class PleosAssistAdapter @Inject constructor(
     private val ttsFactory:Provider<PleosTts>,
     private val sttFactory:Provider<PleosStt>,
 ) {
+    private companion object { val retainedClose = RetainedCleanupOwner() }
     @Volatile private var speechLocale=Locale.KOREA
     private var initialized = false
+    private var locationReleaseRequired = false
     @Volatile private var active = false
     private var locationActive = false
     @Volatile private var closed = false
+    private val locationIo = LocationSdkIo()
+    private val locationLock = locationIo.stateLock
     private var epoch = 0
     private var locationListener: FusedLocationListener? = null
     private val pendingLocationCleanup = LocationListenerCleanup<FusedLocationListener>()
@@ -61,6 +65,8 @@ class PleosAssistAdapter @Inject constructor(
     private val pendingCleanup = mutableSetOf<String>()
     private var liveLocationSequence = 0
     private val speechLock = Any()
+    private val speechConstruction = SdkResourceConstruction(speechLock)
+    private var speechHostEpoch=0L
     private val ttsRequests = Mutex()
     private val sttRequests = Mutex()
     private val speechCleanupJob = SupervisorJob()
@@ -69,12 +75,13 @@ class PleosAssistAdapter @Inject constructor(
     private val sttSession = SpeechSessionState(SpeechKind.RECOGNITION)
     private open class SpeechRun<E>(val engine: E, val token: Long) {
         val sdkLock = Any()
-        var closedForCalls = false
+        @Volatile var closedForCalls = false
         var requested = false
         val cleanup = SpeechCleanupState()
-        val initialized = CompletableDeferred<Boolean>()
-        val started = CompletableDeferred<Boolean>()
-        val terminal = CompletableDeferred<SpeechOutcome>()
+        val signals=SpeechRunSignals()
+        val initialized get()=signals.initialized
+        val started get()=signals.started
+        val terminal get()=signals.terminal
     }
     private class TtsRun(engine: PleosTts, token: Long) : SpeechRun<PleosTts>(engine, token) { var listener: TtsEvents? = null }
     private class SttRun(engine: PleosStt, token: Long) : SpeechRun<PleosStt>(engine, token) {
@@ -85,6 +92,8 @@ class PleosAssistAdapter @Inject constructor(
     }
     private var ttsRun: TtsRun? = null
     private var sttRun: SttRun? = null
+    private val stagingTtsRuns=mutableSetOf<TtsRun>()
+    private val stagingSttRuns=mutableSetOf<SttRun>()
     private val pendingTtsCleanup = mutableSetOf<TtsRun>()
     private val pendingSttCleanup = mutableSetOf<SttRun>()
     private var ttsBlockedReason: String? = null
@@ -110,148 +119,231 @@ class PleosAssistAdapter @Inject constructor(
     private fun traceLocation(event: String, location: LocationData?, current: Boolean) {
         val receivedAt = System.currentTimeMillis()
         val timestamp = location?.timestampMillis
-        SdkRuntimeTrace.event("FusedLocation", event, "current" to current, "present" to (location != null),
+        traceFused(event, "current" to current, "present" to (location != null),
             "latitude" to location?.latitude, "longitude" to location?.longitude, "coordinatesValid" to valid(location),
             "sdkTimestampMillis" to timestamp, "timestampPositive" to (timestamp != null && timestamp > 0),
             "timestampEpochPlausible" to (timestamp != null && timestamp in 946684800000L..receivedAt),
             "receivedAtEpochMillis" to receivedAt)
     }
-    @Synchronized fun start() {
-        if (closed) return
-        if (!active) synchronized(speechLock) {
-            ttsBlockedReason = null; sttBlockedReason = null
-            ttsRetryable = pendingTtsCleanup.isEmpty(); sttRetryable = pendingSttCleanup.isEmpty()
+    private fun traceFused(event: String, vararg fields: Pair<String, Any?>) {
+        SdkRuntimeTrace.event("FusedLocation", event,
+            "assistantInstance" to System.identityHashCode(this),
+            "fusedInstance" to System.identityHashCode(fused),
+            "onMainThread" to (android.os.Looper.myLooper()==android.os.Looper.getMainLooper()), *fields)
+    }
+    fun start() {
+        retainedClose.requireClearExcept(this)
+        val registration=synchronized(locationLock) {
+            if(closed)return
+            if(!active)synchronized(speechLock) {
+                ttsBlockedReason=null;sttBlockedReason=null
+                ttsRetryable=pendingTtsCleanup.isEmpty();sttRetryable=pendingSttCleanup.isEmpty()
+            }
+            active=true
+            if(locationActive)return
+            epoch=locationIo.advance()
+            epoch
         }
-        active = true
-        if (!hasLocationPermission()) {
-            locationActive = false; epoch++; latest = null
-            watchEpoch.invalidate();alertId?.let { pendingCleanup.add(it) };alertId=null
-            locationListener?.let { pendingLocationCleanup.add(it) }; locationListener = null
-            arrivalState = "unavailable"
-            arrivalMessage = "위치 권한을 허용한 뒤 다시 시도해 주세요."
-            SdkRuntimeTrace.event("FusedLocation", "permission.required")
+        locationIo.native { startLocation(registration) }
+    }
+    private fun locationCurrent(registration:Int)=active && !closed && epoch==registration && locationIo.current(registration)
+    private fun startLocation(registration:Int) {
+        if(!synchronized(locationLock){locationCurrent(registration)})return
+        if(!hasLocationPermission()) {
+            synchronized(locationLock) {
+                if(locationCurrent(registration)) {
+                    detachLocationLocked()
+                    arrivalState="unavailable";arrivalMessage="위치 권한을 허용한 뒤 다시 시도해 주세요."
+                }
+            }
+            traceFused("permission.required")
             return
         }
-        if (locationActive) return
-        val supported = fused.isSupported()
-        SdkRuntimeTrace.event("FusedLocation", "isSupported", "supported" to supported)
-        if (!supported) { arrivalMessage = "이 차량의 FusedLocation 지원 상태를 확인해 주세요."; return }
+        val supported=fused.isSupported()
+        traceFused("isSupported","supported" to supported)
+        if(!supported){arrivalMessage="이 차량의 FusedLocation 지원 상태를 확인해 주세요.";return}
         unregisterLocationListeners()
-        if (pendingLocationCleanup.isNotEmpty()) return
-        if (!initialized) {
-            SdkRuntimeTrace.event("FusedLocation", "initialize.request")
-            try { fused.initialize(); initialized = true; SdkRuntimeTrace.event("FusedLocation", "initialize.returned") }
-            catch (error: Exception) { SdkRuntimeTrace.event("FusedLocation", "initialize.error", "errorClass" to error.javaClass.simpleName); throw error }
+        if(pendingLocationCleanup.isNotEmpty())return
+        val initialize=synchronized(locationLock) {
+            if(!locationCurrent(registration))return
+            if(initialized)false else {
+                check(!locationReleaseRequired){"Previous Fused initialization needs cleanup"}
+                locationReleaseRequired=true;true
+            }
         }
-        pendingCleanup.toList().forEach { cleanup(it) }
-        locationActive = true
-        val registration = ++epoch
-        val listener = object : FusedLocationListener {
-            override fun onChanged(location: LocationData?) { synchronized(this@PleosAssistAdapter) {
-                traceLocation("subscription.onChanged", location, active && locationActive && !closed && epoch == registration)
-                if(active && locationActive && !closed && epoch == registration) { liveLocationSequence++; accept(location) }
-            } }
-            override fun onError(exception: Exception) { synchronized(this@PleosAssistAdapter) {
-                SdkRuntimeTrace.event("FusedLocation", "subscription.onError", "errorClass" to exception.javaClass.simpleName, "current" to (active && locationActive && !closed && epoch == registration))
-                if(active && locationActive && !closed && epoch == registration) { latest = null; arrivalMessage = "차량 위치 권한과 연결을 확인해 주세요." }
-            } }
+        if(initialize) {
+            traceFused("initialize.request")
+            try {
+                fused.initialize()
+                synchronized(locationLock){initialized=true}
+                traceFused("initialize.returned")
+            } catch(error:Exception) {
+                traceFused("initialize.error","errorClass" to error.javaClass.simpleName)
+                throw error
+            }
         }
-        locationListener = listener
+        synchronized(locationLock){pendingCleanup.toList()}.forEach(::cleanup)
+        val listener=object:FusedLocationListener {
+            override fun onChanged(location:LocationData?) {
+                synchronized(locationLock) {
+                    val current=locationCurrent(registration) && locationActive && locationListener===this
+                    traceLocation("subscription.onChanged",location,current)
+                    if(current){liveLocationSequence++;accept(location)}
+                }
+            }
+            override fun onError(exception:Exception) {
+                synchronized(locationLock) {
+                    val current=locationCurrent(registration) && locationActive && locationListener===this
+                    traceFused("subscription.onError","errorClass" to exception.javaClass.simpleName,"current" to current)
+                    if(current){latest=null;arrivalMessage="차량 위치 권한과 연결을 확인해 주세요."}
+                }
+            }
+        }
+        synchronized(locationLock) {
+            if(!locationCurrent(registration))return
+            locationActive=true;locationListener=listener
+        }
         try {
-            SdkRuntimeTrace.event("FusedLocation", "register.request")
+            traceFused("register.request")
             fused.registerFusedLocationCallback(listener)
-            SdkRuntimeTrace.event("FusedLocation", "register.returned")
-        }
-        catch(error: Exception) {
-            SdkRuntimeTrace.event("FusedLocation", "register.error", "errorClass" to error.javaClass.simpleName)
-            locationActive=false;locationListener=null;pendingLocationCleanup.add(listener)
+            traceFused("register.returned")
+        } catch(error:Exception) {
+            traceFused("register.error","errorClass" to error.javaClass.simpleName)
+            synchronized(locationLock) {
+                if(locationListener===listener){locationActive=false;locationListener=null}
+                pendingLocationCleanup.add(listener)
+            }
             unregisterLocationListeners()
-            if(pendingLocationCleanup.isEmpty())arrivalMessage="위치 권한과 연결을 확인해 주세요."
             throw error
         }
-        watchedSite?.let { registerWatch(it) {} }
+        val stale=synchronized(locationLock){!locationCurrent(registration) || locationListener!==listener}
+        if(stale) {
+            pendingLocationCleanup.add(listener);unregisterLocationListeners();return
+        }
+        synchronized(locationLock){watchedSite}.let { if(it!=null)registerWatch(it){} }
     }
-    suspend fun location(): JSONObject {
-        try { start() } catch(error: Exception) { return result("unavailable", "Pleos 위치 권한과 연결을 확인해 주세요.") }
-        if (!hasLocationPermission()) return result("unavailable", "위치 권한을 허용한 뒤 다시 시도해 주세요.")
-            .put("errorCode", "PERMISSION_REQUIRED").put("retryable", true)
-        if (pendingLocationCleanup.isNotEmpty()) return result("unavailable", arrivalMessage)
-            .put("errorCode", "CLEANUP_PENDING").put("retryable", true)
-        if (!locationActive) return result("unavailable", "이 차량에서 위치 제공 여부를 확인해 주세요.")
-        val registration = epoch
-        val liveSequence = liveLocationSequence
-        val sample = withTimeoutOrNull(3000) { suspendCancellableCoroutine<LocationData?> { continuation ->
-            val listener = object : FusedLocationListener {
-                override fun onChanged(location: LocationData?) { synchronized(this@PleosAssistAdapter) {
-                    traceLocation("getLastKnown.onChanged", location, active && locationActive && !closed && epoch == registration)
-                    if(active && locationActive && !closed && epoch == registration) { if(liveLocationSequence==liveSequence)accept(location); if(continuation.isActive) continuation.resume(latest) }
-                } }
-                override fun onError(exception: Exception) {
-                    SdkRuntimeTrace.event("FusedLocation", "getLastKnown.onError", "errorClass" to exception.javaClass.simpleName, "continuationActive" to continuation.isActive)
-                    if(continuation.isActive) continuation.resume(null)
+    suspend fun location():JSONObject=withContext(Dispatchers.IO) {
+        // Current callers are the verified LOCATION user command, not lifecycle start.
+        retainedClose.retryAfterExplicitRequest()
+        try{start()}catch(error:Exception){return@withContext result("unavailable","Pleos 위치 권한과 연결을 확인해 주세요.")}
+        if(!hasLocationPermission())return@withContext result("unavailable","위치 권한을 허용한 뒤 다시 시도해 주세요.")
+            .put("errorCode","PERMISSION_REQUIRED").put("retryable",true)
+        if(pendingLocationCleanup.isNotEmpty())return@withContext result("unavailable",arrivalMessage)
+            .put("errorCode","CLEANUP_PENDING").put("retryable",true)
+        val state=synchronized(locationLock){if(!locationActive || closed)null else epoch to liveLocationSequence}
+            ?:return@withContext result("unavailable","이 차량에서 위치 제공 여부를 확인해 주세요.")
+        val (registration,liveSequence)=state
+        val sample=withTimeoutOrNull(3000){suspendCancellableCoroutine<LocationData?>{continuation->
+            val listener=object:FusedLocationListener {
+                override fun onChanged(location:LocationData?) {
+                    val value=synchronized(locationLock) {
+                        val current=locationCurrent(registration) && locationActive
+                        traceLocation("getLastKnown.onChanged",location,current)
+                        if(current){if(liveLocationSequence==liveSequence)accept(location);latest}else null
+                    }
+                    if(continuation.isActive)continuation.resume(value)
+                }
+                override fun onError(exception:Exception) {
+                    traceFused("getLastKnown.onError","errorClass" to exception.javaClass.simpleName,"continuationActive" to continuation.isActive)
+                    if(continuation.isActive)continuation.resume(null)
                 }
             }
             try {
-                SdkRuntimeTrace.event("FusedLocation", "getLastKnown.request")
-                fused.getLastKnownLocation(listener)
-                SdkRuntimeTrace.event("FusedLocation", "getLastKnown.returned")
-            } catch(error: Exception) {
-                SdkRuntimeTrace.event("FusedLocation", "getLastKnown.error", "errorClass" to error.javaClass.simpleName)
-                if(continuation.isActive) continuation.resume(null)
-            }
-        } }
-        return if(valid(sample)) result("available", "차량 SDK 최근 위치입니다. 측정 시각을 확인해 주세요.")
-            .put("latitude", sample!!.latitude).put("longitude", sample.longitude).put("timestampMillis", JSONObject.NULL)
-            .put("sdkTimestampMillis", sample.timestampMillis).put("receivedAt",java.time.Instant.now().toString())
-            .put("confidence", if(sample.confidence.isFinite())sample.confidence.toDouble() else JSONObject.NULL).put("source", "Pleos FusedLocation 1.1.3").put("lastKnown",true)
-        else result("unavailable", "위치 관측값을 받지 못했습니다. 권한과 위치 서비스를 확인해 주세요.")
-    }
-    @Synchronized private fun registerWatch(site: Campsite, complete: (JSONObject) -> Unit) {
-        val lat=site.latitude;val lon=site.longitude
-        if(!active || !locationActive || closed || lat==null || lon==null || !lat.isFinite() || !lon.isFinite() || lat !in -90.0..90.0 || lon !in -180.0..180.0) {
-            complete(result("unavailable","현재 위치 연결과 캠핑장 좌표를 확인해 주세요."));return
-        }
-        if(pendingRegistration || pendingCleanup.isNotEmpty()){complete(result("unavailable","이전 도착 알림 등록/해제 응답을 기다리고 있습니다."));return}
-        alertId?.let { cleanup(it) }; alertId=null
-        if(pendingCleanup.isNotEmpty()){complete(result("unavailable","기존 도착 알림 해제를 먼저 확인해야 합니다."));return}
-        val token=watchEpoch.begin()
-        pendingRegistration=true
-        var waitingForId=true
-        val listener=object: ProximityAlertListener {
-            override fun onRegistered(id:String) { synchronized(this@PleosAssistAdapter) {
-                if(waitingForId){waitingForId=false;pendingRegistration=false}
-                if(active && locationActive && !closed && hasLocationPermission() && watchEpoch.isCurrent(token)) { alertId=id;arrivalState="registered";arrivalMessage="캠핑장 반경500m 도착/이탈 알림이 등록되었습니다. 진입 감지와는 다릅니다.";complete(result("registered",arrivalMessage).put("alertId",id)) }
-                else { cleanup(id);releaseIfIdle() }
-            } }
-            override fun onTransition(event:ProximityAlertEvent) { synchronized(this@PleosAssistAdapter) {
-                if(active && locationActive && !closed && hasLocationPermission() && watchEpoch.isCurrent(token) && event.alertId==alertId) {
-                    arrivalState=if(event.transition==ProximityTransition.ENTER)"entered" else "exited"
-                    arrivalMessage=if(event.transition==ProximityTransition.ENTER)"캠핑장 주변 진입 이벤트를 확인했습니다. 차량은 자동으로 제어하지 않습니다." else "캠핑장 주변 이탈 이벤트를 확인했습니다."
+                locationIo.native {
+                    if(synchronized(locationLock){locationCurrent(registration) && locationActive}) {
+                        traceFused("getLastKnown.request")
+                        fused.getLastKnownLocation(listener)
+                        traceFused("getLastKnown.returned")
+                    }else if(continuation.isActive)continuation.resume(null)
                 }
-            } }
-            override fun onError(exception:Exception) { synchronized(this@PleosAssistAdapter) {
-                if(waitingForId){waitingForId=false;pendingRegistration=false}
-                if(watchEpoch.isCurrent(token) && !closed) { arrivalState="unavailable";arrivalMessage="도착 알림 권한/연결을 확인해 주세요.";complete(result("unavailable",arrivalMessage)) }
-                releaseIfIdle()
-            } }
-        }
-        try { fused.addProximityAlert(ProximityAlertRequest(lat,lon,500f,setOf(ProximityTransition.ENTER,ProximityTransition.EXIT)),listener) }
-        catch(error:Exception) { if(waitingForId){waitingForId=false;pendingRegistration=false};arrivalState="unavailable";arrivalMessage="도착 알림을 등록하지 못했습니다.";complete(result("unavailable",arrivalMessage));releaseIfIdle() }
+            }catch(error:Exception){if(continuation.isActive)continuation.resume(null)}
+        }}
+        if(valid(sample))result("available","차량 SDK 최근 위치입니다. 측정 시각을 확인해 주세요.")
+            .put("latitude",sample!!.latitude).put("longitude",sample.longitude).put("timestampMillis",JSONObject.NULL)
+            .put("sdkTimestampMillis",sample.timestampMillis).put("receivedAt",java.time.Instant.now().toString())
+            .put("confidence",if(sample.confidence.isFinite())sample.confidence.toDouble()else JSONObject.NULL)
+            .put("source","Pleos FusedLocation 1.1.3").put("lastKnown",true)
+        else result("unavailable","위치 관측값을 받지 못했습니다. 권한과 위치 서비스를 확인해 주세요.")
     }
-    suspend fun arrivalWatch(site:Campsite):JSONObject {
-        try { start() } catch(error:Exception) { return result("unavailable","Pleos 위치 연결/권한을 확인해 주세요.") }
-        if (!hasLocationPermission()) return result("unavailable", "위치 권한을 허용한 뒤 다시 시도해 주세요.")
-            .put("errorCode", "PERMISSION_REQUIRED").put("retryable", true)
-        watchedSite=site
+    private fun registerWatch(site:Campsite,complete:(JSONObject)->Unit)=locationIo.native {
+        val lat=site.latitude;val lon=site.longitude
+        val eligible=synchronized(locationLock){active && locationActive && !closed}
+        if(!eligible || lat==null || lon==null || !lat.isFinite() || !lon.isFinite() || lat !in -90.0..90.0 || lon !in -180.0..180.0) {
+            complete(result("unavailable","현재 위치 연결과 캠핑장 좌표를 확인해 주세요."));return@native
+        }
+        val old=synchronized(locationLock) {
+            if(pendingRegistration || pendingCleanup.isNotEmpty()) {
+                complete(result("unavailable","이전 도착 알림 등록/해제 응답을 기다리고 있습니다."));return@native
+            }
+            alertId.also{alertId=null;it?.let(pendingCleanup::add)}
+        }
+        old?.let(::cleanup)
+        val token=synchronized(locationLock) {
+            if(pendingCleanup.isNotEmpty() || !active || !locationActive || closed) {
+                complete(result("unavailable","기존 도착 알림 해제를 먼저 확인해야 합니다."));return@native
+            }
+            pendingRegistration=true
+            watchEpoch.begin()
+        }
+        var waitingForId=true
+        val listener=object:ProximityAlertListener {
+            override fun onRegistered(id:String) {
+                val permission=hasLocationPermission()
+                val response=synchronized(locationLock) {
+                    if(waitingForId){waitingForId=false;pendingRegistration=false}
+                    if(active && locationActive && !closed && permission && watchEpoch.isCurrent(token)) {
+                        alertId=id;arrivalState="registered";arrivalMessage="캠핑장 반경500m 도착/이탈 알림이 등록되었습니다. 진입 감지와는 다릅니다."
+                        result("registered",arrivalMessage).put("alertId",id)
+                    } else {pendingCleanup.add(id);null}
+                }
+                if(response!=null)complete(response)else requestLocationCleanup()
+            }
+            override fun onTransition(event:ProximityAlertEvent) {
+                val permission=hasLocationPermission()
+                synchronized(locationLock) {
+                    if(active && locationActive && !closed && permission && watchEpoch.isCurrent(token) && event.alertId==alertId) {
+                        arrivalState=if(event.transition==ProximityTransition.ENTER)"entered"else "exited"
+                        arrivalMessage=if(event.transition==ProximityTransition.ENTER)"캠핑장 주변 진입 이벤트를 확인했습니다. 차량은 자동으로 제어하지 않습니다."else "캠핑장 주변 이탈 이벤트를 확인했습니다."
+                    }
+                }
+            }
+            override fun onError(exception:Exception) {
+                val response=synchronized(locationLock) {
+                    if(waitingForId){waitingForId=false;pendingRegistration=false}
+                    if(watchEpoch.isCurrent(token) && !closed) {
+                        arrivalState="unavailable";arrivalMessage="도착 알림 권한/연결을 확인해 주세요.";result("unavailable",arrivalMessage)
+                    }else null
+                }
+                response?.let(complete)
+                requestLocationCleanup()
+            }
+        }
+        try{fused.addProximityAlert(ProximityAlertRequest(lat,lon,500f,setOf(ProximityTransition.ENTER,ProximityTransition.EXIT)),listener)}
+        catch(error:Exception) {
+            synchronized(locationLock){if(waitingForId){waitingForId=false;pendingRegistration=false}}
+            arrivalState="unavailable";arrivalMessage="도착 알림을 등록하지 못했습니다."
+            complete(result("unavailable",arrivalMessage));requestLocationCleanup()
+        }
+    }
+    suspend fun arrivalWatch(site:Campsite):JSONObject=withContext(Dispatchers.IO) {
+        // Current callers are the verified ARRIVAL_WATCH user command.
+        retainedClose.retryAfterExplicitRequest()
+        try{start()}catch(error:Exception){return@withContext result("unavailable","Pleos 위치 연결/권한을 확인해 주세요.")}
+        if(!hasLocationPermission())return@withContext result("unavailable","위치 권한을 허용한 뒤 다시 시도해 주세요.")
+            .put("errorCode","PERMISSION_REQUIRED").put("retryable",true)
+        synchronized(locationLock){watchedSite=site}
         var completed=false
         try {
-            val registration=withTimeoutOrNull(3500) { suspendCancellableCoroutine<JSONObject> { continuation ->
-                registerWatch(site) { if(continuation.isActive) continuation.resume(it) }
-            } }
+            val registration=withTimeoutOrNull(3500){suspendCancellableCoroutine<JSONObject>{continuation->
+                registerWatch(site){if(continuation.isActive)continuation.resume(it)}
+            }}
             completed=registration!=null
-            return registration ?: result("unavailable","도착 알림 등록을 확인하지 못했습니다.")
+            registration?:result("unavailable","도착 알림 등록을 확인하지 못했습니다.")
         } finally {
-            if(!completed)synchronized(this) { watchEpoch.invalidate();alertId?.let{cleanup(it)};alertId=null }
+            if(!completed) {
+                synchronized(locationLock){watchEpoch.invalidate();alertId?.let(pendingCleanup::add);alertId=null}
+                requestLocationCleanup()
+            }
         }
     }
     private fun ownsTts(run: TtsRun) = synchronized(speechLock) { !closed && active && ttsRun === run }
@@ -280,6 +372,9 @@ class PleosAssistAdapter @Inject constructor(
     private fun ttsOutcome(run: TtsRun, outcome: SpeechOutcome?) {
         if (outcome == null) return
         synchronized(speechLock) {
+            // Private/retired runs still own their waiters even when no longer
+            // allowed to publish UI state.
+            run.signals.settle(outcome)
             if (ttsRun !== run) return
             ttsState = when (outcome.phase) {
                 SpeechPhase.COMPLETED -> "completed"
@@ -305,6 +400,7 @@ class PleosAssistAdapter @Inject constructor(
     private fun sttOutcome(run: SttRun, outcome: SpeechOutcome?) {
         if (outcome == null) return
         synchronized(speechLock) {
+            run.signals.settle(outcome)
             if (sttRun !== run) return
             sttState = when (outcome.phase) {
                 SpeechPhase.RECOGNIZED -> "recognized"
@@ -367,13 +463,19 @@ class PleosAssistAdapter @Inject constructor(
             if(synchronized(speechLock) { pendingTtsCleanup.isNotEmpty() })
                 return@withContext unavailableSpeech(true, "CLEANUP_PENDING", R.string.camp_voice_cleanup_pending, false)
             var attempt: TtsRun? = null
+            val creationEpoch=synchronized(speechLock){speechHostEpoch}
             val outcome = try {
                 if(closed || !active) throw CancellationException("Speech host is inactive")
-                val engine = ttsFactory.get()
-                val run = TtsRun(engine, ttsSession.begin())
+                // speak/listen are entered by the BRIEFING/LISTEN user actions.
+                retainedClose.retryAfterExplicitRequest()
+                retainedClose.requireClearExcept(this)
+                val run = speechConstruction.create(admit={ !closed && active && speechHostEpoch==creationEpoch && !speechConstruction.hasAbandoned() }, factory={ttsFactory.get()},
+                    construct={engine->TtsRun(engine,ttsSession.begin())}, releaseUnwrapped={it.release()},
+                    adopt={stagingTtsRuns.add(it)})
                 attempt = run
                 synchronized(speechLock) {
-                    if(closed || !active) throw CancellationException("Speech host is inactive")
+                    if(closed || !active || speechHostEpoch!=creationEpoch || run.closedForCalls || !ttsSession.isCurrent(run.token)) throw CancellationException("Speech host is inactive")
+                    stagingTtsRuns.remove(run)
                     ttsRun=run;ttsState="initializing";ttsErrorCode=null;ttsMessage=CampText.get(R.string.camp_voice_in_progress)
                 }
                 ttsCall(run) {
@@ -432,19 +534,21 @@ class PleosAssistAdapter @Inject constructor(
                 }
                 run.terminal.await()
             } catch(cancelled: CancellationException) {
-                attempt?.let { run -> synchronized(speechLock) { ttsOutcome(run, ttsSession.cancel(run.token)) } }
+                attempt?.let { run -> synchronized(speechLock) { ttsOutcome(run, ttsSession.cancel(run.token) ?: SpeechOutcome(SpeechPhase.CANCELLED,"CANCELLED")) } }
                 throw cancelled
             } catch(error: Exception) {
                 SdkRuntimeTrace.event("TTS", "operation.error", "errorClass" to error.javaClass.simpleName)
-                attempt?.let { run -> synchronized(speechLock) { ttsOutcome(run, ttsSession.fail(run.token, error.javaClass.simpleName)) } }
+                attempt?.let { run -> synchronized(speechLock) { ttsOutcome(run, ttsSession.fail(run.token, error.javaClass.simpleName) ?: SpeechOutcome(SpeechPhase.FAILED,error.javaClass.simpleName)) } }
                 attempt?.terminal?.await() ?: SpeechOutcome(SpeechPhase.FAILED, error.javaClass.simpleName).also {
                     unavailableSpeech(true, it.errorCode!!, R.string.camp_tts_failed, true)
                 }
             } finally {
                 attempt?.let { run ->
-                    synchronized(speechLock) { pendingTtsCleanup.add(run);if(ttsRun === run) ttsRun=null }
+                    synchronized(speechLock) { stagingTtsRuns.remove(run);pendingTtsCleanup.add(run);if(ttsRun === run) ttsRun=null }
                     cleanupTts(run)
                 }
+                cleanupAbandonedSpeech()
+                retainSpeechCleanupIfNeeded()
             }
             speechResponse(outcome, true)
         }
@@ -467,13 +571,18 @@ class PleosAssistAdapter @Inject constructor(
                 return@withContext unavailableSpeech(false, "CLEANUP_PENDING", R.string.camp_voice_cleanup_pending, false)
             }
             var attempt: SttRun? = null
+            val creationEpoch=synchronized(speechLock){speechHostEpoch}
             val outcome = try {
                 if(closed || !active) throw CancellationException("Speech host is inactive")
-                val engine=sttFactory.get()
-                val run=SttRun(engine, sttSession.begin())
+                retainedClose.retryAfterExplicitRequest()
+                retainedClose.requireClearExcept(this)
+                val run=speechConstruction.create(admit={ !closed && active && speechHostEpoch==creationEpoch && !speechConstruction.hasAbandoned() }, factory={sttFactory.get()},
+                    construct={engine->SttRun(engine,sttSession.begin())},releaseUnwrapped={it.release()},
+                    adopt={stagingSttRuns.add(it)})
                 attempt=run
                 synchronized(speechLock) {
-                    if(closed || !active) throw CancellationException("Speech host is inactive")
+                    if(closed || !active || speechHostEpoch!=creationEpoch || run.closedForCalls || !sttSession.isCurrent(run.token)) throw CancellationException("Speech host is inactive")
+                    stagingSttRuns.remove(run)
                     sttRun=run;sttState="initializing";sttErrorCode=null;sttMessage=CampText.get(R.string.camp_voice_in_progress)
                 }
                 sttCall(run) {
@@ -543,19 +652,21 @@ class PleosAssistAdapter @Inject constructor(
                 }
                 run.terminal.await()
             } catch(cancelled: CancellationException) {
-                attempt?.let { run -> synchronized(speechLock) { sttOutcome(run, sttSession.cancel(run.token)) } }
+                attempt?.let { run -> synchronized(speechLock) { sttOutcome(run, sttSession.cancel(run.token) ?: SpeechOutcome(SpeechPhase.CANCELLED,"CANCELLED")) } }
                 throw cancelled
             } catch(error: Exception) {
                 SdkRuntimeTrace.event("STT", "operation.error", "sessionEpoch" to attempt?.token, "errorClass" to error.javaClass.simpleName)
-                attempt?.let { run -> synchronized(speechLock) { sttOutcome(run, sttSession.fail(run.token, error.javaClass.simpleName)) } }
+                attempt?.let { run -> synchronized(speechLock) { sttOutcome(run, sttSession.fail(run.token, error.javaClass.simpleName) ?: SpeechOutcome(SpeechPhase.FAILED,error.javaClass.simpleName)) } }
                 attempt?.terminal?.await() ?: SpeechOutcome(SpeechPhase.FAILED, error.javaClass.simpleName).also {
                     unavailableSpeech(false, it.errorCode!!, R.string.camp_stt_unavailable, true)
                 }
             } finally {
                 attempt?.let { run ->
-                    synchronized(speechLock) { pendingSttCleanup.add(run);if(sttRun === run) sttRun=null }
+                    synchronized(speechLock) { stagingSttRuns.remove(run);pendingSttCleanup.add(run);if(sttRun === run) sttRun=null }
                     cleanupStt(run)
                 }
+                cleanupAbandonedSpeech()
+                retainSpeechCleanupIfNeeded()
             }
             speechResponse(outcome, false)
         }
@@ -569,7 +680,7 @@ class PleosAssistAdapter @Inject constructor(
             if(!cleaned) { pendingTtsCleanup.add(run);ttsRetryable=false }
             else { pendingTtsCleanup.remove(run);ttsRetryable=ttsBlockedReason==null && pendingTtsCleanup.isEmpty() }
         }
-        if(!cleaned) SdkRuntimeTrace.event("TTS", "cleanup.error")
+        if(!cleaned) {SdkRuntimeTrace.event("TTS", "cleanup.error");retainSpeechCleanupIfNeeded()}
         finishSpeechCleanupIfIdle()
     }
     private fun cleanupStt(run: SttRun) {
@@ -586,17 +697,33 @@ class PleosAssistAdapter @Inject constructor(
             first
         }
         if(report) SdkRuntimeTrace.event("STT", "cleanup.summary", "cleaned" to cleaned, *run.diagnostics.fields())
+        if(!cleaned)retainSpeechCleanupIfNeeded()
         finishSpeechCleanupIfIdle()
     }
+    private fun cleanupAbandonedSpeech() {
+        speechConstruction.drainAbandoned {error->
+            SdkRuntimeTrace.event("Speech","unwrapped.release.error","retained" to true,"errorClass" to error.javaClass.simpleName)
+        }
+    }
+    private fun retainSpeechCleanupIfNeeded() {
+        if(closed || speechConstruction.hasAbandoned())retainedClose.retire(this){cleanupRetainedResources()}
+    }
+    private fun cleanupRetainedResources():Boolean {
+        if(closed)return cleanupClosedResources()
+        cleanupAbandonedSpeech()
+        // A close racing this pass either changes the retained entry revision or
+        // creates a new entry; never use the speech-only path for a closed host.
+        return if(closed)cleanupClosedResources() else !speechConstruction.hasOutstanding()
+    }
     private fun finishSpeechCleanupIfIdle() {
-        val finished=synchronized(speechLock) { closed && ttsRun==null && sttRun==null && pendingTtsCleanup.isEmpty() && pendingSttCleanup.isEmpty() }
+        val finished=synchronized(speechLock) { closed && ttsRun==null && sttRun==null && stagingTtsRuns.isEmpty() && stagingSttRuns.isEmpty() && pendingTtsCleanup.isEmpty() && pendingSttCleanup.isEmpty() && !speechConstruction.hasOutstanding() }
         if(finished) speechCleanupJob.cancel()
     }
     private fun stopTts() {
         val runs=synchronized(speechLock) {
             ttsRun?.let { run -> ttsOutcome(run, ttsSession.cancel(run.token)) }
-            (pendingTtsCleanup.toList() + listOfNotNull(ttsRun)).distinct().also {
-                pendingTtsCleanup.addAll(it);ttsRun=null
+            (pendingTtsCleanup.toList() + stagingTtsRuns.toList() + listOfNotNull(ttsRun)).distinct().also {
+                pendingTtsCleanup.addAll(it);stagingTtsRuns.clear();ttsRun=null
                 if(it.isNotEmpty()) ttsRetryable=false
             }
         }
@@ -605,41 +732,62 @@ class PleosAssistAdapter @Inject constructor(
     private fun stopStt() {
         val runs=synchronized(speechLock) {
             sttRun?.let { run -> sttOutcome(run, sttSession.cancel(run.token)) }
-            (pendingSttCleanup.toList() + listOfNotNull(sttRun)).distinct().also {
-                pendingSttCleanup.addAll(it);sttRun=null
+            (pendingSttCleanup.toList() + stagingSttRuns.toList() + listOfNotNull(sttRun)).distinct().also {
+                pendingSttCleanup.addAll(it);stagingSttRuns.clear();sttRun=null
                 if(it.isNotEmpty()) sttRetryable=false
             }
         }
         runs.forEach { run -> speechCleanupScope.launch { cleanupStt(run) } }
     }
-    private fun cleanup(id:String){if(!hasLocationPermission()){pendingCleanup.add(id);return};try{fused.removeProximityAlert(id);pendingCleanup.remove(id)}catch(error:Exception){pendingCleanup.add(id);arrivalState="cleanup_pending";arrivalMessage="이전 도착 알림 해제를 확인해야 합니다."}}
+    private fun cleanup(id:String) {
+        if(!hasLocationPermission()){synchronized(locationLock){pendingCleanup.add(id)};return}
+        try {
+            fused.removeProximityAlert(id)
+            synchronized(locationLock){pendingCleanup.remove(id)}
+        }catch(error:Exception) {
+            synchronized(locationLock){pendingCleanup.add(id)}
+            arrivalState="cleanup_pending";arrivalMessage="이전 도착 알림 해제를 확인해야 합니다."
+        }
+    }
     private fun unregisterLocationListeners() {
         when(pendingLocationCleanup.prepare(hasLocationPermission()) { listener ->
-            try { fused.unregisterFusedLocationCallback(listener) }
-            catch(error: Exception) {
-                SdkRuntimeTrace.event("FusedLocation", "unregister.error", "errorClass" to error.javaClass.simpleName)
-                throw error
-            }
+            try{traceFused("unregister.request");fused.unregisterFusedLocationCallback(listener);traceFused("unregister.returned")}
+            catch(error:Exception){traceFused("unregister.error","errorClass" to error.javaClass.simpleName);throw error}
         }) {
-            LocationRegistrationReadiness.CLEANUP_REQUIRED -> {
-                arrivalState="cleanup_pending";arrivalMessage="이전 위치 구독 해제를 확인하지 못했습니다. 다시 시도하거나 앱을 다시 열어 주세요."
-            }
-            LocationRegistrationReadiness.PERMISSION_REQUIRED -> {
-                arrivalState="unavailable";arrivalMessage="위치 권한을 허용한 뒤 다시 시도해 주세요."
-            }
+            LocationRegistrationReadiness.CLEANUP_REQUIRED -> {arrivalState="cleanup_pending";arrivalMessage="이전 위치 구독 해제를 확인하지 못했습니다. 다시 시도하거나 앱을 다시 열어 주세요."}
+            LocationRegistrationReadiness.PERMISSION_REQUIRED -> {arrivalState="unavailable";arrivalMessage="위치 권한을 허용한 뒤 다시 시도해 주세요."}
             LocationRegistrationReadiness.READY -> Unit
         }
     }
-    private fun releaseIfIdle(){
-        if(!closed || !initialized)return
-        unregisterLocationListeners()
-        pendingCleanup.toList().forEach { cleanup(it) }
-        if(!pendingRegistration && pendingCleanup.isEmpty() && pendingLocationCleanup.isEmpty()) {
-            try { fused.release();initialized=false }
-            catch(error:Exception) { arrivalState="cleanup_pending";arrivalMessage="위치 서비스 종료를 확인해야 합니다." }
-        } else {
-            arrivalState="cleanup_pending";arrivalMessage="대기 중인 위치 구독과 도착 알림 해제를 확인해야 합니다."
+    /** Called only on the private native lane; callbacks only enqueue a cleanup signal. */
+    private fun releaseLocationIfIdle() {
+        if(!synchronized(locationLock){closed && locationReleaseRequired})return
+        val ready=synchronized(locationLock){!pendingRegistration && pendingCleanup.isEmpty()} && pendingLocationCleanup.isEmpty()
+        if(!ready){arrivalState="cleanup_pending";arrivalMessage="대기 중인 위치 구독과 도착 알림 해제를 확인해야 합니다.";return}
+        try {
+            traceFused("release.request")
+            fused.release()
+            synchronized(locationLock){initialized=false;locationReleaseRequired=false}
+            traceFused("release.returned")
+        }catch(error:Exception) {
+            arrivalState="cleanup_pending";arrivalMessage="위치 서비스 종료를 확인해야 합니다."
+            traceFused("release.error","retained" to true,"errorClass" to error.javaClass.simpleName)
         }
+    }
+    private fun cleanupLocationNative() {
+        unregisterLocationListeners()
+        synchronized(locationLock){pendingCleanup.toList()}.forEach(::cleanup)
+        releaseLocationIfIdle()
+    }
+    private fun requestLocationCleanup() {
+        if(closed)retainedClose.retire(this){cleanupRetainedResources()}
+        else locationIo.enqueue("location.cleanup"){cleanupLocationNative()}
+    }
+    /** Caller holds only callback metadata; no native operation or lane wait. */
+    private fun detachLocationLocked() {
+        locationActive=false;epoch=locationIo.advance();watchEpoch.invalidate();latest=null
+        locationListener?.let(pendingLocationCleanup::add);locationListener=null
+        alertId?.let(pendingCleanup::add);alertId=null
     }
     fun setLanguage(tag:String){
         val next=canonicalSpeechLocale(tag)
@@ -660,6 +808,33 @@ class PleosAssistAdapter @Inject constructor(
             .put("ttsRetryable",ttsRetryable && pendingTtsCleanup.isEmpty()).put("sttRetryable",sttRetryable && pendingSttCleanup.isEmpty())
             .put("ttsCleanupPending",pendingTtsCleanup.isNotEmpty()).put("sttCleanupPending",pendingSttCleanup.isNotEmpty())
     }
-    @Synchronized fun stop(){active=false;locationActive=false;epoch++;watchEpoch.invalidate();latest=null;locationListener?.let{pendingLocationCleanup.add(it)};locationListener=null;unregisterLocationListeners();alertId?.let{cleanup(it)};alertId=null;if(watchedSite!=null && pendingCleanup.isEmpty() && pendingLocationCleanup.isEmpty()){arrivalState="paused";arrivalMessage="앱이 다시 활성화되면 도착 알림을 다시 등록합니다."};runCatching{stopTts()};runCatching{stopStt()}}
-    @Synchronized fun close(){if(closed){releaseIfIdle();stopTts();stopStt();return};try{stop()}finally{closed=true;releaseIfIdle();finishSpeechCleanupIfIdle()}}
+    fun stop() {
+        synchronized(locationLock){synchronized(speechLock){active=false;speechHostEpoch++};detachLocationLocked()}
+        // Cancel/enqueue existing speech engines before any possibly blocked Fused IPC.
+        runCatching{stopTts()};runCatching{stopStt()}
+        requestLocationCleanup()
+    }
+    fun close() {
+        synchronized(locationLock){synchronized(speechLock){closed=true;active=false;speechHostEpoch++};detachLocationLocked()}
+        retainedClose.retire(this){cleanupRetainedResources()}
+        runCatching{stopTts()};runCatching{stopStt()}
+    }
+    private fun cleanupClosedResources():Boolean {
+        runCatching{stopTts()};runCatching{stopStt()}
+        cleanupAbandonedSpeech()
+        locationIo.native{cleanupLocationNative()}
+        synchronized(speechLock){pendingTtsCleanup.toList()}.forEach(::cleanupTts)
+        synchronized(speechLock){pendingSttCleanup.toList()}.forEach(::cleanupStt)
+        val locationFinished=synchronized(locationLock) {
+            !locationReleaseRequired && !pendingRegistration && pendingCleanup.isEmpty() && pendingLocationCleanup.isEmpty()
+        }
+        val speechFinished=synchronized(speechLock) {
+            ttsRun==null && sttRun==null && stagingTtsRuns.isEmpty() && stagingSttRuns.isEmpty() && pendingTtsCleanup.isEmpty() && pendingSttCleanup.isEmpty() && !speechConstruction.hasOutstanding()
+        }
+        finishSpeechCleanupIfIdle()
+        val finished=locationFinished && speechFinished
+        SdkRuntimeTrace.event("Assist","cleanup.retained.result","complete" to finished,
+            "onMainThread" to (android.os.Looper.myLooper()==android.os.Looper.getMainLooper()))
+        return finished
+    }
 }
