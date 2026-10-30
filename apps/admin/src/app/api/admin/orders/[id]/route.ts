@@ -1,0 +1,3 @@
+import type { NextRequest } from "next/server";
+import { checkedId, fail, proxyAdmin } from "@/lib/admin-server";
+export async function PATCH(request:NextRequest,context:{params:Promise<{id:string}>}){const{id}=await context.params;if(!checkedId(id))return fail("유효하지 않은 주문입니다.",400);const body=await request.json().catch(()=>null);if(!body||!["pending","packing","ready","cancelled"].includes(body.fulfillmentStatus)||typeof body.adminNote!=="string"||body.adminNote.length>3000)return fail("처리 상태와 메모를 확인해 주세요.",422);return proxyAdmin(request,`/orders/${encodeURIComponent(id)}`,"PATCH",{fulfillmentStatus:body.fulfillmentStatus,adminNote:body.adminNote});}

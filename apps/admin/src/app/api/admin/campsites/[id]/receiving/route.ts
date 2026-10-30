@@ -1,0 +1,3 @@
+import type { NextRequest } from "next/server";
+import { checkedId, fail, proxyAdmin } from "@/lib/admin-server";
+export async function PATCH(request:NextRequest,context:{params:Promise<{id:string}>}){const{id}=await context.params;if(!checkedId(id))return fail("유효하지 않은 캠핑장입니다.",400);const body=await request.json().catch(()=>null);if(!body||typeof body.acceptsParcels!=="boolean"||typeof body.location!=="string"||typeof body.instructions!=="string"||body.location.length>500||body.instructions.length>3000)return fail("수령 정보를 확인해 주세요.",422);return proxyAdmin(request,`/campsites/${encodeURIComponent(id)}/receiving`,"PATCH",{acceptsParcels:body.acceptsParcels,location:body.location,instructions:body.instructions});}
