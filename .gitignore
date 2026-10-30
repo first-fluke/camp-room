@@ -1,0 +1,160 @@
+# Dependencies
+node_modules/
+.monodep/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+*.egg-info/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/cspell.json
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# Testing
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# Mobile
+apps/mobile/.dart_tool/
+apps/mobile/build/
+apps/mobile/.flutter-plugins
+apps/mobile/.flutter-plugins-dependencies
+apps/mobile/.packages
+# Flutter machine-specific generated files (do not check into version control)
+apps/mobile/android/local.properties
+apps/mobile/ios/Flutter/Generated.xcconfig
+apps/mobile/ios/Flutter/flutter_export_environment.sh
+apps/mobile/ios/Flutter/ephemeral/
+
+# Misc
+*.bak
+*.tmp
+.cache/
+
+.opencode/mimic/
+
+# Antigravity outputs
+.gemini/antigravity/brain/*
+!.gemini/antigravity/brain/.gitkeep
+.agent/plan.json
+
+# Serena Memory (runtime state)
+.serena/memories/*
+!.serena/memories/.gitkeep
+
+.omc/
+
+# oh-my-agent runtime state
+.agents/state/
+
+# oh-my-agent runtime (local artifacts — do not commit)
+.antigravitycli/
+.agents/results/
+
+# Migration backup (local only — do not commit)
+.migration-backup/
+
+# oma docs generated artifacts
+docs/generated/
+
+.agents/backup/
+
+docs/plans/
+
+.qwen/tmp/
+
+.agents/oma-config.local.cue
+.agents/oma-config.local.yaml
+
+# Camp Room local runtime and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+.tooling/
+.venv/
+**/__pycache__/
+**/.pytest_cache/
+apps/api/data/
+*.sqlite3
+*.sqlite3-*
+artifacts/
+
+# Retain Camp Room adopted product/API contracts and execution plan
+!docs/plans/
+!docs/plans/contracts/
+!docs/plans/contracts/camp-room-api.md
+!docs/plans/work/
+!docs/plans/work/001-camp-room.md
+
+# Android local SDK/build outputs
+**/local.properties
+**/.gradle/
+**/.kotlin/
+**/build/
+apps/pleos/app/libs/*.aar
+apps/pleos/app/libs/*.jar
+
+!docs/plans/work/002-native-kotlin-correction.md
+
+!docs/plans/contracts/admin-api.md
+
+# Local Pleos ANR regression captures and diagnostic artifacts
+/review-runtime/pleos-sdk-anr-fixed-20261027/
+
+# Local captures, render intermediates, SDK images, private settings and audits
+/review-runtime/
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.apk
+!apk/*.apk
+
+# Build directory symlinks and private diagnostics are local-only
+**/build
+/diagnostics/
+
+# Original contest application contains personal information; retain locally
+/docs/product/Camp_Room_Contest_Application.docx

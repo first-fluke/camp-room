@@ -1,0 +1,79 @@
+name: Camp Room checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact main commit to verify
+        type: string
+        required: true
+      runner_label:
+        description: Unique camp-room-manual- prefix for three single-job runners
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  backend:
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      (github.repository == 'first-fluke/camp-room' &&
+       github.ref == 'refs/heads/main' &&
+       github.sha == inputs.expected_sha &&
+       startsWith(inputs.runner_label, 'camp-room-manual-'))
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && format('{0}-backend', inputs.runner_label) || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install uv
+      - run: uv sync --all-packages --frozen
+      - run: .venv/bin/python -m pytest apps/api/tests apps/worker/tests -q
+      - run: .venv/bin/python scripts/review-database.py
+      - run: .venv/bin/python apps/api/scripts/export_openapi.py --check
+      - run: python apps/pleos/verify_contracts.py
+  native:
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      (github.repository == 'first-fluke/camp-room' &&
+       github.ref == 'refs/heads/main' &&
+       github.sha == inputs.expected_sha &&
+       startsWith(inputs.runner_label, 'camp-room-manual-'))
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && format('{0}-native', inputs.runner_label) || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - run: bash apps/pleos/gradlew -p apps/pleos :api-client:test :app:testDemoDebugUnitTest :app:assembleDemoDebug :app:assemblePleosDebug
+  admin:
+    if: >-
+      github.event_name != 'workflow_dispatch' ||
+      (github.repository == 'first-fluke/camp-room' &&
+       github.ref == 'refs/heads/main' &&
+       github.sha == inputs.expected_sha &&
+       startsWith(inputs.runner_label, 'camp-room-manual-'))
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && format('{0}-admin', inputs.runner_label) || 'ubuntu-latest' }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_sha || github.sha }}
+          persist-credentials: false
+      - uses: jdx/mise-action@v2
+      - run: bun install --frozen-lockfile
+      - run: mise run //apps/admin:typecheck
+      - run: mise run //apps/admin:test

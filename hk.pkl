@@ -1,0 +1,51 @@
+amends "package://github.com/jdx/hk/releases/download/v2.7.0/hk@2.7.0#/Config.pkl"
+
+/// Git hooks run non-mutating checks; install tools and dependencies first.
+
+hooks {
+  ["pre-commit"] {
+    fix = false
+    steps {
+      ["ktlint"] {
+        glob = List("apps/pleos/**/*.kt", "apps/pleos/**/*.kts")
+        check = "mise run //apps/pleos:lint:files -- {{files}}"
+      }
+      ["hadolint"] {
+        glob = List("**/Dockerfile", "**/Dockerfile.*")
+        check = "hadolint {{files}}"
+      }
+    }
+  }
+  ["commit-msg"] {
+    steps {
+      ["commitlint"] {
+        check = "mise exec -- bun run commitlint --edit {{commit_msg_file}}"
+      }
+    }
+  }
+  ["pre-push"] {
+    fix = false
+    stash = "none"
+    steps {
+      ["branch"] {
+        check = "scripts/pre-push.sh gate branch"
+      }
+      ["api"] {
+        depends = "branch"
+        check = "scripts/pre-push.sh gate api"
+      }
+      ["admin"] {
+        depends = "api"
+        check = "scripts/pre-push.sh gate admin"
+      }
+      ["worker"] {
+        depends = "admin"
+        check = "scripts/pre-push.sh gate worker"
+      }
+      ["pleos"] {
+        depends = "worker"
+        check = "scripts/pre-push.sh gate pleos"
+      }
+    }
+  }
+}

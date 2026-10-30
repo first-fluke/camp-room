@@ -1,0 +1,26 @@
+{
+  "name": "camp-room",
+  "private": true,
+  "packageManager": "bun@1.4.4",
+  "scripts": {
+    "android:build": "bash apps/pleos/gradlew -p apps/pleos :app:assembleDemoDebug",
+    "android:pleos": "bash apps/pleos/gradlew -p apps/pleos :app:assemblePleosDebug",
+    "demo": "python scripts/record-native-demo.py",
+    "test:api": ".venv/bin/python -m pytest apps/api/tests -q",
+    "test:sdk": "python apps/pleos/verify_contracts.py",
+    "admin:dev": "bun run --filter admin dev",
+    "test:worker": ".venv/bin/python -m pytest apps/worker/tests -q",
+    "test:db": ".venv/bin/python scripts/review-database.py",
+    "api:export": ".venv/bin/python apps/api/scripts/export_openapi.py",
+    "api:check": ".venv/bin/python apps/api/scripts/export_openapi.py --check",
+    "worker:once": "uv run --package camp-room-worker camp-room-worker --once"
+  },
+  "workspaces": [
+    "apps/admin",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4"
+  }
+}
