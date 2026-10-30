@@ -1,0 +1,15 @@
+[tools]
+ktlint = "1.8.0"
+
+[tasks.lint]
+description = "Check Kotlin source and Gradle scripts without modifying them"
+run = "ktlint '**/*.kt' '**/*.kts' '!**/build/**'"
+
+[tasks.format]
+description = "Format Kotlin source and Gradle scripts"
+run = "ktlint --format '**/*.kt' '**/*.kts' '!**/build/**'"
+
+[tasks."lint:files"]
+description = "Check the supplied Kotlin files without modifying them"
+dir = "../.."
+run = "ktlint"

@@ -1,0 +1,5 @@
+Official Pleos Connect design assets 2.1.5
+Source: https://document.pleos.ai/docs/connect/guide/docs-design/Introduction/intro
+Original .fig download URLs and SHA-256 values are recorded in assets/icon-provenance/pleos.json.
+Rights holder: Hyundai Motor Group / Pleos. These official design assets are not licensed under Phosphor MIT. The source package did not include a separate permissive license grant. Attribution here does not grant redistribution rights beyond applicable Pleos asset terms.
+Selected icon geometry is extracted from the official supplied Figma components for this Pleos app; source colors are tinted by the application theme.

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vehicle_disconnected">차량 미연결</string>
+    <string name="vehicle_connected">차량 연결됨</string>
+    <string name="vehicle_connection_needed">차량 연결이 필요해요</string>
+    <string name="vehicle_connection_details">차량을 연결하면 상태를 확인하고 실내 환경을 조절할 수 있어요. 캠핑장 탐색과 여행 계획은 계속 이용할 수 있어요.</string>
+    <string name="vehicle_route_connection_needed">차량을 연결하면 경로와 도착 배터리를 확인할 수 있어요.</string>
+    <string name="vehicle_control_connection_needed">차량을 연결한 뒤 이 기능을 사용할 수 있어요.</string>
+    <string name="vehicle_value_unknown">—</string>
+    <string name="vehicle_layout_waiting">내 차량의 공간을 기다리고 있어요</string>
+    <string name="vehicle_layout_waiting_details">연결 후 실제 실내 구조와 지원하는 제어를 확인해요.</string>
+    <string name="vehicle_layout_outline_description">차량 외곽선. 실제 실내 구조는 아직 확인되지 않았어요.</string>
+    <string name="vehicle_scene_walkthrough">실내 설정 둘러보기</string>
+    <string name="vehicle_scene_walkthrough_details">각 설정을 미리 살펴볼 수 있어요. 실제 적용은 차량을 연결한 뒤 가능해요.</string>
+    <string name="vehicle_scene_voice_walkthrough">실내 화면에서 ‘%1$s’ 설정을 살펴보세요. 실제 적용에는 차량 연결이 필요해요.</string>
+    <string name="vehicle_scene_observations">지원하는 명령과 실제로 관측된 차량 상태를 각각 확인해요.</string>
+    <string name="vehicle_departure_unconnected">출발 전 차량에서 문과 창문, 배터리를 직접 확인해 주세요.</string>
+    <string name="vehicle_voice_help">실내 설정을 미리 살펴보거나 여행 계획을 열어보세요. 차량 제어와 길 안내는 차량 연결 후 사용할 수 있어요.</string>
+    <string name="camp_example_campsite_context">예시 캠핑장 정보예요. 실제 시설과 요금, 예약 정보는 운영처에 확인해 주세요.</string>
+    <string name="camp_booking_check_with_operator">예약 가능 여부는 캠핑장 운영처에 확인해 주세요.</string>
+    <string name="camp_save_trip_context">여행에 저장해도 캠핑장이 예약되지는 않아요.</string>
+    <string name="camp_checkout_unavailable">주문 연결 준비 중</string>
+    <string name="camp_checkout_example_context">상품과 가격, 재고, 배송 일정은 예시예요. 실제 결제와 배송은 제공하지 않아요.</string>
+    <string name="camp_delivery_estimate_preview">배송 예상 확인</string>
+</resources>

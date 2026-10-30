@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="camp_food_prep_title">식사 준비 체크리스트</string>
+    <string name="camp_food_prep_disclosure">AI로 만든 추천 이미지와 구성 예시예요. 필요한 세트를 체크해 두세요.</string>
+    <string name="camp_food_prep_pork_title">삼겹살 세트</string>
+    <string name="camp_food_prep_beef_title">소고기구이 세트</string>
+    <string name="camp_food_prep_ribs_title">갈비 세트</string>
+    <string name="camp_food_prep_mixed_title">BBQ 모둠 세트</string>
+    <string name="camp_food_prep_serves_2_3">2–3인</string>
+    <string name="camp_food_prep_serves_3_4">3–4인</string>
+    <string name="camp_food_prep_serves_4">4인</string>
+    <string name="camp_food_prep_pork_contents">삼겹살 600g · 쌈채소 · 버섯</string>
+    <string name="camp_food_prep_beef_contents">소고기 600g · 버섯 · 채소</string>
+    <string name="camp_food_prep_ribs_contents">양념갈비 800g · 양파 · 대파</string>
+    <string name="camp_food_prep_mixed_contents">육류·소시지 총 1.2kg · 채소</string>
+    <string name="camp_food_prep_select">준비 목록에 추가</string>
+    <string name="camp_food_prep_selected">준비 목록에 추가됨</string>
+    <string name="camp_food_prep_image_loading">추천 구성 사진을 불러오고 있어요</string>
+    <string name="camp_food_prep_image_unavailable">추천 구성 사진을 표시할 수 없어요</string>
+    <string name="camp_food_prep_pork_image">삼겹살, 쌈채소와 버섯으로 구성한 추천 삼겹살 세트 이미지</string>
+    <string name="camp_food_prep_beef_image">소고기, 버섯과 채소로 구성한 추천 소고기구이 세트 이미지</string>
+    <string name="camp_food_prep_ribs_image">양념갈비, 양파와 대파로 구성한 추천 갈비 세트 이미지</string>
+    <string name="camp_food_prep_mixed_image">육류, 소시지와 채소로 구성한 추천 BBQ 모둠 세트 이미지</string>
+</resources>

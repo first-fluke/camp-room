@@ -1,0 +1,308 @@
+{
+  "schemaVersion": 1,
+  "upstream": "https://github.com/phosphor-icons/core",
+  "commit": "2b75f3ad12b420c9504ef05df8d2564a28f8500e",
+  "package": "@phosphor-icons/core",
+  "version": "2.1.1",
+  "license": "MIT",
+  "licenseSha256": "b5b1f1da112d18ea2147decfd48ddc1bf2b5aeb6c265381579340e95b15a2bb2",
+  "generatorSha256": "ca081fda92a054a1be2de7fe29eb00961d7dd1874a41795402efa25f834cfc50",
+  "icons": [
+    {
+      "name": "Armchair",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/armchair-duotone.svg",
+      "sha256": "49150111cdbb0a77f747f79265462973490e2885b684aff9319cea14bf4f0deb",
+      "bytes": 673,
+      "pathCount": 2
+    },
+    {
+      "name": "Backpack",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/backpack-duotone.svg",
+      "sha256": "267ccffb2d05588b462e52b8942d40f26903ef284bafd0f3aa8c57b395759c2a",
+      "bytes": 724,
+      "pathCount": 2
+    },
+    {
+      "name": "Bed",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/bed-duotone.svg",
+      "sha256": "eae20fa01ef5de4f014fbe56fbfbdcd47a627b0cc299d3f5b34393fcd363009a",
+      "bytes": 316,
+      "pathCount": 2
+    },
+    {
+      "name": "BookOpen",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/book-open-duotone.svg",
+      "sha256": "114456d637f78d1a748ef70768d3635c8f927fdfeed095a4ca9ded6f975ab8f5",
+      "bytes": 519,
+      "pathCount": 2
+    },
+    {
+      "name": "Coffee",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/coffee-duotone.svg",
+      "sha256": "f8285e75660c4ed9830ed42416bf3a839cb52c30a3bf2f19ba303e9ed6fb05a1",
+      "bytes": 660,
+      "pathCount": 2
+    },
+    {
+      "name": "Flashlight",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/flashlight-duotone.svg",
+      "sha256": "c1d3be1e962bfcb517cf7471a85feb6bf693e1d3d74e60d01211885ce2a19a11",
+      "bytes": 625,
+      "pathCount": 2
+    },
+    {
+      "name": "MoonStars",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/moon-stars-duotone.svg",
+      "sha256": "05463280716f6ec28485c0ef4c25417f5d0f857ba635c3e011daabaa358f0984",
+      "bytes": 658,
+      "pathCount": 2
+    },
+    {
+      "name": "Mountains",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/mountains-duotone.svg",
+      "sha256": "6fae82b105c1af7bff054c4ccba8a31fc06c3e63205ea604aa48ab71bb08bd25",
+      "bytes": 592,
+      "pathCount": 2
+    },
+    {
+      "name": "Package",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/package-duotone.svg",
+      "sha256": "9665a11c41ebab91ba1e36a7a8934dbc9ea30b45d3e4f011c8f63c5ca8e5352b",
+      "bytes": 596,
+      "pathCount": 2
+    },
+    {
+      "name": "Sun",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/sun-duotone.svg",
+      "sha256": "6a180204ea92f2501de811908395e6dad15ddf2ca0a577f420fad8bef0b4c5ca",
+      "bytes": 758,
+      "pathCount": 2
+    },
+    {
+      "name": "TreeEvergreen",
+      "weight": "duotone",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/duotone/tree-evergreen-duotone.svg",
+      "sha256": "eb425e54f550b59f307b156aaa47b1648db453a5775245ec42bac6a15c2c93c2",
+      "bytes": 454,
+      "pathCount": 2
+    },
+    {
+      "name": "Compass",
+      "weight": "fill",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/fill/compass-fill.svg",
+      "sha256": "9663ec833384ba767b617ba3c256a3e00a23bd666810e2f2214171896498b6dc",
+      "bytes": 290,
+      "pathCount": 1
+    },
+    {
+      "name": "Tent",
+      "weight": "fill",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/fill/tent-fill.svg",
+      "sha256": "451e06f7a577e4097f140aa3673eafa2204b0d6588392b587292870f2d3f9d5f",
+      "bytes": 269,
+      "pathCount": 1
+    },
+    {
+      "name": "ArrowUpRight",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/arrow-up-right.svg",
+      "sha256": "44db5257b360ec04863eb6daaa41f220c8b714d23fb81403517d0a30acfda9f4",
+      "bytes": 217,
+      "pathCount": 1
+    },
+    {
+      "name": "BellRinging",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/bell-ringing.svg",
+      "sha256": "fe22f9fc41a5fc83538046ccb7ad3634315d97d555f1d1038ea2bad8813679c2",
+      "bytes": 656,
+      "pathCount": 1
+    },
+    {
+      "name": "CalendarBlank",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/calendar-blank.svg",
+      "sha256": "6268583ae0ea04e93fd24f1e70d47a8e8d79c88fc304af397b95b318980215d6",
+      "bytes": 327,
+      "pathCount": 1
+    },
+    {
+      "name": "CloudSlash",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/cloud-slash.svg",
+      "sha256": "23fb09ad9f89341af151eb9ec791fa21d3e644e560797cd7843ca86459f70ac8",
+      "bytes": 526,
+      "pathCount": 1
+    },
+    {
+      "name": "Compass",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/compass.svg",
+      "sha256": "00c7e42415f795fcea90bd9dc0b2c8266b4e9601d2937cb122cd03b7e9e9e198",
+      "bytes": 402,
+      "pathCount": 1
+    },
+    {
+      "name": "CrosshairSimple",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/crosshair-simple.svg",
+      "sha256": "e5494ba1cd80d29eeb761c589cb4522a7ac23a3924d2f49c95506d13e36cfdc9",
+      "bytes": 379,
+      "pathCount": 1
+    },
+    {
+      "name": "Door",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/door.svg",
+      "sha256": "7b04bccfa75d52069a67150e601fa96053cdc02d9f61e7c439a7a7151755d8ba",
+      "bytes": 260,
+      "pathCount": 1
+    },
+    {
+      "name": "Globe",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/globe.svg",
+      "sha256": "3b53d207c09fc72de699c8b2149892e065b570b3ae144412ae53244b0a0f7977",
+      "bytes": 856,
+      "pathCount": 1
+    },
+    {
+      "name": "House",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/house.svg",
+      "sha256": "180e9259e99e23da197b59b19394d006d6a5d33e384cc2b9c8381cb0214a5716",
+      "bytes": 356,
+      "pathCount": 1
+    },
+    {
+      "name": "Leaf",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/leaf.svg",
+      "sha256": "688976d4921d67d44b766542d36c4d20f553babaf74db8e43f4ef012e658d884",
+      "bytes": 574,
+      "pathCount": 1
+    },
+    {
+      "name": "Lightning",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/lightning.svg",
+      "sha256": "3a50c776266b21812f8ec5b5a841a81f54aa942569a31eb03a36fb0a5bfbe66e",
+      "bytes": 376,
+      "pathCount": 1
+    },
+    {
+      "name": "MapPin",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/map-pin.svg",
+      "sha256": "523f024fa467fc285d95c1db4ed6c32b640513c79780d14310bebf342b6f94fb",
+      "bytes": 459,
+      "pathCount": 1
+    },
+    {
+      "name": "NavigationArrow",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/navigation-arrow.svg",
+      "sha256": "d3c3a31c8cbeedf1a61771251d04c901687da1649a52c183109257fb9a7802ae",
+      "bytes": 376,
+      "pathCount": 1
+    },
+    {
+      "name": "PawPrint",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/paw-print.svg",
+      "sha256": "da36f1f7ed3d7f32262863c8d0d21230042f5b023e4ca8802a66f400d889d0f6",
+      "bytes": 816,
+      "pathCount": 1
+    },
+    {
+      "name": "PencilSimple",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/pencil-simple.svg",
+      "sha256": "999530da442f44d8cf0054364373d16150f3e082c2ac294a4988a9c3a4295c28",
+      "bytes": 348,
+      "pathCount": 1
+    },
+    {
+      "name": "ShoppingBag",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/shopping-bag.svg",
+      "sha256": "cd1027fea55e6d35ac9a3f9b6c657fdd9b56775609d925ae3a903fcf369c68f0",
+      "bytes": 288,
+      "pathCount": 1
+    },
+    {
+      "name": "Shower",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/shower.svg",
+      "sha256": "945761a6736dc6b8014bebc460f98ce83ac73318d15e57619e807cc369768f14",
+      "bytes": 471,
+      "pathCount": 1
+    },
+    {
+      "name": "SlidersHorizontal",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/sliders-horizontal.svg",
+      "sha256": "1d937baa3bc51ec4052364edf30cf8991d550920534f5d413eb9f60535cc1916",
+      "bytes": 360,
+      "pathCount": 1
+    },
+    {
+      "name": "Sun",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/sun.svg",
+      "sha256": "8df1c7b747774f8b2c1fe353b1b785c74aac35bfa50f2ed7d8d9a85a4191b2ac",
+      "bytes": 685,
+      "pathCount": 1
+    },
+    {
+      "name": "Tent",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/tent.svg",
+      "sha256": "118b39a6dda9cd590e4ff7ab832264fb7301a9f496eed1cba86fd17d2b78526e",
+      "bytes": 320,
+      "pathCount": 1
+    },
+    {
+      "name": "ThermometerSimple",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/thermometer-simple.svg",
+      "sha256": "74e3e52fe86518f880c95fc419219225eb888c12bec3a6f08e0dfe4b25eb0d0d",
+      "bytes": 351,
+      "pathCount": 1
+    },
+    {
+      "name": "TreeEvergreen",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/tree-evergreen.svg",
+      "sha256": "a93aba980e2fe9dadca7d18abae744c6150e27096dfd21793e2164ce953b67fe",
+      "bytes": 383,
+      "pathCount": 1
+    },
+    {
+      "name": "Truck",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/truck.svg",
+      "sha256": "bd8d8f6c139f016398677ad6d724f10f714b0a9908dd7eeed479e5c9e6561dde",
+      "bytes": 548,
+      "pathCount": 1
+    },
+    {
+      "name": "Users",
+      "weight": "regular",
+      "upstream": "https://github.com/phosphor-icons/core/blob/2b75f3ad12b420c9504ef05df8d2564a28f8500e/assets/regular/users.svg",
+      "sha256": "b3385e4c6aa03f7e16d1b03887c2cdff9900f5a7edbd5ea5176055938ccfb908",
+      "bytes": 506,
+      "pathCount": 1
+    }
+  ]
+}
