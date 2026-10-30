@@ -1,0 +1,13 @@
+[project]
+name = "camp-room-worker"
+version = "1.0.0"
+description = "Bounded Camp Room catalog and weather refresh runner"
+requires-python = ">=3.14"
+dependencies = ["httpx>=0.28,<1", "python-dotenv>=1.2,<2"]
+
+[project.scripts]
+camp-room-worker = "camp_room_worker.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"

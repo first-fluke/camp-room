@@ -1,0 +1,2 @@
+[tasks]
+test = { run = "uv run --no-sync --no-python-downloads python -m pytest tests -q", description = "Run worker tests" }

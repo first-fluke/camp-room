@@ -1,0 +1,3 @@
+[tasks]
+dev = { run = "uv run --no-sync --no-python-downloads python -m uvicorn app.main:app --host 127.0.0.1 --port 8000", description = "Run the API from the prepared workspace environment" }
+test = { run = "uv run --no-sync --no-python-downloads python -m pytest tests -q", description = "Run API tests" }
