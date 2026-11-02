@@ -7,7 +7,7 @@ Follow `.agents/skills/_shared/core/execution-policy.md` for authorization, clar
 - **SSOT**: Do not modify `.agents/` definitions (skills, workflows, rules, agents, config) directly. Run outputs under `.agents/results/` and `.agents/state/` are generated artifacts and may be written.
 - **Response language**: Follow `language` in `.agents/oma-config.yaml`.
 - **Skills**: Read the relevant `.agents/skills/{name}/SKILL.md` when needed.
-- **Subagents**: Same-vendor native dispatch via Codex custom agents in `.codex/agents/{name}.toml`; cross-vendor fallback via `oma agent spawn`
+- **Subagents**: Same-vendor native dispatch via Codex custom agents in `.codex/agents/{name}.toml`; cross-vendor fallback via `oma agent spawn`. A role file without `model` runs on your model: spawn `docs-curator` and `research-explorer` with the fastest model the spawn tool lists as available, and leave `model` unset otherwise. Never invent a model name
 
 ## Per-Agent Dispatch
 
