@@ -25,7 +25,7 @@
 
 - [앱 화면 중심 한국어 데모](https://youtu.be/l5kq60xsgjM)
 - [Pleos 차량 화면을 함께 담은 한국어 데모](https://youtu.be/Q2W0VcyVS6E)
-- [서명 릴리스 APK](apk/README.md)
+- [서명 릴리스 APK](<apk/FIRST FLUKE_캠프룸_release.apk>) · [제출 경로와 파일 정보](apk/README.md)
 
 앱 화면 데모는 `5e9ee30` 버전으로 촬영했습니다. 제출용 릴리스 파일과 식별 정보는 APK 안내에서 확인할 수 있습니다. 문서의 표기 시간은 서울(Asia/Seoul, KST)을 기준으로 합니다.
 
@@ -273,7 +273,7 @@ mise exec -- bash apps/pleos/gradlew -p apps/pleos :app:openApiGenerate
 | `apps/api` | 공급자·검색·여행·준비물 API와 관계형 저장소 |
 | `apps/admin` | Next.js 관리자/BFF |
 | `apps/worker` | 공유 캐시 갱신 |
-| `apk/` | 제출용 signed release APK 안내; debug/unsigned 미포함 |
+| `apk/` | 제출용 signed release APK와 파일 정보 |
 | `docs/FUNCTIONAL_SPEC.md` | 화면·여행 준비·API 동작 명세 |
 | `docs/product/VALIDATION_AND_BUSINESS_PLAN.md` | 고객·측정·사업 계획 |
 | `docs/architecture`, `docs/database` | 서버 구조·ERD·저장소 검토 |

@@ -2,11 +2,22 @@
 
 전용 키로 서명한 Pleos release APK입니다. API 주소는 `https://camp-room-api.firstfluke.com/api/v1`입니다.
 
-[Google Drive에서 APK 다운로드](https://drive.google.com/drive/folders/1pcdSSeI0qSX0KkwlWqIxa8wRj699rOn-)
+[release APK 다운로드](<FIRST FLUKE_캠프룸_release.apk>) · [Google Drive 사본](https://drive.google.com/drive/folders/1pcdSSeI0qSX0KkwlWqIxa8wRj699rOn-)
+
+## 제출 정보
+
+| 제출 항목 | 입력값 |
+| --- | --- |
+| GitHub 저장소 주소 | `https://github.com/first-fluke/camp-room` |
+| APK 파일 경로 | `apk/FIRST FLUKE_캠프룸_release.apk` |
+
+등록 팀명 `FIRST FLUKE`와 앱 이름 `캠프룸`을 사용한 `팀명_앱이름_release.apk` 형식입니다. APK는 저장소의 `apk/` 폴더에 포함되어 있습니다.
+
+## APK 정보
 
 | 항목 | 내용 |
 | --- | --- |
-| 파일 | `CampRoom-Pleos-release.apk` |
+| 파일 | `FIRST FLUKE_캠프룸_release.apk` |
 | 크기 | 62,398,374바이트 |
 | SHA-256 | `9bc2578ef743dd7f5005fbbeba6ef16c6d9fa800c6cff7d24b5cf1dc186543ae` |
 | 소스 | [e689053](https://github.com/first-fluke/camp-room/tree/e6890532d1f80ba33a3095ace66a2f5380a69045/apps/pleos) |
