@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1580" viewBox="0 0 1500 1580" role="img" aria-labelledby="title desc">
+<title id="title">캠프룸 화면 구조와 주요 이동 경로</title>
+<desc id="desc">찾기, 내 캠핑, 차박의 세 상위 메뉴와 화면 내부 기능, 공통 대화상자, 메뉴 사이 이동을 나타낸 정보 구조도입니다.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="#59736a"/></marker></defs>
+<style>text{font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;fill:#173c31} .label{font-size:31px} .group{font-size:34px;font-weight:700} .muted{fill:#53665e} .white{fill:#fff;font-weight:700}</style>
+<rect width="1500" height="1580" fill="#ffffff"/>
+<rect x="520" y="26" width="460" height="76" rx="14" fill="#194e3e"/>
+<text x="750" y="76" class="white" text-anchor="middle" style="font-size:42px">캠프룸</text>
+<text x="750" y="145" class="muted" text-anchor="middle" style="font-size:29px">큰 화면은 오른쪽 메뉴 · 작은 화면은 하단 메뉴</text>
+<path d="M750 158V176M260 176H1240M260 176V202M750 176V202M1240 176V202" fill="none" stroke="#59736a" stroke-width="3"/>
+<rect x="30" y="202" width="460" height="860" rx="14" fill="#f7faf8" stroke="#c6d8cf" stroke-width="2"/>
+<rect x="30" y="202" width="460" height="74" rx="14" fill="#27634f"/>
+<text x="260" y="253" class="white" text-anchor="middle" style="font-size:40px">찾기</text>
+<rect x="520" y="202" width="460" height="860" rx="14" fill="#f7faf8" stroke="#c6d8cf" stroke-width="2"/>
+<rect x="520" y="202" width="460" height="74" rx="14" fill="#27634f"/>
+<text x="750" y="253" class="white" text-anchor="middle" style="font-size:40px">내 캠핑</text>
+<rect x="1010" y="202" width="460" height="860" rx="14" fill="#f7faf8" stroke="#c6d8cf" stroke-width="2"/>
+<rect x="1010" y="202" width="460" height="74" rx="14" fill="#27634f"/>
+<text x="1240" y="253" class="white" text-anchor="middle" style="font-size:40px">차박</text>
+<text x="56" y="328" class="group">조건 검색</text>
+<text x="72" y="371" class="label">지역 · 날짜 · 인원</text>
+<text x="72" y="414" class="label">차박 · 시설 필터</text>
+<text x="72" y="457" class="label">조건 선택 → 검색 실행</text>
+<text x="56" y="522" class="group">캠핑장 목록</text>
+<text x="72" y="565" class="label">내 주변 정렬 · 페이지 이동</text>
+<text x="72" y="608" class="label">사진 · 상세 열기</text>
+<text x="56" y="673" class="group">캠핑장 상세 · 대화상자</text>
+<text x="72" y="716" class="label">정보 · 시설 · 이용 수칙</text>
+<text x="72" y="759" class="label">내 캠핑에 담기</text>
+<text x="546" y="328" class="group">여행 정보</text>
+<text x="562" y="371" class="label">장소 · 일정 · 인원</text>
+<text x="562" y="414" class="label">장소·일정 변경</text>
+<text x="546" y="479" class="group">여행 준비</text>
+<text x="562" y="522" class="label">도착 · 체류 · 출발</text>
+<text x="562" y="565" class="label">직접 체크 · 차량 안내</text>
+<text x="562" y="608" class="label">다음 여행 목록 · 펼치기</text>
+<text x="562" y="651" class="label">물품 선택 · 보관 · 가져오기</text>
+<text x="562" y="694" class="label">사용 횟수 저장 · 선택</text>
+<text x="546" y="759" class="group">안내 · 날씨 · 경로</text>
+<text x="562" y="802" class="label">도착 알림 · 음성 안내</text>
+<text x="562" y="845" class="label">시간별 예보 · 경로 미리보기</text>
+<text x="546" y="910" class="group">식사 · 준비물</text>
+<text x="562" y="953" class="label">식사 선택 · 인분 안내</text>
+<text x="562" y="996" class="label">준비물 상품 → 장바구니</text>
+<text x="562" y="1039" class="label">주문 내역 · 저장 내역이 있을 때</text>
+<text x="1036" y="328" class="group">차량 상태</text>
+<text x="1052" y="371" class="label">배터리 · 실내 온도</text>
+<text x="1052" y="414" class="label">연결 · 구역 · 확인 시각</text>
+<text x="1036" y="479" class="group">상황 선택</text>
+<text x="1052" y="522" class="label">짐 정리 · 함께 쉬기</text>
+<text x="1052" y="565" class="label">독서와 휴식 · 취침 · 출발</text>
+<text x="1036" y="630" class="group">설정 미리보기</text>
+<text x="1052" y="673" class="label">지원 기능 요청</text>
+<text x="1052" y="716" class="label">온도 · 조명 · 블라인드</text>
+<text x="1036" y="781" class="group">준비 이어가기</text>
+<text x="1052" y="824" class="label">내 캠핑으로 이동</text>
+<text x="30" y="1111" class="group">공통 상단 도구 · 대화상자</text>
+<rect x="30" y="1132" width="460" height="180" rx="14" fill="#f3f1e9" stroke="#d8d4c7" stroke-width="2"/>
+<text x="56" y="1180" class="group">음성 명령</text>
+<text x="56" y="1226" class="label">음성·직접 입력 → 미리보기</text>
+<text x="56" y="1269" class="label">내 캠핑·차박으로 연결</text>
+<rect x="520" y="1132" width="460" height="180" rx="14" fill="#f3f1e9" stroke="#d8d4c7" stroke-width="2"/>
+<text x="546" y="1180" class="group">장바구니</text>
+<text x="546" y="1226" class="label">수량 · 삭제 · 수령 정보</text>
+<text x="546" y="1269" class="label">배송 견적 미리보기</text>
+<rect x="1010" y="1132" width="460" height="180" rx="14" fill="#f3f1e9" stroke="#d8d4c7" stroke-width="2"/>
+<text x="1036" y="1180" class="group">언어 설정</text>
+<text x="1036" y="1226" class="label">시스템 기본 · 한국어 · 영어</text>
+<text x="1036" y="1269" class="label">선택한 언어로 화면 표시</text>
+<rect x="30" y="1347" width="1440" height="170" rx="14" fill="#edf5f0" stroke="#c6d8cf" stroke-width="2"/>
+<text x="56" y="1391" class="group">주요 화면 이동</text>
+<text x="56" y="1437" class="label">찾기 상세 → 내 캠핑     ·     장소·일정 변경 → 찾기</text>
+<text x="56" y="1480" class="label">여행 준비 → 차박     ·     차박에서 준비 이어가기 → 내 캠핑</text>
+<text x="750" y="1554" class="muted" text-anchor="middle" style="font-size:27px">카드·선택 영역은 각 메뉴에서 사용하며, 대화상자를 닫으면 원래 화면으로 돌아갑니다.</text>
+</svg>
