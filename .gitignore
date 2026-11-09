@@ -68,6 +68,7 @@ apps/mobile/ios/Flutter/ephemeral/
 # Misc
 *.bak
 *.tmp
+*.zip
 .cache/
 
 .opencode/mimic/
