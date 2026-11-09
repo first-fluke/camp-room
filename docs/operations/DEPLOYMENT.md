@@ -1,6 +1,6 @@
 # API 배포 구성
 
-CampRoom API는 홈서버의 Docker에서 실행하고 Cloudflare Tunnel을 통해 HTTPS로 제공합니다.
+CampRoom API는 Docker에서 실행하고 Cloudflare Tunnel을 통해 HTTPS로 제공합니다.
 
 | 구성 | 역할 |
 | --- | --- |

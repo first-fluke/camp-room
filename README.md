@@ -117,7 +117,7 @@ mise run android:release
 
 release 빌드는 로컬 전용 키와 HTTPS API 설정을 확인해 서명된 APK를 생성합니다. 키와 비밀번호는 로컬 비공개 설정으로 관리합니다. 제출 파일과 공유 경로는 [apk/README.md](apk/README.md)를 확인하세요.
 
-제출용 API 주소는 `https://camp-room-api.firstfluke.com/api/v1`입니다. 홈서버 Docker·Cloudflare Tunnel·Turso를 연결했으며 실제 캠핑장 목록·사진·오늘/내일 기상청 예보를 확인했습니다. 배포 구성은 [API 배포 문서](docs/operations/DEPLOYMENT.md)에 정리했습니다.
+제출용 API 주소는 `https://camp-room-api.firstfluke.com/api/v1`입니다. Docker·Cloudflare Tunnel·Turso를 연결했으며 실제 캠핑장 목록·사진·오늘/내일 기상청 예보를 확인했습니다. 배포 구성은 [API 배포 문서](docs/operations/DEPLOYMENT.md)에 정리했습니다.
 
 ### 4. 관리자·worker 실행
 
@@ -135,7 +135,7 @@ worker는 같은 관리자 토큰으로 공유 캠핑장·날씨 캐시를 갱�
 mise exec -- uv run --package camp-room-worker camp-room-worker --once
 ```
 
-계속 실행할 때는 `--once`를 `--interval 600`으로 바꿉니다. 현재 홈서버 배포 대상은 API이며 관리자·worker는 별도로 실행하는 구성입니다.
+계속 실행할 때는 `--once`를 `--interval 600`으로 바꿉니다. 현재 배포 대상은 API이며 관리자·worker는 별도로 실행하는 구성입니다.
 
 관리자 인증은 [인증 문서](docs/AUTH.ko.md), 공급자·worker 설정은 [외부 데이터 연결](docs/INTEGRATIONS.md)에 정리했습니다.
 
@@ -165,7 +165,7 @@ flowchart TB
 | --- | --- |
 | 공개 API | `https://camp-room-api.firstfluke.com/api/v1` |
 | 상태 확인 | [API 상태](https://camp-room-api.firstfluke.com/health) |
-| FastAPI·Docker | 홈서버에서 API 실행 |
+| FastAPI·Docker | API 서버에서 실행 |
 | Cloudflare Tunnel | HTTPS 연결 |
 | Turso | 여행 데이터·공급자 캐시 저장 |
 | 고캠핑·기상청 | 장소·사진·날씨 데이터 제공 |
